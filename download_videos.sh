@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-#input_file=data/dict_example.json
-#output_folder=../miniclips2
-
-input_file=data/analyse_verbs/dict_example3_for_video.json
+input_file=data/final_data/dict_sample_for_video.json
 output_folder=data/videos/
 
 mapfile -t video_ids < <(jq --raw-output '.[] | .[] | .video' "$input_file")

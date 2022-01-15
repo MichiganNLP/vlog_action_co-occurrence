@@ -6,6 +6,9 @@ import ast
 import datetime
 import en_core_web_sm
 from tqdm import tqdm
+from sentence_transformers import SentenceTransformer, util
+from sklearn.cluster import AgglomerativeClustering
+import numpy as np
 
 nlp = en_core_web_sm.load()
 
@@ -364,7 +367,28 @@ def process_action_pairs():
     with open('data/final_data/dict_not_together_actions.json', 'w+') as fp:
         json.dump(not_together_actions, fp)
 
+def get_all_together_actions():
+    with open('data/final_data/dict_together_actions.json') as json_file:
+        dict_together_actions = json.load(json_file)
 
+    print("-------Together actions: -------")
+    list_together_tuples = []
+    count_total_pairs = 0
+    list_actions = []
+    list_tuple_actions = []
+    for key in dict_together_actions:
+        count_total_pairs += len(dict_together_actions[key])
+        list_together_tuples.append(key)
+        list_actions.append(ast.literal_eval(key)[0])
+        list_actions.append(ast.literal_eval(key)[1])
+        list_tuple_actions.append(ast.literal_eval(key))
+    list_actions = list(set(list_actions))
+    print(list_actions)
+    print("count_pairs", len(dict_together_actions.keys()))
+    print("count_total_data", count_total_pairs)
+    print("count_actions", len(list_actions))
+    # print(list_tuple_actions)
+    return list_actions
 
 def check_final_data():
     with open('data/final_data/dict_together_actions.json') as json_file:
@@ -405,7 +429,7 @@ def check_final_data():
         if str((a_j, a_i)) in list_not_together_tuples:
             raise ValueError("error")
 
-    print(Counter(list_actions).most_common())
+    # print(Counter(list_actions).most_common())
 
 
 
@@ -540,6 +564,42 @@ def analyse_file():
     with open('data/analyse_verbs/dict_example3_analyse.json', 'w+') as fp:
         json.dump(video_dict, fp)
 
+def cluster_actions():
+    list_actions = get_all_together_actions()
+    model = SentenceTransformer(
+        'stsb-roberta-base')  # models: https://www.sbert.net/docs/predeved_models.html#semantic-textual-similarity
+    list_embeddings = model.encode(list_actions, show_progress_bar=True, convert_to_tensor=True)
+
+    print("Start clustering")
+    start_time = time.time()
+
+    # Normalize the embeddings to unit length
+    corpus_embeddings = list_embeddings / np.linalg.norm(list_embeddings, axis=1, keepdims=True)
+
+    # Perform kmean clustering
+    clustering_model = AgglomerativeClustering(n_clusters=None,
+                                               distance_threshold=1.5)  # , affinity='cosine', linkage='average', distance_threshold=0.4)
+    clustering_model.fit(corpus_embeddings)
+    cluster_assignment = clustering_model.labels_
+
+    clustered_sentences = {}
+    for sentence_id, cluster_id in enumerate(cluster_assignment):
+        if cluster_id not in clustered_sentences:
+            clustered_sentences[cluster_id] = []
+
+        clustered_sentences[cluster_id].append(list_actions[sentence_id])
+
+    dict_clustered_actions = {}
+    for i, cluster in clustered_sentences.items():
+        print("Cluster ", i + 1)
+        print(cluster)
+        print("")
+        dict_clustered_actions[cluster[0]] = cluster[1:]
+    print(len(clustered_sentences.items()))
+    print(len(dict_clustered_actions))
+
+
+
 def main():
     # get_verbs_all_videos()
 
@@ -549,7 +609,9 @@ def main():
 
     # get_all_consecutive_action_pairs()
     # process_action_pairs()
-    check_final_data()
+    # check_final_data()
+    # get_all_together_actions()
+    cluster_actions()
 
     # sentence = "this stew is very like flexitarian you could leave it vegetarian not add the sausage"
     # list_actions = get_all_verb_dobj(sentence)
