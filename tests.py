@@ -76,12 +76,12 @@ def compute_concretness():
                     count_found += 1
                     break
     with open('data/utils/results_concretness.txt', 'w') as f:
-        f.write("%s\n" % "------------------------ High scores")
+        f.write(f"{'------------------------ High scores'}\n")
         for item in list_high_scores:
             f.write("%s\n" % str(item))
-        f.write("%s\n" % "------------------------ Low scores")
+        f.write(f"{'------------------------ Low scores'}\n")
         for item in list_low_scores:
-            f.write("%s\n" % str(item))
+            f.write(f"{str(item)}\n")
 
     print(count_found, len(list(set(all_actions))))
     print(len(list_high_scores), len(list(list_low_scores)))
