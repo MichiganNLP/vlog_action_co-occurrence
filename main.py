@@ -438,18 +438,20 @@ def combine_graphs(sample, filter_by_link):
 
 
 def main():
-    all_verbs = get_all_action_verbs()
     # video_sample = "hK7yV276110"
     # video_sample = "SyMHOV6HhyI"
     # video_sample = "zXqBCqPa9VY"
     video_sample = "34uV2sJlF9Y"
 
+    ''' Getting all action pairs'''
+    # all_verbs = get_all_action_verbs()
     # get_all_action_pairs(all_verbs, video_sample, try_per_video=False)  # saves the data
     # dict_video_action_pairs = filter_action_pairs_by_time()
 
     # plot_graph_actions(dict_video_action_pairs, video_sample)
     # get_stats_actions(dict_video_action_pairs, before_clustering=True)
 
+    ''' Custering all actions '''
     # dict_clustered_actions = cluster_actions(dict_video_action_pairs)
     # filtered_clusters = filter_clusters_by_size()
     # filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters)
@@ -457,6 +459,7 @@ def main():
     # plot_graph_actions(filtered_dict_video_action_pairs, video_sample)
     # get_stats_actions(filtered_dict_video_action_pairs, before_clustering=False)
 
+    ''' Combining the graphs for all videos '''
     all_action_pairs = combine_graphs(sample=True, filter_by_link=True)
     show_graph_actions(all_action_pairs, video="all_videos")
 
