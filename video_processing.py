@@ -1,12 +1,20 @@
 import json
 import os
 import ffmpeg
+import shutil
+import numpy as np
+import cv2
+import glob
+
+from tqdm import tqdm
+
 
 def download_video(video_id):
     url = "https://www.youtube.com/watch?v=" + video_id
     command_save_video = 'youtube-dl --no-check-certificate -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4 -v -o ' \
                          + "data/videos/" + video_id + " " + url
     os.system(command_save_video)
+
 
 def split_video_by_frames(video_names):
     for video in video_names:
@@ -48,6 +56,7 @@ def split_video_by_frames(video_names):
         # os.system('/snap/bin/ffmpeg -i ' + path_in + ' -vf fps=2 ' + path_out + video + '_%02d.jpeg')
         # os.system('/snap/bin/ffmpeg -i ' + path_in + '  ' + path_out + video + '_%02d.jpeg')
 
+
 def split_videos_into_frames():
     # with open('data/analyse_verbs/dict_test_clip.json') as json_file:
     #     dict_test_clip = json.load(json_file)
@@ -67,6 +76,7 @@ def split_videos_into_frames():
     # print(video_names)
     split_video_by_frames(video_names)
 
+
 def make_test_clip():
     dict_test_clip = {}
     with open('data/analyse_verbs/dict_example3_actions.json') as json_file:
@@ -81,7 +91,7 @@ def make_test_clip():
                 if new_video_name not in dict_test_clip:
                     dict_test_clip[new_video_name] = []
                 for data in dict_example3_actions[key]:
-                    dict_test_clip[new_video_name].append({"action":data["action"], "sentence":data["sentence"]})
+                    dict_test_clip[new_video_name].append({"action": data["action"], "sentence": data["sentence"]})
 
     with open('data/analyse_verbs/dict_test_clip2.json', 'w+') as fp:
         json.dump(dict_test_clip, fp)
@@ -109,7 +119,7 @@ def format_file():
     list_videos = ["4ES4nNtbcNU", "cQCLMbOmEAU", "yl6vBuP23bE", "ZO88Cj_hjQk"]
     with open('data/analyse_verbs/dict_example3_actions.json') as json_file:
         dict_example3 = json.load(json_file)
-    
+
     dict = {"video": []}
     for key in dict_example3:
         for video in list_videos:
@@ -119,10 +129,49 @@ def format_file():
 
     with open('data/analyse_verbs/dict_example3_for_video.json', 'w+') as fp:
         json.dump(dict, fp)
-        
-        
+
+
+def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_COEFF):
+    list_videos = sorted(glob.glob(path_videos + "*.mp4"), key=os.path.getmtime)
+    os.makedirs(path_problematic_videos, exist_ok=True)
+
+    for video in tqdm(list_videos):
+        # if "ngYm8nFZJaY+0:00:32+0:00:44" not in video:
+        #     continue
+        vidcap = cv2.VideoCapture(video)
+        if not vidcap.isOpened():
+            continue
+        corr_list = []
+        video_name = video.split("/")[-1]
+        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        for frame_nb_1 in range(0, length - 100, 100):
+            vidcap.set(1, frame_nb_1)
+            success, image = vidcap.read()
+            if not success:
+                continue
+            gray_image_1 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            frame_nb_2 = frame_nb_1 + 100
+            vidcap.set(1, frame_nb_2)
+            success, image = vidcap.read()
+            if not success:
+                continue
+            gray_image_2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            corr2_matrix = np.corrcoef(gray_image_1.reshape(-1), gray_image_2.reshape(-1))
+            corr2 = corr2_matrix[0][1]
+            corr_list.append(corr2)
+
+        # print(video_name, np.median(corr_list))
+        if np.median(corr_list) >= PARAM_CORR2D_COEFF:
+            # move video in another folder
+            shutil.move(video, path_problematic_videos + video_name)
+
+
 if __name__ == '__main__':
     # download_video(video_id="zXqBCqPa9VY")
     # split_videos_into_frames()
     make_test_clip()
     # format_file()
+    filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",
+                            PARAM_CORR2D_COEFF=0.9)
