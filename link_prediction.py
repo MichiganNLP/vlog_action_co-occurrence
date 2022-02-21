@@ -25,8 +25,8 @@ tf.keras.utils.set_random_seed(
 )
 
 ''' Hyperparameters '''
-walk_length, epochs, batch_size = 5, 6, 50
-# walk_length, epochs, batch_size = 5, 1, 50
+# walk_length, epochs, batch_size = 5, 6, 50
+walk_length, epochs, batch_size = 10, 6, 50
 
 
 def create_biased_random_walker(graph, walk_num, walk_length):
@@ -548,7 +548,7 @@ def train_link_prediction_model(
 
 def link_prediction_classifier(max_iter=5000):
     # learning_rate_clf = LogisticRegressionCV(Cs=10, cv=10, scoring="roc_auc", max_iter=max_iter)
-    learning_rate_clf = LogisticRegressionCV(Cs=10, cv=10, scoring="accuracy", max_iter=max_iter)
+    learning_rate_clf = LogisticRegressionCV(Cs=10, cv=10, scoring="accuracy", max_iter=max_iter, random_seed=random_seed)
     return Pipeline(steps=[("sc", StandardScaler()), ("clf", learning_rate_clf)])
 
 
@@ -558,7 +558,6 @@ We evaluate the performance of the link classifier for each of the 4 operators o
 with node embeddings calculated on the Train Graph, and select the best classifier. 
 The best classifier is then used to calculate scores on the test data with node embeddings trained on the Train Graph
 '''
-
 
 def evaluate_link_prediction_model(
         clf, link_examples_test, link_labels_test, get_embedding, binary_operator
@@ -659,39 +658,40 @@ def train_and_evaluate(embedding, name, G_train, examples_train, labels_train, e
 def main():
     # G = test_cora()
     G = test_my_data()
-    # G_train, G_test, examples_train, labels_train, examples_test, labels_test = test_train_split(G)
-    G_train, G_test, examples_train, examples_model_selection, labels_train, labels_model_selection, \
-    examples_test, labels_test = test_val_train_split(G)
+    G_train, G_test, examples_train, labels_train, examples_test, labels_test = test_train_split(G)
+    # G_train, G_test, examples_train, examples_model_selection, labels_train, labels_model_selection, \
+    # examples_test, labels_test = test_val_train_split(G)
+    #
+    # binary_operators = [operator_hadamard, operator_l1, operator_l2, operator_avg]
+    #
+    # #TODO: Check embeddings and fine-tune hyperparams - #epochs (plot graph, see if continue training), walk length
+    # # node2vec_result = train_and_evaluate(node2vec_embedding, "Node2Vec", G_train, examples_train, labels_train,
+    # #                                      examples_model_selection, labels_model_selection, examples_test,
+    # #                                      labels_test, binary_operators)
+    # # attri2vec_result = train_and_evaluate(attri2vec_embedding, "Attri2Vec", G_train, examples_train, labels_train,
+    # #                                      examples_model_selection, labels_model_selection, examples_test,
+    # #                                      labels_test, binary_operators)
+    # # graphsage_result = train_and_evaluate(graphsage_embedding, "GraphSAGE", G_train, examples_train, labels_train,
+    # #                                      examples_model_selection, labels_model_selection, examples_test,
+    # #                                      labels_test, binary_operators)
+    # gcn_result = train_and_evaluate(gcn_embedding, "GCN", G_train, examples_train, labels_train,
+    #                                      examples_model_selection, labels_model_selection, examples_test,
+    #                                      labels_test, binary_operators)
+    #
+    # df = pd.DataFrame(
+    #     [
+    #         # ("Node2Vec", node2vec_result),
+    #         # ("Attri2Vec", attri2vec_result),
+    #         # ("GraphSAGE", graphsage_result),
+    #         ("GCN", gcn_result),
+    #     ],
+    #     # columns=("name", "ROC AUC"),
+    #     columns=("name", "Accuracy"),
+    # ).set_index("name")
+    # display(df)
 
-    binary_operators = [operator_hadamard, operator_l1, operator_l2, operator_avg]
-
-    node2vec_result = train_and_evaluate(node2vec_embedding, "Node2Vec", G_train, examples_train, labels_train,
-                                         examples_model_selection, labels_model_selection, examples_test,
-                                         labels_test, binary_operators)
-    attri2vec_result = train_and_evaluate(attri2vec_embedding, "Attri2Vec", G_train, examples_train, labels_train,
-                                         examples_model_selection, labels_model_selection, examples_test,
-                                         labels_test, binary_operators)
-    graphsage_result = train_and_evaluate(graphsage_embedding, "GraphSAGE", G_train, examples_train, labels_train,
-                                         examples_model_selection, labels_model_selection, examples_test,
-                                         labels_test, binary_operators)
-    gcn_result = train_and_evaluate(gcn_embedding, "GCN", G_train, examples_train, labels_train,
-                                         examples_model_selection, labels_model_selection, examples_test,
-                                         labels_test, binary_operators)
-
-    df = pd.DataFrame(
-        [
-            ("Node2Vec", node2vec_result),
-            ("Attri2Vec", attri2vec_result),
-            ("GraphSAGE", graphsage_result),
-            ("GCN", gcn_result),
-        ],
-        # columns=("name", "ROC AUC"),
-        columns=("name", "Accuracy"),
-    ).set_index("name")
-    display(df)
-
-    # GCN_link_model(G_train, G_test, examples_train, labels_train, examples_test, labels_test)
-    # baselines(G_test, examples_test, labels_test)
+    GCN_link_model(G_train, G_test, examples_train, labels_train, examples_test, labels_test)
+    baselines(G_test, examples_test, labels_test)
 
     # gcn_embedding(G, name="my data")
     # get_nearest_neighbours(G)    #TODO try SentenceBert vs. GCN embeddings
