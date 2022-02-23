@@ -18,6 +18,7 @@ from sklearn.linear_model import LogisticRegressionCV
 import pandas as pd
 import numpy as np
 
+
 random_seed = 10
 tf.keras.utils.set_random_seed(
     random_seed
@@ -173,6 +174,7 @@ def baselines(G_test, edge_ids_test, edge_labels_test):
         print(f"Accuracy {accuracy:.2f} with method {method_name}")
 
 
+
 def GCN_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
     train_gen = FullBatchLinkGenerator(G_train, method="gcn")
     val_gen = FullBatchLinkGenerator(G_val, method="gcn")
@@ -188,6 +190,27 @@ def GCN_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels
 
     x_inp, x_out = gcn.in_out_tensors()
 
+    '''
+        Model
+    '''
+    prediction = LinkEmbedding(activation="relu", method="dot")(x_out)
+    model = keras.Model(inputs=x_inp, outputs=prediction)
+    callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=0.001),
+        loss=keras.losses.binary_crossentropy,
+        metrics=["binary_accuracy"],
+    )
+    # print(model.summary())
+
+    # Train model
+    history = model.fit(
+        train_flow, validation_data=val_flow, callbacks=[callback], epochs=2, verbose=1, shuffle=False
+    )
+
+    '''
+        Get GNN node embeddings, after training
+    '''
     # Get representations for all nodes in ``graph``
     embedding_model = keras.Model(inputs=x_inp, outputs=x_out)
     node_embeddings = embedding_model.predict(
@@ -195,11 +218,10 @@ def GCN_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels
     )
     node_embeddings = node_embeddings[0][:, 0, :]
 
-    def get_embedding(u):
-        u_index = list(G_train.nodes()).index(u)
-        return node_embeddings[u_index]
+    with open('data/utils/GCN_node_embeddings.npy', 'wb') as f:
+        np.save(f, node_embeddings)
 
-    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen, get_embedding
+    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen
 
 
 def GraphSage_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -221,6 +243,27 @@ def GraphSage_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, 
 
     x_inp, x_out = graphsage.in_out_tensors()
 
+    '''
+        Model
+    '''
+    prediction = LinkEmbedding(activation="relu", method="dot")(x_out)
+    model = keras.Model(inputs=x_inp, outputs=prediction)
+    callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=0.001),
+        loss=keras.losses.binary_crossentropy,
+        metrics=["binary_accuracy"],
+    )
+    # print(model.summary())
+
+    # Train model
+    history = model.fit(
+        train_flow, validation_data=val_flow, callbacks=[callback], epochs=2, verbose=1, shuffle=False
+    )
+
+    '''
+        Get GNN node embeddings, after training
+    '''
     # Build the model to predict node representations from node features with the learned GraphSAGE model parameters
     x_inp_src = x_inp[0::2]
     x_out_src = x_out[0]
@@ -232,11 +275,14 @@ def GraphSage_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, 
     )
     node_embeddings = embedding_model.predict(node_gen, workers=1, verbose=0)
 
-    def get_embedding(u):
-        u_index = G_train.nodes().index(u)
-        return node_embeddings[u_index]
+    # def get_embedding(u):
+    #     u_index = G_train.nodes().index(u)
+    #     return node_embeddings[u_index]
 
-    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen, get_embedding
+    with open('data/utils/graphsage_node_embeddings.npy', 'wb') as f:
+        np.save(f, node_embeddings)
+
+    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen
 
 
 def attri2vec_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -256,7 +302,27 @@ def attri2vec_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, 
     test_flow = test_gen.flow(nodes_test, labels_test)
 
     x_inp, x_out = attri2vec.in_out_tensors()
+    '''
+        Model
+    '''
+    prediction = LinkEmbedding(activation="relu", method="dot")(x_out)
+    model = keras.Model(inputs=x_inp, outputs=prediction)
+    callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=0.001),
+        loss=keras.losses.binary_crossentropy,
+        metrics=["binary_accuracy"],
+    )
+    # print(model.summary())
 
+    # Train model
+    history = model.fit(
+        train_flow, validation_data=val_flow, callbacks=[callback], epochs=2, verbose=1, shuffle=False
+    )
+
+    '''
+        Get GNN node embeddings, after training
+    '''
     # Build the model to predict node representations from node features with the learned Attri2Vec model parameters
     x_inp_src = x_inp[0]
     x_out_src = x_out[0]
@@ -266,11 +332,10 @@ def attri2vec_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, 
     node_gen = Attri2VecNodeGenerator(G_train, batch_size).flow(G_train.nodes())
     node_embeddings = embedding_model.predict(node_gen, workers=1, verbose=0)
 
-    def get_embedding(u):
-        u_index = G_train.nodes().index(u)
-        return node_embeddings[u_index]
+    with open('data/utils/attri2vec_node_embeddings.npy', 'wb') as f:
+        np.save(f, node_embeddings)
 
-    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen, get_embedding
+    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen
 
 
 def node2vec_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -305,55 +370,10 @@ def node2vec_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, l
 
     x_inp, x_out = node2vec.in_out_tensors()
 
-    # Build the model to predict node representations from node ids with the learned Node2Vec model parameters
-    x_inp_src = x_inp[0]
-    x_out_src = x_out[0]
-    embedding_model = keras.Model(inputs=x_inp_src, outputs=x_out_src)
-
-    # Get representations for all nodes in ``graph``
-    node_gen = Node2VecNodeGenerator(G_train, batch_size).flow(G_train.nodes())
-    node_embeddings = embedding_model.predict(node_gen, workers=1, verbose=0)
-
-    def get_embedding(u):
-        u_index = G_train.nodes().index(u)
-        return node_embeddings[u_index]
-
-    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen, get_embedding
-
-
-def GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
-    name = "GCN"
-    print(f"Training {name}:")
-
-    if name == "GCN":
-        x_inp, x_out, train_flow, val_flow, test_flow, train_gen, embedding = GCN_model(G_train, G_val, G_test,
-                                                                                        nodes_train, nodes_val,
-                                                                                        nodes_test, labels_train,
-                                                                                        labels_val, labels_test)
-    elif name == "graphsage":
-        x_inp, x_out, train_flow, val_flow, test_flow, train_gen, embedding = GraphSage_model(G_train, G_val, G_test,
-                                                                                              nodes_train, nodes_val,
-                                                                                              nodes_test, labels_train,
-                                                                                              labels_val, labels_test)
-    elif name == "attri2vec":
-        x_inp, x_out, train_flow, val_flow, test_flow, train_gen, embedding = attri2vec_model(G_train, G_val, G_test,
-                                                                                              nodes_train, nodes_val,
-                                                                                              nodes_test, labels_train,
-                                                                                              labels_val, labels_test)
-    elif name == "node2vec":
-        x_inp, x_out, train_flow, val_flow, test_flow, train_gen, embedding = node2vec_model(G_train, G_val, G_test,
-                                                                                             nodes_train, nodes_val,
-                                                                                             nodes_test, labels_train,
-                                                                                             labels_val, labels_test)
-    else:
-        raise ValueError("Wrong graph embeddings name!!")
-
-    # best_op, best_model, best_val = "", "", 0
-    # for binary_op in ["dot", "concat", "mul", "l1", "l2", "avg"]:
-
-    binary_op = "dot"
-
-    prediction = LinkEmbedding(activation="relu", method=binary_op)(x_out)
+    '''
+        Model
+    '''
+    prediction = LinkEmbedding(activation="relu", method="dot")(x_out)
     model = keras.Model(inputs=x_inp, outputs=prediction)
     callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
     model.compile(
@@ -368,31 +388,78 @@ def GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, l
         train_flow, validation_data=val_flow, callbacks=[callback], epochs=2, verbose=1, shuffle=False
     )
 
+    '''
+        Get GNN node embeddings, after training
+    '''
+    # Build the model to predict node representations from node ids with the learned Node2Vec model parameters
+    x_inp_src = x_inp[0]
+    x_out_src = x_out[0]
+    embedding_model = keras.Model(inputs=x_inp_src, outputs=x_out_src)
+
+    # Get representations for all nodes in ``graph``
+    node_gen = Node2VecNodeGenerator(G_train, batch_size).flow(G_train.nodes())
+    node_embeddings = embedding_model.predict(node_gen, workers=1, verbose=0)
+
+    with open('data/utils/node2vec_node_embeddings.npy', 'wb') as f:
+        np.save(f, node_embeddings)
+
+    return x_inp, x_out, train_flow, val_flow, test_flow, train_gen
+
+
+def GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
+    name = "GCN"
+    print(f"Training {name}:")
+
+    if name == "GCN":
+        x_inp, x_out, train_flow, val_flow, test_flow, train_gen = GCN_model(G_train, G_val, G_test,
+                                                                             nodes_train, nodes_val,
+                                                                             nodes_test, labels_train,
+                                                                             labels_val, labels_test)
+    elif name == "graphsage":
+        x_inp, x_out, train_flow, val_flow, test_flow, train_gen = GraphSage_model(G_train, G_val, G_test,
+                                                                                   nodes_train, nodes_val,
+                                                                                   nodes_test, labels_train,
+                                                                                   labels_val, labels_test)
+    elif name == "attri2vec":
+        x_inp, x_out, train_flow, val_flow, test_flow, train_gen = attri2vec_model(G_train, G_val, G_test,
+                                                                                   nodes_train, nodes_val,
+                                                                                   nodes_test, labels_train,
+                                                                                   labels_val, labels_test)
+    elif name == "node2vec":
+        x_inp, x_out, train_flow, val_flow, test_flow, train_gen = node2vec_model(G_train, G_val, G_test,
+                                                                                  nodes_train, nodes_val,
+                                                                                  nodes_test, labels_train,
+                                                                                  labels_val, labels_test)
+    else:
+        raise ValueError("Wrong graph embeddings name!!")
+
+
+
     # fig = sg.utils.plot_history(history, return_figure=True)
-    # fig.savefig('data/plots/history_GCN_loss.pdf')
-
-    train_metrics = model.evaluate(train_flow)
-    val_metrics = model.evaluate(val_flow)
-
-    print(f"For operator {binary_op}: Train Set Metrics of the trained model:")
-    for name, val in zip(model.metrics_names, train_metrics):
-        print("\t{}: {:0.4f}".format(name, val))
-
-    print(f"For operator {binary_op}: Val Set Metrics of the trained model:")
-    for name, val in zip(model.metrics_names, val_metrics):
-        print("\t{}: {:0.4f}".format(name, val))
-
-    # if best_val < val:
-    #     best_op = binary_op
-    #     best_model = model
+    # # fig.savefig('data/plots/history_GCN_loss.pdf')
     #
-    # test_metrics = best_model.evaluate(test_flow)
+    # train_metrics = model.evaluate(train_flow)
+    # val_metrics = model.evaluate(val_flow)
     #
-    # print(f"For best operator, {best_op}: Test Set Metrics of the best trained model:")
-    # for name, val in zip(best_model.metrics_names, test_metrics):
+    # print(f"For operator {binary_op}: Train Set Metrics of the trained model:")
+    # for name, val in zip(model.metrics_names, train_metrics):
     #     print("\t{}: {:0.4f}".format(name, val))
-
-    return prediction, embedding
+    #
+    # print(f"For operator {binary_op}: Val Set Metrics of the trained model:")
+    # for name, val in zip(model.metrics_names, val_metrics):
+    #     print("\t{}: {:0.4f}".format(name, val))
+    #
+    # # if best_val < val:
+    # #     best_op = binary_op
+    # #     best_model = model
+    # #
+    # # test_metrics = best_model.evaluate(test_flow)
+    # #
+    # # print(f"For best operator, {best_op}: Test Set Metrics of the best trained model:")
+    # # for name, val in zip(best_model.metrics_names, test_metrics):
+    # #     print("\t{}: {:0.4f}".format(name, val))
+    #
+    # return prediction
 
 
 def get_nearest_neighbours(G):
@@ -402,58 +469,47 @@ def get_nearest_neighbours(G):
     knn = NearestNeighbors(n_neighbors=6)
     knn.fit(square_node_data_values)
 
-    # check_action = square_node_data_names[0]
-    # check_action_features = square_node_data_values[0].reshape(1, -1)
+    # check_action = G.nodes()[1]
+    check_action = "put tea bag"
 
-    check_action = "drink rest of tea"
     index_action = square_node_data_names.index(check_action)
     check_action_features = square_node_data_values[index_action].reshape(1, -1)
-    print(f"SentenceBert Neighbours for {check_action}:")
+    print(f"SentenceBert Neighbours for: {check_action}:")
     list_indexes = knn.kneighbors(check_action_features, return_distance=False)
     print([square_node_data_names[index] for index in list_indexes[0]])
 
-    # TODO GCN embeddings
-    with open('data/utils/GCN_node_embeddings.npy', 'rb') as f:
-        GCN_node_embeddings = np.load(f)
-    graph_node_list = list(G.nodes())
-    u_index = graph_node_list.index(check_action)
-    check_action_features = GCN_node_embeddings[u_index].reshape(1, -1)
-    knn = NearestNeighbors(n_neighbors=6)
-    knn.fit(GCN_node_embeddings)
-    print(f"GCN Neighbours for {check_action}:")
-    list_indexes = knn.kneighbors(check_action_features, return_distance=False)
-    print([square_node_data_names[index] for index in list_indexes[0]])
+    # for gnn in ["GCN", "graphsage", "attri2vec", "node2vec"]:
+    for gnn in ["GCN"]:
+        with open('data/utils/' + gnn + '_node_embeddings.npy', 'rb') as f:
+            gnn_node_embeddings = np.load(f)
+
+        u_index = list(G.nodes()).index(check_action)
+        check_action_features = gnn_node_embeddings[u_index].reshape(1, -1)
+        knn = NearestNeighbors(n_neighbors=6)
+        knn.fit(gnn_node_embeddings)
+        print(f"{gnn} Neighbours for: {check_action}:")
+        list_indexes = knn.kneighbors(check_action_features, return_distance=False)
+        print([square_node_data_names[index] for index in list_indexes[0]])
 
 
 def main():
     # G = test_cora()
     G = test_my_data()
-    # G_train, G_test, examples_train, labels_train, examples_test, labels_test = test_train_split(G)
-    # G_train, G_test, nodes_train, nodes_val, labels_train, labels_val, nodes_test, labels_test =\
-    #     test_val_train_split(G)
 
     G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
         test_val_train_split2(G)
 
-    # prediction, embedding = GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train,
-    #                                        labels_val, labels_test)
+    prediction = GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train,
+                                           labels_val, labels_test) # # TODO: train models with more epochs and best params - embeddings depend on that too
 
-    baselines(G_test, nodes_test, labels_test)
+    # baselines(G_test, nodes_test, labels_test) # TODO: check for errors - e.g. for val doesn't work
 
-    # df = pd.DataFrame(
-    #     [
-    #         # ("Node2Vec", node2vec_result),
-    #         # ("Attri2Vec", attri2vec_result),
-    #         # ("GraphSAGE", graphsage_result),
-    #         ("GCN", gcn_result),
-    #     ],
-    #     # columns=("name", "ROC AUC"),
-    #     columns=("name", "Accuracy"),
-    # ).set_index("name")
-    # display(df)
+    # get_nearest_neighbours(G)     # TODO: compare with embeddings before and after model training
 
-    # gcn_embedding(G, name="my data")
-    # get_nearest_neighbours(G)    #TODO try SentenceBert vs. GCN embeddings
+    ##### might erase later
+    # G_train, G_test, examples_train, labels_train, examples_test, labels_test = test_train_split(G)
+    # G_train, G_test, nodes_train, nodes_val, labels_train, labels_val, nodes_test, labels_test =\
+    #     test_val_train_split(G)
 
 
 if __name__ == '__main__':
