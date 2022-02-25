@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-input_file=data/final_data/dict_sample_for_video.json
+input_file=data/dict_action_clips_sample.json
 output_folder=data/videos/
 
-mapfile -t video_ids < <(jq --raw-output '.[] | .[] | .video' "$input_file")
+mapfile -t video_ids < <(jq --raw-output 'to_entries | .[].value | .[].video' "$input_file")
 
 
 n=${#video_ids[@]}
@@ -15,8 +15,8 @@ mapfile -t urls < <(youtube-dl -g -a <(
 ) |
   tqdm --total "$((2 * n))" --desc "Getting URLs")
 
-mapfile -t start_times < <(jq --raw-output '.[] | .[] | .time_s' "$input_file")
-mapfile -t end_times < <(jq --raw-output '.[] | .[] | .time_e' "$input_file")
+mapfile -t start_times < <(jq --raw-output 'to_entries | .[].value | .[].time_s' "$input_file")
+mapfile -t end_times < <(jq --raw-output 'to_entries | .[].value | .[].time_e' "$input_file")
 
 # From https://unix.stackexchange.com/a/426827:
 

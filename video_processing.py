@@ -168,10 +168,42 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
             shutil.move(video, path_problematic_videos + video_name)
 
 
+def get_all_clips_for_action():
+    with open('data/dict_video_action_pairs_filtered.json') as json_file:
+        dict_video_action_pairs_filtered = json.load(json_file)
+
+    dict_action_clips = {}
+    for video in dict_video_action_pairs_filtered.keys():
+        for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in dict_video_action_pairs_filtered[video]:
+            if action_1 not in dict_action_clips:
+                dict_action_clips[action_1] = []
+            [time_s, time_e] = clip_a1
+            if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_1]:
+                dict_action_clips[action_1].append({"video": video, "time_s": time_s, "time_e": time_e})
+
+            if action_2 not in dict_action_clips:
+                dict_action_clips[action_2] = []
+            [time_s, time_e] = clip_a2
+            if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_2]:
+                dict_action_clips[action_2].append({"video": video, "time_s": time_s, "time_e": time_e})
+
+    with open('data/dict_action_clips.json', 'w+') as fp:
+        json.dump(dict_action_clips, fp)
+
+    dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"]}
+    with open('data/dict_action_clips_sample.json', 'w+') as fp:
+        json.dump(dict_action_clips_sample, fp)
+    return dict_action_clips
+
+
 if __name__ == '__main__':
-    # download_video(video_id="zXqBCqPa9VY")
-    # split_videos_into_frames()
-    make_test_clip()
-    # format_file()
-    filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",
-                            PARAM_CORR2D_COEFF=0.9)
+    dict_action_clips = get_all_clips_for_action()
+
+
+    ################# old
+    # # download_video(video_id="zXqBCqPa9VY")
+    # # split_videos_into_frames()
+    # make_test_clip()
+    # # format_file()
+    # filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",
+    #                         PARAM_CORR2D_COEFF=0.9)
