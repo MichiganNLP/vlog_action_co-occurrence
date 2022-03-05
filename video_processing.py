@@ -5,7 +5,9 @@ import shutil
 import numpy as np
 import cv2
 import glob
-
+import torch
+import clip
+from PIL import Image
 from tqdm import tqdm
 
 
@@ -16,11 +18,11 @@ def download_video(video_id):
     os.system(command_save_video)
 
 
-def split_video_by_frames(video_names):
-    for video in video_names:
+def split_video_by_frames(video_names, new_video_names):
+    for video, video_new in zip(video_names, new_video_names):
+        print(f"Processing video {video} ...")
         path_in = "data/videos/" + video + ".mp4"
         path_out = "data/videos/" + video + "/"
-        print(path_in)
         if not os.path.exists(path_in):
             continue
         if os.path.exists(path_out):
@@ -44,7 +46,7 @@ def split_video_by_frames(video_names):
                 ffmpeg
                     .input(path_in, ss=item[1])
                     .filter('scale', width, -1)
-                    .output(path_out + video + "_" + str(i) + '.jpeg', vframes=1)
+                    .output(path_out + video_new + "_" + str(i) + '.jpeg', vframes=1)
                     .run()
             )
             i += 1
@@ -57,78 +59,20 @@ def split_video_by_frames(video_names):
         # os.system('/snap/bin/ffmpeg -i ' + path_in + '  ' + path_out + video + '_%02d.jpeg')
 
 
-def split_videos_into_frames():
-    # with open('data/analyse_verbs/dict_test_clip.json') as json_file:
-    #     dict_test_clip = json.load(json_file)
-    # video_names = [v[:-4] for v in dict_test_clip.keys()]
-
-    list_videos = ["4ES4nNtbcNU", "cQCLMbOmEAU", "yl6vBuP23bE", "ZO88Cj_hjQk"]
-    with open('data/analyse_verbs/dict_example3_actions.json') as json_file:
+def split_videos_into_frames(input_file):
+    with open(input_file) as json_file:
         dict_test_clip = json.load(json_file)
     video_names = []
-    for key in dict_test_clip:
-        for video in list_videos:
-            if video in key:
-                video_name, time_s, time_e = key[:-4].split("+")
-                new_video_name = "+".join([video_name, time_s.split(".")[0], time_e.split(".")[0]])
-                video_names.append(new_video_name)
+    new_video_names = []
+    for action in dict_test_clip:
+        for dict_video_time in dict_test_clip[action]:
+            video_name, time_s, time_e = dict_video_time.values()
+            video_name = "+".join([video_name, time_s, time_e])
+            new_video_name = "+".join(["_".join(action.split()), video_name, time_s, time_e])
+            video_names.append(video_name)
+            new_video_names.append(new_video_name)
 
-    # print(video_names)
-    split_video_by_frames(video_names)
-
-
-def make_test_clip():
-    dict_test_clip = {}
-    with open('data/analyse_verbs/dict_example3_actions.json') as json_file:
-        dict_example3_actions = json.load(json_file)
-    list_videos = ["4ES4nNtbcNU", "cQCLMbOmEAU", "yl6vBuP23bE", "ZO88Cj_hjQk"]
-
-    for key in dict_example3_actions:
-        for video in list_videos:
-            if video in key:
-                video_name, time_s, time_e = key[:-4].split("+")
-                new_video_name = "+".join([video_name, time_s.split(".")[0], time_e.split(".")[0]])
-                if new_video_name not in dict_test_clip:
-                    dict_test_clip[new_video_name] = []
-                for data in dict_example3_actions[key]:
-                    dict_test_clip[new_video_name].append({"action": data["action"], "sentence": data["sentence"]})
-
-    with open('data/analyse_verbs/dict_test_clip2.json', 'w+') as fp:
-        json.dump(dict_test_clip, fp)
-
-
-# def split_video_by_time(video_id, time_start, time_end, github_path):
-#     duration = time_end - time_start
-#     print(time_start)
-#     print(time_end)
-#     print(duration)
-#     time_start = str(datetime.timedelta(seconds=time_start))
-#     time_end = str(datetime.timedelta(seconds=time_end))
-#     duration = str(datetime.timedelta(seconds=duration))
-#     print(time_start)
-#     print(time_end)
-#     path_video = 'data/videos/' + video_id + '.mp4 '
-#     command_split_video = 'ffmpeg -ss ' + time_start + ' -i ' + path_video + "-fs 25M " + '-to ' + duration + \
-#                           ' -c copy ' + github_path + video_id + '+' + time_start + '+' + time_end + '.mp4'
-#
-#     print(command_split_video)
-#     os.system(command_split_video)
-
-def format_file():
-    # cQCLMbOmEAU
-    list_videos = ["4ES4nNtbcNU", "cQCLMbOmEAU", "yl6vBuP23bE", "ZO88Cj_hjQk"]
-    with open('data/analyse_verbs/dict_example3_actions.json') as json_file:
-        dict_example3 = json.load(json_file)
-
-    dict = {"video": []}
-    for key in dict_example3:
-        for video in list_videos:
-            if video in key:
-                video, time_s, time_e = key.split("+")
-                dict["video"].append({"time_s": time_s, "time_e": time_e[:-4], "video": video})
-
-    with open('data/analyse_verbs/dict_example3_for_video.json', 'w+') as fp:
-        json.dump(dict, fp)
+    split_video_by_frames(video_names, new_video_names)
 
 
 def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_COEFF):
@@ -168,42 +112,80 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
             shutil.move(video, path_problematic_videos + video_name)
 
 
-def get_all_clips_for_action():
+def get_all_clips_for_action(output_file):
     with open('data/dict_video_action_pairs_filtered.json') as json_file:
         dict_video_action_pairs_filtered = json.load(json_file)
 
     dict_action_clips = {}
     for video in dict_video_action_pairs_filtered.keys():
-        for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in dict_video_action_pairs_filtered[video]:
+        for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in \
+                dict_video_action_pairs_filtered[video]:
             if action_1 not in dict_action_clips:
                 dict_action_clips[action_1] = []
             [time_s, time_e] = clip_a1
+            time_s, time_e = time_s.split(".")[0], time_e.split(".")[0]
             if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_1]:
                 dict_action_clips[action_1].append({"video": video, "time_s": time_s, "time_e": time_e})
 
             if action_2 not in dict_action_clips:
                 dict_action_clips[action_2] = []
             [time_s, time_e] = clip_a2
+            time_s, time_e = time_s.split(".")[0], time_e.split(".")[0]
             if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_2]:
                 dict_action_clips[action_2].append({"video": video, "time_s": time_s, "time_e": time_e})
 
     with open('data/dict_action_clips.json', 'w+') as fp:
         json.dump(dict_action_clips, fp)
 
-    dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"]}
-    with open('data/dict_action_clips_sample.json', 'w+') as fp:
+    dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"][:10]}
+    with open(output_file, 'w+') as fp:
         json.dump(dict_action_clips_sample, fp)
     return dict_action_clips
 
 
-if __name__ == '__main__':
-    dict_action_clips = get_all_clips_for_action()
+def run_CLIP():
+    model, preprocess = clip.load("ViT-B/32")
 
+    original_images = []
+    prep_images = []
+    texts = []
+    data_dir = "data/videos"
+
+    directories = [video_name for video_name in os.listdir(data_dir) if ".mp4" not in video_name]
+    for dir in directories:
+        images = [filename for filename in os.listdir(data_dir + "/" + dir) if filename.endswith(".png") or filename.endswith(".jpeg")]
+        name = os.path.splitext(images[0])[0]
+        action = " ".join(name.split("+")[0].split("_"))
+        description = "This is a photo of a person " + action
+        for image_name in images:
+            image = Image.open(os.path.join(data_dir + "/" + dir, image_name)).convert("RGB")
+            preprocessed_img = preprocess(image)
+            break #TODO: process more than 1 frame
+
+        original_images.append(image)
+        prep_images.append(preprocessed_img)
+        texts.append(description)
+
+    image_input = torch.tensor(np.stack(prep_images)).cuda()
+    text_tokens = clip.tokenize([desc for desc in texts]).cuda()
+
+    with torch.no_grad():
+        image_features = model.encode_image(image_input).float()
+        text_features = model.encode_text(text_tokens).float()
+
+    image_features /= image_features.norm(dim=-1, keepdim=True)
+    text_features /= text_features.norm(dim=-1, keepdim=True)
+    similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
+    print(similarity)
+
+if __name__ == '__main__':
+    # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips_sample.json")
+    ### run downnload_videos.sh
+    # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
+    run_CLIP()
 
     ################# old
     # # download_video(video_id="zXqBCqPa9VY")
-    # # split_videos_into_frames()
-    # make_test_clip()
-    # # format_file()
+
     # filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
