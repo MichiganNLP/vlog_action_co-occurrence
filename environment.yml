@@ -1,0 +1,11 @@
+name: action_order
+dependencies:
+#  -              cudatoolkit
+  - conda-forge::ffmpeg=4.3
+#  - conda-forge::ffmpeg-python=0.2
+#  -              numpy
+  -              pip
+  -              python=3.8
+#  -     pytorch::pytorch=1.10
+#  -     pytorch::torchvision
+#  -              tqdm
