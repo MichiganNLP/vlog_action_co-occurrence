@@ -8,14 +8,10 @@ import spacy
 import seaborn as sns
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering
-from tqdm import tqdm
 from pyvis.network import Network
-
-# nlp = spacy.load("en_core_web_sm")  # TODO: try trf
-
-
-nlp = spacy.load("en_core_web_trf")  # TODO: try trf
-
+from rich.progress import track
+nlp = spacy.load("en_core_web_sm")
+#  nlp = spacy.load("en_core_web_trf")  # TODO: try trf
 
 def get_all_action_verbs():
     print("Getting all the verbs ...")
@@ -49,7 +45,7 @@ def get_all_action_verbs():
     # from nltk.corpus import wordnet
     # from itertools import chain
     #
-    # for verb in tqdm(all_actions):
+    # for verb in track(all_actions):
     #     # print(verb)
     #     ss = wordnet.synset(verb + ".v.01")
     #     hyponims = list(set([w for s in ss.closure(lambda s: s.hyponyms()) for w in s.lemma_names()]))
@@ -205,8 +201,8 @@ def get_all_action_pairs(all_verbs, video_sample, try_per_video):
     wordsToBeRemoved = ["your", "some", "few", "bit of", "slice", "pinch", "little", "lot", "much", "many", "more",
                         "about"]
 
-    print("Get all actions from {0} videos".format(len(all_sentence_transcripts_rachel)))
-    for video in tqdm(all_sentence_transcripts_rachel):
+    # print("Get all actions from {0} videos".format(len(all_sentence_transcripts_rachel)))
+    for video in track(all_sentence_transcripts_rachel, description="Getting all actions..."):
         if try_per_video and video != video_sample:
             continue
         actions_per_video = []
@@ -240,13 +236,11 @@ def get_all_action_pairs(all_verbs, video_sample, try_per_video):
 
 def filter_action_pairs_by_time():
     DIFF_TIME = 10  # seconds
-    print(f"Filtering action pairs by time: {DIFF_TIME} seconds ...")
-
     with open('data/dict_video_action_pairs.json') as json_file:
         dict_verb_dobj_per_video = json.load(json_file)
 
     dict_video_action_pairs = {}
-    for video in tqdm(dict_verb_dobj_per_video):
+    for video in track(dict_verb_dobj_per_video, description="Filtering action pairs by time..."):
         dict_video_action_pairs[video] = []
         all_actions_time = [ast.literal_eval(action_data) for action_data in dict_verb_dobj_per_video[video]]
         for i in range(0, len(all_actions_time) - 1):
@@ -382,9 +376,8 @@ def get_key(my_dict, val):
 
 
 def filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters):
-    print("Filtering action pairs by clusters ...")
     dict_video_action_pairs_filtered = {}
-    for video in tqdm(dict_video_action_pairs):
+    for video in track(dict_video_action_pairs, description="Filtering action pairs by clusters ..."):
         if video not in dict_video_action_pairs_filtered:
             dict_video_action_pairs_filtered[video] = []
         for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in dict_video_action_pairs[video]:
@@ -447,9 +440,7 @@ def combine_graphs(video_sample, sample, filter_by_link):
         all_actions.append(a2)
     print(f"After filtering, having {len(all_actions)} actions and {len(set(all_actions))} unique ones")
 
-    # check if pairs repeat
-    print("Checking for repeating pairs ...")
-    for (action_1, action_2) in tqdm(all_action_pairs_converted):
+    for (action_1, action_2) in track(all_action_pairs_converted, description="Checking for repeating pairs..."):
         if (action_2, action_1) in all_action_pairs_converted:
             raise ValueError("Error! Found repeating pair:" + str((action_1, action_2)))
 

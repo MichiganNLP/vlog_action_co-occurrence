@@ -1,31 +1,26 @@
+import glob
 import json
 import os
 import shutil
+import clip
+import cv2
 import ffmpeg
 import numpy as np
-import cv2
-import glob
 import torch
-import clip
 from PIL import Image
-from tqdm import tqdm
+import subprocess
+from rich.progress import track
 
-
-def download_video(video_id):
-    url = "https://www.youtube.com/watch?v=" + video_id
-    command_save_video = 'youtube-dl --no-check-certificate -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4 -v -o ' \
-                         + "data/videos/" + video_id + " " + url
-    os.system(command_save_video)
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def split_video_by_frames(video_names, new_video_names):
-    for video, video_new in zip(video_names, new_video_names):
+    for video, video_new in track(zip(video_names, new_video_names), description="Splitting videos into frames..."):
         print(f"Processing video {video} ...")
         path_in = "data/videos_sample/" + video + ".mp4"
-        path_out = "data/videos_sample/" + video + "/"
-        if not os.path.exists(path_in):
-            continue
-        if os.path.exists(path_out):
+        path_out = "data/videos_sample/" + video_new + "/"
+        if not os.path.exists(path_in) or not os.path.exists(path_out):
+            print(f"Skipping splitting video by frames: {video_new}")
             continue
         probe = ffmpeg.probe(path_in)
         time = float(probe['streams'][0]['duration']) // 2
@@ -51,13 +46,6 @@ def split_video_by_frames(video_names, new_video_names):
             )
             i += 1
 
-        # os.system('/snap/bin/ffmpeg -i ' + path_in + ' -ss "00:00:05" -vframes 1 ' + path_out + video + ".jpeg")  # 1 frame
-
-        ## Output one image every 2 seconds, named out1.png, out2.png, out3.png, etc.
-        ## The %02d dictates that the ordinal number of each output image will be formatted using 2 digits.
-        # os.system('/snap/bin/ffmpeg -i ' + path_in + ' -vf fps=2 ' + path_out + video + '_%02d.jpeg')
-        # os.system('/snap/bin/ffmpeg -i ' + path_in + '  ' + path_out + video + '_%02d.jpeg')
-
 
 def split_videos_into_frames(input_file):
     with open(input_file) as json_file:
@@ -68,7 +56,7 @@ def split_videos_into_frames(input_file):
         for dict_video_time in dict_test_clip[action]:
             video_name, time_s, time_e = dict_video_time.values()
             video_name = "+".join([video_name, time_s, time_e])
-            new_video_name = "+".join(["_".join(action.split()), video_name, time_s, time_e])
+            new_video_name = "+".join(["_".join(action.split()), video_name])
             video_names.append(video_name)
             new_video_names.append(new_video_name)
 
@@ -79,9 +67,7 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
     list_videos = sorted(glob.glob(path_videos + "*.mp4"), key=os.path.getmtime)
     os.makedirs(path_problematic_videos, exist_ok=True)
 
-    for video in tqdm(list_videos):
-        # if "ngYm8nFZJaY+0:00:32+0:00:44" not in video:
-        #     continue
+    for video in track(list_videos, description="Filtering videos by motion..."):
         vidcap = cv2.VideoCapture(video)
         if not vidcap.isOpened():
             continue
@@ -108,9 +94,7 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
 
         # print(video_name, np.median(corr_list))
         if np.median(corr_list) >= PARAM_CORR2D_COEFF:
-            # move video in another folder
             shutil.move(video, path_problematic_videos + video_name)
-
 
 
 def get_all_clips_for_action(output_file):
@@ -147,64 +131,82 @@ def get_all_clips_for_action(output_file):
     return dict_action_clips
 
 
-def run_CLIP():
+def save_clip_features(clip_features, text_features, directories):
+    data_dir = 'data/clip_features/'
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    for i in track(range(len(directories)), description="Saving CLIP features..."):
+        # action, video = directories[i].split("+")[0], "+".join(directories[i].split("+")[1:])
+        clip_feature_i = clip_features[i]
+        text_feature_i = text_features[i]
+
+        torch.save(clip_feature_i, data_dir + directories[i] + "_clip" + '.pt')
+        torch.save(text_feature_i, data_dir + directories[i] + "_text" + '.pt')
+
+
+def run_clip(input_file):
+    # data_dir = "data/videos/"
+    data_dir = "data/videos_sample/"
+
+    with open(input_file) as json_file:
+        dict_test_clip = json.load(json_file)
+
+    list_folders_to_process = []
+    for action in dict_test_clip:
+        for dict_video_time in dict_test_clip[action]:
+            video, time_s, time_e = dict_video_time.values()
+            video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
+            list_folders_to_process.append(video_name)
+
     model, preprocess = clip.load("ViT-B/32")
-
-    prep_images = []
-    texts = []
-    # data_dir = "data/videos"
-    data_dir = "data/videos_sample"
-
-    directories = [video_name for video_name in os.listdir(data_dir) if ".mp4" not in video_name]
-    for dir_video in directories:
-        images_per_video = [filename for filename in os.listdir(data_dir + "/" + dir_video) if
-                  filename.endswith(".png") or filename.endswith(".jpeg")]
+    prep_images, texts = [], []
+    directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
+    nb_frames = 4
+    prompt = "This is a photo of a person "
+    for dir_video in track(directories, description="Extracting CLIP features..."):
+        images_per_video = sorted(
+            [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
         name = os.path.splitext(images_per_video[0])[0]
         action = " ".join(name.split("+")[0].split("_"))
-        description = "This is a photo of a person " + action
-    #     nb_frames = len(images_per_video)
-    #     for image_name in images_per_video:
-    #         image = Image.open(os.path.join(data_dir, dir_video, image_name)).convert("RGB")
-    #         preprocessed_img = preprocess(image)
-    #         prep_images.append(preprocessed_img)
-    #     texts.append(description)
-    #
-    # assert(len(prep_images) / nb_frames == len(texts))
-    #
-    # image_input = torch.tensor(np.stack(prep_images)).cuda()
-    # text_tokens = clip.tokenize([desc for desc in texts]).cuda()
-    #
-    # with torch.no_grad():
-    #     image_features = model.encode_image(image_input).float()
-    #     text_features = model.encode_text(text_tokens).float()
-    #
-    # '''
-    #     Get the mean of image features for each video
-    # '''
-    # # reshaped_image_features = image_features.cpu().numpy().reshape(nb_frames, image_features.shape[0] // nb_frames, -1)
-    # # image_features = torch.from_numpy(np.mean(reshaped_image_features, axis=0))
-    # reshaped_image_features = torch.reshape(image_features, (nb_frames, image_features.shape[0] // nb_frames, -1))
-    # image_features = torch.mean(reshaped_image_features, dim=0)
-    # assert(image_features.shape == text_features.shape)
-    #
-    # image_features /= image_features.norm(dim=-1, keepdim=True)
-    # text_features /= text_features.norm(dim=-1, keepdim=True)
-    #
-    # print(image_features.shape, text_features.shape)
-    # # similarity = text_features @ image_features.T
-    # # print(similarity)
+        description = prompt + action
+        nb_frames = len(images_per_video)
+        for image_name in images_per_video:
+            image = Image.open(os.path.join(dir_video, image_name)).convert("RGB")
+            preprocessed_img = preprocess(image)
+            prep_images.append(preprocessed_img)
+        texts.append(description)
+
+    assert len(prep_images) / nb_frames == len(texts)
+
+    image_input = torch.stack(prep_images).to(DEVICE)
+    text_tokens = clip.tokenize([desc for desc in texts]).to(DEVICE)
+
+    with torch.no_grad():
+        image_features = model.encode_image(image_input).float()
+        text_features = model.encode_text(text_tokens).float()
+
+    # Get the mean of image features for each video
+    reshaped_image_features = image_features.reshape(image_features.shape[0] // nb_frames, nb_frames, -1)
+    image_features = reshaped_image_features.mean(dim=1)
+    assert image_features.shape == text_features.shape
+
+    image_features /= image_features.norm(dim=-1, keepdim=True)
+    text_features /= text_features.norm(dim=-1, keepdim=True)
+
+    # similarity = image_features @ text_features.T
+    # print(similarity)
+
+    return image_features, text_features, list_folders_to_process
 
 
 if __name__ == '__main__':
     pass
-
     # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips_sample.json")
-    # ## run download_videos.sh
-    # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
-    run_CLIP()
-
-    # ################ old
-    # # download_video(video_id="zXqBCqPa9VY")
-
-    # filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",
+    # subprocess.run(["./download_videos.sh"])
+    # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
+    split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
+    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    # save_clip_features(image_features, text_features, action_clip_pairs)
+
+
