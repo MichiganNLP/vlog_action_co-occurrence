@@ -3,3 +3,4 @@ data/
 cache_dir
 outputs
 runs
+.python-version

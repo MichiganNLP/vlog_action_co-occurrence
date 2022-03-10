@@ -1,7 +1,7 @@
 import json
 import os
-import ffmpeg
 import shutil
+import ffmpeg
 import numpy as np
 import cv2
 import glob
@@ -21,8 +21,8 @@ def download_video(video_id):
 def split_video_by_frames(video_names, new_video_names):
     for video, video_new in zip(video_names, new_video_names):
         print(f"Processing video {video} ...")
-        path_in = "data/videos/" + video + ".mp4"
-        path_out = "data/videos/" + video + "/"
+        path_in = "data/videos_sample/" + video + ".mp4"
+        path_out = "data/videos_sample/" + video + "/"
         if not os.path.exists(path_in):
             continue
         if os.path.exists(path_out):
@@ -112,6 +112,7 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
             shutil.move(video, path_problematic_videos + video_name)
 
 
+
 def get_all_clips_for_action(output_file):
     with open('data/dict_video_action_pairs_filtered.json') as json_file:
         dict_video_action_pairs_filtered = json.load(json_file)
@@ -137,7 +138,10 @@ def get_all_clips_for_action(output_file):
     with open('data/dict_action_clips.json', 'w+') as fp:
         json.dump(dict_action_clips, fp)
 
-    dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"][:10]}
+    # dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"][:10]}
+    # 10 actions, 1 video per action
+    dict_action_clips_sample = {action: dict_action_clips[action][:1] for action in list(dict_action_clips.keys())[:10]}
+
     with open(output_file, 'w+') as fp:
         json.dump(dict_action_clips_sample, fp)
     return dict_action_clips
@@ -146,45 +150,60 @@ def get_all_clips_for_action(output_file):
 def run_CLIP():
     model, preprocess = clip.load("ViT-B/32")
 
-    original_images = []
     prep_images = []
     texts = []
-    data_dir = "data/videos"
+    # data_dir = "data/videos"
+    data_dir = "data/videos_sample"
 
     directories = [video_name for video_name in os.listdir(data_dir) if ".mp4" not in video_name]
-    for dir in directories:
-        images = [filename for filename in os.listdir(data_dir + "/" + dir) if filename.endswith(".png") or filename.endswith(".jpeg")]
-        name = os.path.splitext(images[0])[0]
+    for dir_video in directories:
+        images_per_video = [filename for filename in os.listdir(data_dir + "/" + dir_video) if
+                  filename.endswith(".png") or filename.endswith(".jpeg")]
+        name = os.path.splitext(images_per_video[0])[0]
         action = " ".join(name.split("+")[0].split("_"))
         description = "This is a photo of a person " + action
-        for image_name in images:
-            image = Image.open(os.path.join(data_dir + "/" + dir, image_name)).convert("RGB")
-            preprocessed_img = preprocess(image)
-            break #TODO: process more than 1 frame
+    #     nb_frames = len(images_per_video)
+    #     for image_name in images_per_video:
+    #         image = Image.open(os.path.join(data_dir, dir_video, image_name)).convert("RGB")
+    #         preprocessed_img = preprocess(image)
+    #         prep_images.append(preprocessed_img)
+    #     texts.append(description)
+    #
+    # assert(len(prep_images) / nb_frames == len(texts))
+    #
+    # image_input = torch.tensor(np.stack(prep_images)).cuda()
+    # text_tokens = clip.tokenize([desc for desc in texts]).cuda()
+    #
+    # with torch.no_grad():
+    #     image_features = model.encode_image(image_input).float()
+    #     text_features = model.encode_text(text_tokens).float()
+    #
+    # '''
+    #     Get the mean of image features for each video
+    # '''
+    # # reshaped_image_features = image_features.cpu().numpy().reshape(nb_frames, image_features.shape[0] // nb_frames, -1)
+    # # image_features = torch.from_numpy(np.mean(reshaped_image_features, axis=0))
+    # reshaped_image_features = torch.reshape(image_features, (nb_frames, image_features.shape[0] // nb_frames, -1))
+    # image_features = torch.mean(reshaped_image_features, dim=0)
+    # assert(image_features.shape == text_features.shape)
+    #
+    # image_features /= image_features.norm(dim=-1, keepdim=True)
+    # text_features /= text_features.norm(dim=-1, keepdim=True)
+    #
+    # print(image_features.shape, text_features.shape)
+    # # similarity = text_features @ image_features.T
+    # # print(similarity)
 
-        original_images.append(image)
-        prep_images.append(preprocessed_img)
-        texts.append(description)
-
-    image_input = torch.tensor(np.stack(prep_images)).cuda()
-    text_tokens = clip.tokenize([desc for desc in texts]).cuda()
-
-    with torch.no_grad():
-        image_features = model.encode_image(image_input).float()
-        text_features = model.encode_text(text_tokens).float()
-
-    image_features /= image_features.norm(dim=-1, keepdim=True)
-    text_features /= text_features.norm(dim=-1, keepdim=True)
-    similarity = text_features.cpu().numpy() @ image_features.cpu().numpy().T
-    print(similarity)
 
 if __name__ == '__main__':
+    pass
+
     # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips_sample.json")
-    ### run downnload_videos.sh
+    # ## run download_videos.sh
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
     run_CLIP()
 
-    ################# old
+    # ################ old
     # # download_video(video_id="zXqBCqPa9VY")
 
     # filter_videos_by_motion(path_videos="data/videos/", path_problematic_videos="data/filtered_videos/",

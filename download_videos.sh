@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
 input_file=data/dict_action_clips_sample.json
-output_folder=data/videos/
+output_folder=data/videos_sample
+
+mkdir -p "$output_folder"
 
 mapfile -t video_ids < <(jq --raw-output 'to_entries | .[].value | .[].video' "$input_file")
-
 
 n=${#video_ids[@]}
 
 # Pairs of video and audio URLs.
-mapfile -t urls < <(youtube-dl -g -a <(
+mapfile -t video_urls < <(youtube-dl -f 'worstvideo[height>=224][width>=224]' --get-url -a <(
   IFS=$'\n'
   echo "${video_ids[*]}"
 ) |
-  tqdm --total "$((2 * n))" --desc "Getting URLs")
+  tqdm --total "$n" --desc "Getting URLs")
 
 mapfile -t start_times < <(jq --raw-output 'to_entries | .[].value | .[].time_s' "$input_file")
 mapfile -t end_times < <(jq --raw-output 'to_entries | .[].value | .[].time_e' "$input_file")
@@ -53,34 +54,19 @@ subtract_times() (
 
 for i in "${!video_ids[@]}"; do
   video_id=${video_ids[$i]}
-  video_url=${urls[$((2 * i))]}
-  audio_url=${urls[$((2 * i + 1))]}
+  video_url=${video_urls[$i]}
   start_time=${start_times[$i]}
   end_time=${end_times[$i]}
 
   duration=$(subtract_times "$start_time" "$end_time")
 
-
-  # TODO: start from previous key frame
-  # TODO: lower the quality?
-  # -fs 25M \
-  # -avoid_negative_ts 1 \
-  # Note "-to" doesn't work if "-ss" is before the video, which should to be.
-  # So using "-t".
-  /snap/bin/ffmpeg \
+  ffmpeg \
     -ss "$start_time" \
     -i "$video_url" \
-    -ss "$start_time" \
-    -i "$audio_url" \
-    -map 0:v \
-    -map 1:a \
     -t "$duration" \
-    -c:v copy \
-    -c:a copy \
     -n \
     "$output_folder/$video_id+${start_time%%.*}+${end_time%%.*}.mp4" >/dev/null 2>&1
     # Note this uses floor to round the durations in the filename, not round.
-
 
   echo "$i"
 
