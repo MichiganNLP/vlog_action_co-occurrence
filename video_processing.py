@@ -10,6 +10,8 @@ import torch
 from PIL import Image
 import subprocess
 from rich.progress import track
+from rich.console import Console
+console = Console()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -198,14 +200,20 @@ def run_clip(input_file):
 
     return image_features, text_features, list_folders_to_process
 
+def stats_videos():
+    with open('data/coref_all_sentence_transcripts.json') as json_file:
+        all_sentence_transcripts_rachel = json.load(json_file)
+    nb_videos = len(all_sentence_transcripts_rachel)
+    console.print(f"#Unique videos: {nb_videos}", style="magenta")
 
 if __name__ == '__main__':
     pass
+    stats_videos()
     # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips_sample.json")
     # subprocess.run(["./download_videos.sh"])
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
-    split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
+    # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
     # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
     # save_clip_features(image_features, text_features, action_clip_pairs)
 
