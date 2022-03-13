@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from PIL import Image
 import subprocess
+from collections import Counter
 from rich.progress import track
 from rich.console import Console
 console = Console()
@@ -104,7 +105,7 @@ def get_all_clips_for_action(output_file):
         dict_video_action_pairs_filtered = json.load(json_file)
 
     dict_action_clips = {}
-    for video in dict_video_action_pairs_filtered.keys():
+    for video in dict_video_action_pairs_filtered:
         for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in \
                 dict_video_action_pairs_filtered[video]:
             if action_1 not in dict_action_clips:
@@ -126,10 +127,10 @@ def get_all_clips_for_action(output_file):
 
     # dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"][:10]}
     # 10 actions, 1 video per action
-    dict_action_clips_sample = {action: dict_action_clips[action][:1] for action in list(dict_action_clips.keys())[:10]}
-
-    with open(output_file, 'w+') as fp:
-        json.dump(dict_action_clips_sample, fp)
+    # dict_action_clips_sample = {action: dict_action_clips[action][:1] for action in list(dict_action_clips.keys())[:10]}
+    #
+    # with open(output_file, 'w+') as fp:
+    #     json.dump(dict_action_clips_sample, fp)
     return dict_action_clips
 
 
@@ -200,16 +201,35 @@ def run_clip(input_file):
 
     return image_features, text_features, list_folders_to_process
 
+
+
 def stats_videos():
     with open('data/coref_all_sentence_transcripts.json') as json_file:
         all_sentence_transcripts_rachel = json.load(json_file)
     nb_videos = len(all_sentence_transcripts_rachel)
     console.print(f"#Unique videos: {nb_videos}", style="magenta")
 
+    with open('data/dict_action_clips.json') as json_file:
+        dict_action_clips = json.load(json_file)
+
+    all_clips = set()
+    for clips in dict_action_clips.values():
+        for c in clips:
+            all_clips.add("+".join([c["video"], c["time_s"], c["time_e"]]))
+    console.print(f"#Unique clips: {len(list(all_clips))}", style="magenta")
+
+    list_nb_clips = []
+    for action, clips in dict_action_clips.items():
+        list_nb_clips.append(len(clips))
+    list_nb_clips = list(set(list_nb_clips))
+    print(sorted(list_nb_clips, reverse=True))
+    #TODO: Try to take 100 most common actions and 10 videos for each
+
 if __name__ == '__main__':
     pass
+    # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
     stats_videos()
-    # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips_sample.json")
+
     # subprocess.run(["./download_videos.sh"])
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)

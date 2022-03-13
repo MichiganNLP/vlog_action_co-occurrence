@@ -448,6 +448,7 @@ def combine_graphs(video_sample, sample, filter_by_link):
                             for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
                             in dict_video_action_pairs_filtered[video]]
 
+    #TODO - Nbs don't match with get_stats
     print(f"Having {len(all_action_pairs)} action pairs and {len(set(all_action_pairs))} unique ones")
     if filter_by_link:
         counter = Counter(all_action_pairs)
@@ -490,9 +491,11 @@ def save_nodes_edges_df(all_action_pairs, name):
 
     model = SentenceTransformer(
         'stsb-roberta-base')  # models: https://www.sbert.net/docs/predeved_models.html#semantic-textual-similarity
-    list_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
+    list_stsbrt_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
 
-    df = pd.DataFrame([tensor.numpy() for tensor in list_embeddings], index=all_actions)
+    df = pd.DataFrame([tensor.numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
+    #TODO: Get CLIP text and video embeddings
+
     df.to_csv('data/graph/' + name + "_nodes.csv")
 
     counter = Counter([tuple(x) for x in all_action_pairs])
@@ -553,20 +556,20 @@ def main():
     # video_sample = "amC9EKYmF-s"
     #
     ''' Getting all action pairs'''
-    all_verbs = get_all_action_verbs()
-    get_all_actions(all_verbs, video_sample, try_per_video=False)  # saves the data
-    dict_video_action_pairs = get_action_pairs_by_time()
+    # all_verbs = get_all_action_verbs()
+    # get_all_actions(all_verbs, video_sample, try_per_video=False)  # saves the data
+    # dict_video_action_pairs = get_action_pairs_by_time()
 
     # plot_graph_actions(dict_video_action_pairs, video_sample)
-    get_stats_actions(dict_video_action_pairs, before_clustering=True)
+    # get_stats_actions(dict_video_action_pairs, before_clustering=True)
 
     # ''' Custering all actions '''
-    cluster_actions(dict_video_action_pairs) # saves the data
-    filtered_clusters = filter_clusters_by_size()
-    filtered_dict_video_action_pairs = filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters)  # saves the data
+    # cluster_actions(dict_video_action_pairs) # saves the data
+    # filtered_clusters = filter_clusters_by_size()
+    # filtered_dict_video_action_pairs = filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters)  # saves the data
     #
     # plot_graph_actions(filtered_dict_video_action_pairs, video_sample)
-    get_stats_actions(filtered_dict_video_action_pairs, before_clustering=False)
+    # get_stats_actions(filtered_dict_video_action_pairs, before_clustering=False)
 
     #
     ''' Combining the graph_plots for all videos '''
@@ -574,7 +577,7 @@ def main():
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    # save_nodes_edges_df(all_action_pairs, name="all")
+    save_nodes_edges_df(all_action_pairs, name="all")
     #
 
     ''' Split graph by time -- might not need this'''
