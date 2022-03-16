@@ -18,6 +18,7 @@ console = Console()
 # nlp = spacy.load("en_core_web_sm")
 nlp = spacy.load("en_core_web_trf")  # TODO: try trf
 
+
 def get_all_action_verbs():
     print("Getting all the verbs ...")
     # http://www-personal.umich.edu/~jlawler/levin.verbs
@@ -275,23 +276,34 @@ def get_action_pairs_by_time():
                     # print((action_1, clip_a1), (action_2, clip_a2), difference)
                     # print((action_1, transcript_a1), (action_2, transcript_a2))
     console.print(f"#Unique actions before time filtering: {len(set(all_actions))}", style="magenta")
+    with open('data/dict_video_action_pairs.json', 'w+') as fp:
+        json.dump(dict_video_action_pairs, fp)
     return dict_video_action_pairs
 
 
-def plot_graph_actions(dict_video_action_pairs, video):
+def plot_graph_actions(video, input):
+    with open(input) as json_file:
+        dict_video_action_pairs = json.load(json_file)
     action_pairs = [sorted((action_1, action_2))
                     for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
                     in dict_video_action_pairs[video]]
     show_graph_actions(action_pairs, video)
 
 
-def get_stats_actions(dict_video_action_pairs, before_clustering):
+def get_stats_actions(before_clustering):
+    if before_clustering:
+        with open('data/dict_video_action_pairs.json') as json_file:
+            dict_video_action_pairs = json.load(json_file)
+    else:
+        with open('data/dict_video_action_pairs_filtered_by_cluster.json') as json_file:
+            dict_video_action_pairs = json.load(json_file)
+
     all_verbs, all_actions, all_action_pairs = [], [], []
     for video in dict_video_action_pairs:
         for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in dict_video_action_pairs[video]:
             all_actions.append(action_1)
             all_actions.append(action_2)
-            all_action_pairs.append((action_1, action_2))
+            all_action_pairs.append(str(sorted((action_1, action_2))))
             all_verbs.append(action_1.split()[0])
             all_verbs.append(action_2.split()[0])
 
@@ -305,7 +317,10 @@ def get_stats_actions(dict_video_action_pairs, before_clustering):
     # pprint(f"20 most common action pairs: {Counter(all_action_pairs).most_common(20)}", expand_all=True)
     return set(all_verbs)
 
-def cluster_actions(dict_video_action_pairs):
+
+def cluster_actions():
+    with open('data/dict_video_action_pairs.json') as json_file:
+        dict_video_action_pairs = json.load(json_file)
     all_actions = []
     for video in dict_video_action_pairs:
         for [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)] in dict_video_action_pairs[video]:
@@ -326,7 +341,7 @@ def cluster_actions(dict_video_action_pairs):
 
     # Perform agglomerative clustering
     clustering_model = AgglomerativeClustering(n_clusters=None,
-                                               distance_threshold=3)  #TODO: might need to change threshold
+                                               distance_threshold=1.5)  # TODO: might need to change threshold
     clustering_model.fit(corpus_embeddings)
     cluster_assignment = clustering_model.labels_
 
@@ -353,20 +368,39 @@ def cluster_actions(dict_video_action_pairs):
     console.print(f"#clusters, before filtering: {len(dict_clustered_actions)} ", style="magenta")
     with open('data/dict_clustered_actions.json', 'w+') as fp:
         json.dump(dict_clustered_actions, fp)
-    # return dict_clustered_actions
 
 
 def clean_clusters():
     # by verb, by object?, merge clusters that have same verb
     with open('data/dict_clustered_actions.json') as json_file:
         dict_clustered_actions = json.load(json_file)
-
+    clean_clustered_actions = {}
     for action_cluster_name, values in dict_clustered_actions.items():
-        verb_cluster_name = action_cluster_name.split()[0]
-        for value in values:
-            if value.split()[0] != verb_cluster_name:
-                print(value, action_cluster_name)
-                break
+        if action_cluster_name not in clean_clustered_actions:
+            clean_clustered_actions[action_cluster_name] = []
+        cluster_name_words = action_cluster_name.split()
+        for action in values:
+            action_words = action.split()
+            action_in_cluster = False
+            for w in action_words:
+                if w in cluster_name_words:
+                    action_in_cluster = True
+                    break
+            if action_in_cluster:
+                clean_clustered_actions[action_cluster_name].append(action)
+            else:
+                for new_action_cluster_name in dict_clustered_actions:
+                    if action.split()[0] == new_action_cluster_name.split()[0]:
+                        action_in_cluster = True
+                        if new_action_cluster_name not in clean_clustered_actions:
+                            clean_clustered_actions[new_action_cluster_name] = []
+                        clean_clustered_actions[new_action_cluster_name].append(action)
+                        console.print(f"{action}: {action_cluster_name} -> {new_action_cluster_name} ", style="magenta")
+                        break
+                # if not action_in_cluster:
+
+
+
 
 def filter_clusters_by_size():
     cluster_size = 2
@@ -398,7 +432,9 @@ def get_key(my_dict, val):
     # return None
 
 
-def filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters):
+def filter_pairs_by_cluster(filtered_clusters):
+    with open('data/dict_video_action_pairs.json') as json_file:
+        dict_video_action_pairs = json.load(json_file)
     dict_video_action_pairs_filtered = {}
     for video in track(dict_video_action_pairs, description="Filtering action pairs by clusters ..."):
         if video not in dict_video_action_pairs_filtered:
@@ -426,7 +462,6 @@ def filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters):
 
     with open('data/dict_video_action_pairs_filtered_by_cluster.json', 'w+') as fp:
         json.dump(dict_video_action_pairs_filtered, fp)
-    return dict_video_action_pairs_filtered
 
 
 def combine_graphs(video_sample, sample, filter_by_link):
@@ -448,14 +483,23 @@ def combine_graphs(video_sample, sample, filter_by_link):
                             for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
                             in dict_video_action_pairs_filtered[video]]
 
-    #TODO - Nbs don't match with get_stats
-    print(f"Having {len(all_action_pairs)} action pairs and {len(set(all_action_pairs))} unique ones")
     if filter_by_link:
         counter = Counter(all_action_pairs)
         print("Removing links that appear only once ...")
         all_action_pairs = [action_pair for action_pair in all_action_pairs if counter[action_pair] > 1]
         console.print(
-            f"After edge filtering, having {len(all_action_pairs)} action pairs and {len(set(all_action_pairs))} unique ones", style="magenta")
+            f"After edge filtering, having {len(all_action_pairs)} action pairs and {len(set(all_action_pairs))} unique ones",
+            style="magenta")
+        dict_video_action_pairs_filtered_by_link = {}
+        for video in dict_video_action_pairs_filtered:
+            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in dict_video_action_pairs_filtered[video]:
+                if str(sorted((action_1, action_2))) in all_action_pairs:
+                    if video not in dict_video_action_pairs_filtered_by_link:
+                        dict_video_action_pairs_filtered_by_link[video] = []
+                    dict_video_action_pairs_filtered_by_link[video].append([(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
+
+        with open('data/dict_video_action_pairs_filtered_by_link.json', 'w+') as fp:
+            json.dump(dict_video_action_pairs_filtered_by_link, fp)
 
     all_action_pairs_converted = [ast.literal_eval(action_pair) for action_pair in all_action_pairs]
     all_actions = []
@@ -465,7 +509,8 @@ def combine_graphs(video_sample, sample, filter_by_link):
         all_actions.append(a2)
         verbs.append(a1.split()[0])
         verbs.append(a2.split()[0])
-    console.print(f"After filtering, having {len(all_actions)} actions and {len(set(all_actions))} unique ones", style="magenta")
+    console.print(f"After filtering, having {len(all_actions)} actions and {len(set(all_actions))} unique ones",
+                  style="magenta")
     console.print(f"After filtering, having {len(verbs)} verbs and {len(set(verbs))} unique ones", style="magenta")
 
     for (action_1, action_2) in track(all_action_pairs_converted, description="Checking for repeating pairs..."):
@@ -494,7 +539,7 @@ def save_nodes_edges_df(all_action_pairs, name):
     list_stsbrt_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
 
     df = pd.DataFrame([tensor.numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
-    #TODO: Get CLIP text and video embeddings
+    # TODO: Get CLIP text and video embeddings
 
     df.to_csv('data/graph/' + name + "_nodes.csv")
 
@@ -558,18 +603,19 @@ def main():
     ''' Getting all action pairs'''
     # all_verbs = get_all_action_verbs()
     # get_all_actions(all_verbs, video_sample, try_per_video=False)  # saves the data
-    # dict_video_action_pairs = get_action_pairs_by_time()
+    # get_action_pairs_by_time()
 
-    # plot_graph_actions(dict_video_action_pairs, video_sample)
-    # get_stats_actions(dict_video_action_pairs, before_clustering=True)
+    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
+    get_stats_actions(before_clustering=True)
 
     # ''' Custering all actions '''
-    # cluster_actions(dict_video_action_pairs) # saves the data
+    # cluster_actions()  # saves the data
+    # # clean_clusters()
     # filtered_clusters = filter_clusters_by_size()
-    # filtered_dict_video_action_pairs = filter_pairs_by_cluster(dict_video_action_pairs, filtered_clusters)  # saves the data
-    #
-    # plot_graph_actions(filtered_dict_video_action_pairs, video_sample)
-    # get_stats_actions(filtered_dict_video_action_pairs, before_clustering=False)
+    # filter_pairs_by_cluster(filtered_clusters)  # saves the data
+
+    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
+    get_stats_actions(before_clustering=False)
 
     #
     ''' Combining the graph_plots for all videos '''
@@ -577,7 +623,7 @@ def main():
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    save_nodes_edges_df(all_action_pairs, name="all")
+    # save_nodes_edges_df(all_action_pairs, name="all")
     #
 
     ''' Split graph by time -- might not need this'''

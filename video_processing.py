@@ -18,16 +18,34 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def split_video_by_frames(video_names, new_video_names):
-    for video, video_new in track(zip(video_names, new_video_names), description="Splitting videos into frames..."):
+    for video, video_new in track(list(zip(video_names, new_video_names)), description="Splitting videos into frames..."):
         print(f"Processing video {video} ...")
         path_in = "data/videos_sample/" + video + ".mp4"
         path_out = "data/videos_sample/" + video_new + "/"
-        if not os.path.exists(path_in) or not os.path.exists(path_out):
+        count_skipped = 0
+        if not os.path.exists(path_in) or os.path.exists(path_out):
+            count_skipped += 1
             print(f"Skipping splitting video by frames: {video_new}")
             continue
-        probe = ffmpeg.probe(path_in)
-        time = float(probe['streams'][0]['duration']) // 2
-        width = probe['streams'][0]['width']
+        try:
+            probe = ffmpeg.probe(path_in)
+            time = float(probe['streams'][0]['duration']) // 2
+            width = probe['streams'][0]['width']
+        except:
+            print(f"Skipping corrupted video: {path_in}")
+            continue
+
+        if not os.path.exists(path_out):
+            os.makedirs(path_out)
+
+        # spllit in middle frame
+        # (
+        #     ffmpeg
+        #         .input(path_in, ss=time)
+        #         .filter('scale', width, -1)
+        #         .output(path_out + video_new + "_" + str(0) + '.jpeg', vframes=1)
+        #         .run()
+        # )
 
         # Set how many spots you want to extract a video from.
         parts = 4
@@ -35,10 +53,6 @@ def split_video_by_frames(video_names, new_video_names):
         intervals = int(intervals)
         interval_list = [(i * intervals, (i + 1) * intervals) for i in range(parts)]
         i = 0
-
-        if not os.path.exists(path_out):
-            os.makedirs(path_out)
-
         for item in interval_list:
             (
                 ffmpeg
@@ -48,7 +62,7 @@ def split_video_by_frames(video_names, new_video_names):
                     .run()
             )
             i += 1
-
+    console.print(f"Skipped {count_skipped} clips from frame splitting", style="magenta")
 
 def split_videos_into_frames(input_file):
     with open(input_file) as json_file:
@@ -96,12 +110,14 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
             corr_list.append(corr2)
 
         # print(video_name, np.median(corr_list))
+        count = 0
         if np.median(corr_list) >= PARAM_CORR2D_COEFF:
+            count+= 1
             shutil.move(video, path_problematic_videos + video_name)
-
+    console.print(f"Filtered out {count} videos to {path_problematic_videos}", style="magenta")
 
 def get_all_clips_for_action(output_file):
-    with open('data/dict_video_action_pairs_filtered.json') as json_file:
+    with open('data/dict_video_action_pairs_filtered_by_link.json') as json_file:
         dict_video_action_pairs_filtered = json.load(json_file)
 
     dict_action_clips = {}
@@ -122,16 +138,8 @@ def get_all_clips_for_action(output_file):
             if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_2]:
                 dict_action_clips[action_2].append({"video": video, "time_s": time_s, "time_e": time_e})
 
-    with open('data/dict_action_clips.json', 'w+') as fp:
+    with open(output_file, 'w+') as fp:
         json.dump(dict_action_clips, fp)
-
-    # dict_action_clips_sample = {"put tea into station": dict_action_clips["put tea into station"][:10]}
-    # 10 actions, 1 video per action
-    # dict_action_clips_sample = {action: dict_action_clips[action][:1] for action in list(dict_action_clips.keys())[:10]}
-    #
-    # with open(output_file, 'w+') as fp:
-    #     json.dump(dict_action_clips_sample, fp)
-    return dict_action_clips
 
 
 def save_clip_features(clip_features, text_features, directories):
@@ -167,6 +175,8 @@ def run_clip(input_file):
     nb_frames = 4
     prompt = "This is a photo of a person "
     for dir_video in track(directories, description="Extracting CLIP features..."):
+        if not os.path.exists(dir_video):
+            continue
         images_per_video = sorted(
             [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
         name = os.path.splitext(images_per_video[0])[0]
@@ -218,23 +228,33 @@ def stats_videos():
             all_clips.add("+".join([c["video"], c["time_s"], c["time_e"]]))
     console.print(f"#Unique clips: {len(list(all_clips))}", style="magenta")
 
-    list_nb_clips = []
-    for action, clips in dict_action_clips.items():
-        list_nb_clips.append(len(clips))
-    list_nb_clips = list(set(list_nb_clips))
-    print(sorted(list_nb_clips, reverse=True))
-    #TODO: Try to take 100 most common actions and 10 videos for each
+    # list_nb_clips = []
+    # for action, clips in dict_action_clips.items():
+    #     list_nb_clips.append(len(clips))
+    # list_nb_clips = list(set(list_nb_clips))
+
+
+def sample_videos():
+    with open('data/dict_action_clips.json') as json_file:
+        dict_action_clips = json.load(json_file)
+    # nb_videos = 10
+    nb_videos = 2
+    dict_action_clips_sample = {action: dict_action_clips[action][:nb_videos] for action in dict_action_clips.keys()}
+    with open('data/dict_action_clips_sample.json', 'w+') as fp:
+        json.dump(dict_action_clips_sample, fp)
+    # 730 * 10 .. 7297 - put rose petal has 7 videos
 
 if __name__ == '__main__':
     pass
-    # dict_action_clips = get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
-    stats_videos()
+    # get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
+    # stats_videos()
+    # sample_videos()
 
     # subprocess.run(["./download_videos.sh"])
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
-    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    # save_clip_features(image_features, text_features, action_clip_pairs)
+    image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    save_clip_features(image_features, text_features, action_clip_pairs)
 
 

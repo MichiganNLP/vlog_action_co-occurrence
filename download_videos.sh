@@ -59,15 +59,19 @@ for i in "${!video_ids[@]}"; do
   end_time=${end_times[$i]}
 
   duration=$(subtract_times "$start_time" "$end_time")
+  {
+      ffmpeg \
+        -ss "$start_time" \
+        -i "$video_url" \
+        -t "$duration" \
+        -n \
+        "$output_folder/$video_id+${start_time%%.*}+${end_time%%.*}.mp4" >/dev/null 2>&1
+        # Note this uses floor to round the durations in the filename, not round.
 
-  ffmpeg \
-    -ss "$start_time" \
-    -i "$video_url" \
-    -t "$duration" \
-    -n \
-    "$output_folder/$video_id+${start_time%%.*}+${end_time%%.*}.mp4" >/dev/null 2>&1
-    # Note this uses floor to round the durations in the filename, not round.
-
-  echo "$i"
+      echo "$i"
+    } ||
+    {
+      continue
+    }
 
 done | tqdm --total "$n" --desc "Downloading videos" >/dev/null
