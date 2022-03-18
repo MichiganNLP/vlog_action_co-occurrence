@@ -146,6 +146,7 @@ def save_clip_features(clip_features, text_features, directories):
     data_dir = 'data/clip_features/'
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
+    console.print(f"#Saved clip features: {len(directories)}", style="magenta")
     for i in track(range(len(directories)), description="Saving CLIP features..."):
         # action, video = directories[i].split("+")[0], "+".join(directories[i].split("+")[1:])
         clip_feature_i = clip_features[i]
@@ -168,7 +169,6 @@ def run_clip(input_file):
             video, time_s, time_e = dict_video_time.values()
             video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
             list_folders_to_process.append(video_name)
-
     model, preprocess = clip.load("ViT-B/32")
     prep_images, texts = [], []
     directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
@@ -176,6 +176,7 @@ def run_clip(input_file):
     prompt = "This is a photo of a person "
     for dir_video in track(directories, description="Extracting CLIP features..."):
         if not os.path.exists(dir_video):
+            list_folders_to_process.remove(dir_video.replace(data_dir, ''))
             continue
         images_per_video = sorted(
             [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
@@ -208,7 +209,6 @@ def run_clip(input_file):
 
     # similarity = image_features @ text_features.T
     # print(similarity)
-
     return image_features, text_features, list_folders_to_process
 
 
@@ -220,6 +220,7 @@ def stats_videos():
     console.print(f"#Unique videos: {nb_videos}", style="magenta")
 
     with open('data/dict_action_clips.json') as json_file:
+    # with open('data/dict_action_clips_sample.json') as json_file:
         dict_action_clips = json.load(json_file)
 
     all_clips = set()
@@ -233,6 +234,27 @@ def stats_videos():
     #     list_nb_clips.append(len(clips))
     # list_nb_clips = list(set(list_nb_clips))
 
+def get_video_diff():
+    with open('data/dict_action_clips_sample.json') as json_file:
+        dict_action_clips = json.load(json_file)
+
+    all_videos = list(set(["+".join([dict["video"], dict["time_s"], dict["time_e"]]) + ".mp4" for values in dict_action_clips.values() for dict in values]))
+    print(len(all_videos))
+    all_videos_downloaded = list(set([video_name.replace('data/videos_sample/', '') for video_name in glob.glob("data/videos_sample/*.mp4") + glob.glob("data/filtered_videos/*.mp4")]))
+    # all_videos_downloaded = list(set([video_name.replace('data/videos_sample/', '') for video_name in glob.glob("data/videos_sample/*.mp4")]))
+    print(len(all_videos_downloaded))
+    not_downloaded = set(all_videos) - set(all_videos_downloaded)
+    print(len(list(not_downloaded)))
+
+    dict_action_clips_sample_remained = {}
+    for action, values in dict_action_clips.items():
+        for dict in values:
+            if "+".join([dict["video"], dict["time_s"], dict["time_e"]]) + ".mp4" in not_downloaded:
+                if action not in dict_action_clips_sample_remained:
+                    dict_action_clips_sample_remained[action] = []
+                dict_action_clips_sample_remained[action].append(dict)
+    with open('data/dict_action_clips_sample_remained.json', 'w+') as fp:
+        json.dump(dict_action_clips_sample_remained, fp)
 
 def sample_videos():
     with open('data/dict_action_clips.json') as json_file:
@@ -246,15 +268,15 @@ def sample_videos():
 
 if __name__ == '__main__':
     pass
+    # get_video_diff()
+
     # get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
     # stats_videos()
     # sample_videos()
 
-    # subprocess.run(["./download_videos.sh"])
+    # subprocess.run(["./download_videos.sh", "data/dict_action_clips_sample_remained.json"])
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
     image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
     save_clip_features(image_features, text_features, action_clip_pairs)
-
-
