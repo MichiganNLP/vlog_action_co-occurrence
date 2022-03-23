@@ -1,5 +1,6 @@
 import ast
 import datetime
+import glob
 import json
 from collections import Counter
 import numpy as np
@@ -12,6 +13,7 @@ from pyvis.network import Network
 from rich.progress import track
 from rich.console import Console
 from rich.pretty import pprint
+import torch
 
 console = Console()
 
@@ -28,22 +30,22 @@ def get_all_action_verbs():
 
     with open('data/utils/visual_verbnet_beta2015.json') as json_file:
         visual_verbnet_beta2015 = json.load(json_file)
-    list_verbnet_actions = [data["name"].split("_")[0] for data in visual_verbnet_beta2015["visual_actions"]
-                            if data["category"] not in ["communication", "perception", "posture"]]
+    list_verbnet_verbs = [data["name"].split("_")[0] for data in visual_verbnet_beta2015["visual_actions"]
+                          if data["category"] not in ["communication", "perception", "posture"]]
 
     verbs_to_remove = ["follow", "like", "subscribe", "be", "show", "reach", "laugh", "avoid", "get", "feed",
                        "run", "carry", "give", "make", "show", "give", "click", "turn", "recommend", "link",
                        "come", "donate", "help", "hang", "hit", "stream", "kick", "blink", "donate", "bump", "play"]
     levin_verbs = [v for v in levin_verbs if v not in verbs_to_remove]
-    list_verbnet_actions = [v for v in list_verbnet_actions if v not in verbs_to_remove]
+    verbnet_verbs = [v for v in list_verbnet_verbs if v not in verbs_to_remove]
     # list_extra_verbs = ["moisturize", "disinfect", "scrub", "declutter", "exfoliate"]
     # combine Levin & VisualVerbNet verbs
-    console.print(f"There are {len(levin_verbs)} Levin and {len(list_verbnet_actions)} VisualVerbNet verbs.",
+    console.print(f"There are {len(levin_verbs)} Levin and {len(verbnet_verbs)} VisualVerbNet verbs.",
                   style="magenta")
-    all_actions = list(set(list_verbnet_actions + levin_verbs))
-    console.print(f"There are {len(all_actions)} verbs in total.", style="magenta")
+    all_verbs = list(set(verbnet_verbs + levin_verbs))
+    console.print(f"There are {len(all_verbs)} verbs in total.", style="magenta")
 
-    return all_actions
+    return all_verbs
     # for x in []:
     #     all_actions.remove(x)
 
@@ -400,8 +402,6 @@ def clean_clusters():
                 # if not action_in_cluster:
 
 
-
-
 def filter_clusters_by_size():
     cluster_size = 2
     print(f"Filtering clusters by size {cluster_size} ...")
@@ -488,15 +488,17 @@ def combine_graphs(video_sample, sample, filter_by_link):
         print("Removing links that appear only once ...")
         all_action_pairs = [action_pair for action_pair in all_action_pairs if counter[action_pair] > 1]
         console.print(
-            f"After edge filtering, having {len(all_action_pairs)} action pairs and {len(set(all_action_pairs))} unique ones",
+            f"After edge filtering, {len(set(all_action_pairs))} unique action pairs",
             style="magenta")
         dict_video_action_pairs_filtered_by_link = {}
         for video in dict_video_action_pairs_filtered:
-            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in dict_video_action_pairs_filtered[video]:
+            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in \
+            dict_video_action_pairs_filtered[video]:
                 if str(sorted((action_1, action_2))) in all_action_pairs:
                     if video not in dict_video_action_pairs_filtered_by_link:
                         dict_video_action_pairs_filtered_by_link[video] = []
-                    dict_video_action_pairs_filtered_by_link[video].append([(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
+                    dict_video_action_pairs_filtered_by_link[video].append(
+                        [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
 
         with open('data/dict_video_action_pairs_filtered_by_link.json', 'w+') as fp:
             json.dump(dict_video_action_pairs_filtered_by_link, fp)
@@ -509,9 +511,9 @@ def combine_graphs(video_sample, sample, filter_by_link):
         all_actions.append(a2)
         verbs.append(a1.split()[0])
         verbs.append(a2.split()[0])
-    console.print(f"After filtering, having {len(all_actions)} actions and {len(set(all_actions))} unique ones",
+    console.print(f"After filtering, {len(set(all_actions))} unique actions",
                   style="magenta")
-    console.print(f"After filtering, having {len(verbs)} verbs and {len(set(verbs))} unique ones", style="magenta")
+    console.print(f"After filtering, {len(set(verbs))} unique verbs", style="magenta")
 
     for (action_1, action_2) in track(all_action_pairs_converted, description="Checking for repeating pairs..."):
         if (action_2, action_1) in all_action_pairs_converted:
@@ -527,6 +529,67 @@ def combine_graphs(video_sample, sample, filter_by_link):
     return all_action_pairs
 
 
+def get_sentence_embedding_features(all_actions):
+    model = SentenceTransformer(
+        'stsb-roberta-base')  # models: https://www.sbert.net/docs/predeved_models.html#semantic-textual-similarity
+    list_stsbrt_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
+    return list_stsbrt_embeddings
+
+
+def get_text_clip_features(all_actions):
+    data_dir = 'data/clip_features/'
+    list_txt_clip_embeddings = []
+    count_action_no_txt_feat = 0
+    all_actions_processed = []
+    all_files = {file_name for file_name in glob.glob(data_dir + "*_text.pt")}
+    for action in track(all_actions, description="Getting CLIP txt features for all actions"):
+        found_action = False
+        for file in all_files:
+            action_file_name = file.split("+")[0].replace(data_dir, '').replace("_", " ")
+            if action_file_name == action:
+                found_action = True
+                features_action = torch.load(file, map_location='cpu')
+                list_txt_clip_embeddings.append(features_action)
+                all_actions_processed.append(action)
+                break
+        if not found_action:
+            # raise ValueError(f"Action {action} doesn't have CLIP txt features")
+            print(f"Action {action} doesn't have CLIP txt features")
+            count_action_no_txt_feat += 1
+    console.print(f"There are {count_action_no_txt_feat} action with no text feat, from {len(all_actions)} total.",
+                  style="magenta")
+    return list_txt_clip_embeddings, all_actions_processed
+
+
+def get_visual_clip_features(all_actions):
+    # Take average of all video features for given action
+    data_dir = 'data/clip_features/'
+    list_vis_clip_embeddings = []
+    all_files = {file_name for file_name in glob.glob(data_dir + "*_clip.pt")}
+    count_action_no_vis_feat = 0
+    all_actions_processed = []
+    for action in track(all_actions, description="Getting CLIP visual features for all actions"):
+        list_action_vis_features = []
+        found_action = False
+        for file in all_files:
+            action_file_name = file.split("+")[0].replace(data_dir, '').replace("_", " ")
+            if action_file_name == action:
+                found_action = True
+                features_action = torch.load(file)
+                list_action_vis_features.append(torch.unsqueeze(features_action, 0))
+        if not found_action:
+            # raise ValueError(f"Action {action} doesn't have CLIP visual features")
+            print(f"Action {action} doesn't have CLIP visual features")
+            count_action_no_vis_feat += 1
+        else:
+            all_actions_processed.append(action)
+            concat_features_action = torch.cat(list_action_vis_features, dim=0)
+            avg_features_action = torch.mean(concat_features_action, dim=0)
+            list_vis_clip_embeddings.append(avg_features_action)
+    console.print(f"There are {count_action_no_vis_feat} action with no vis feat, from {len(all_actions)} total.", style="magenta")
+    return list_vis_clip_embeddings, all_actions_processed
+
+
 def save_nodes_edges_df(all_action_pairs, name):
     all_action_pairs = [ast.literal_eval(action_pair) for action_pair in all_action_pairs]
     all_actions = set()
@@ -534,15 +597,22 @@ def save_nodes_edges_df(all_action_pairs, name):
         all_actions.add(action_pair[0])
         all_actions.add(action_pair[1])
 
-    model = SentenceTransformer(
-        'stsb-roberta-base')  # models: https://www.sbert.net/docs/predeved_models.html#semantic-textual-similarity
-    list_stsbrt_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
+    all_actions = sorted(all_actions)
+    list_stsbrt_embeddings = get_sentence_embedding_features(all_actions)
+    list_txt_clip_embeddings, all_actions_txt = get_text_clip_features(all_actions)
+    list_vis_clip_embeddings, all_actions_vis = get_visual_clip_features(all_actions)
 
-    df = pd.DataFrame([tensor.numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
-    # TODO: Get CLIP text and video embeddings
+    # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
+    df.to_csv('data/graph/' + name + "_stsbrt" + "_nodes.csv")
 
-    df.to_csv('data/graph/' + name + "_nodes.csv")
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_txt_clip_embeddings], index=all_actions_txt)
+    df.to_csv('data/graph/' + name + "_txtclip" + "_nodes.csv")
 
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_vis)
+    df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
+
+    # Save graph edges
     counter = Counter([tuple(x) for x in all_action_pairs])
     list_tuples_actions = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter]
     df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
@@ -606,7 +676,7 @@ def main():
     # get_action_pairs_by_time()
 
     # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
-    get_stats_actions(before_clustering=True)
+    # get_stats_actions(before_clustering=True)
 
     # ''' Custering all actions '''
     # cluster_actions()  # saves the data
@@ -615,7 +685,7 @@ def main():
     # filter_pairs_by_cluster(filtered_clusters)  # saves the data
 
     # plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
-    get_stats_actions(before_clustering=False)
+    # get_stats_actions(before_clustering=False)
 
     #
     ''' Combining the graph_plots for all videos '''
@@ -623,7 +693,7 @@ def main():
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    # save_nodes_edges_df(all_action_pairs, name="all")
+    save_nodes_edges_df(all_action_pairs, name="all")
     #
 
     ''' Split graph by time -- might not need this'''

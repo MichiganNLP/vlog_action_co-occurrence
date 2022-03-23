@@ -499,8 +499,8 @@ def main():
     G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
         test_val_train_split2(G)
 
-    prediction = GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train,
-                                           labels_val, labels_test) # TODO: train models with more epochs and best params - embeddings depend on that too
+    # prediction = GNN_link_model(G_train, G_val, G_test, nodes_train, nodes_val, nodes_test, labels_train,
+    #                                        labels_val, labels_test) # TODO: train models with more epochs and best params - embeddings depend on that too
 
     baselines(G_test, nodes_test, labels_test) # TODO: check for errors - e.g. for val doesn't work
 
