@@ -214,7 +214,6 @@ def run_clip(input_file):
     image_features = torch.cat(list_img_features, dim=0)
     text_features = torch.cat(list_text_features, dim=0)
 
-
     image_features /= image_features.norm(dim=-1, keepdim=True)
     text_features /= text_features.norm(dim=-1, keepdim=True)
 
@@ -238,19 +237,23 @@ def stats_videos():
                  for c in clips}
     console.print(f"#Unique clips: {len(all_clips)}", style="magenta")
 
-
     all_action_clips = {"+".join([action, c["video"], c["time_s"], c["time_e"]])
-                  for action, clips in dict_action_clips.items()
-                  for c in clips}
+                        for action, clips in dict_action_clips.items()
+                        for c in clips}
     console.print(f"#Unique (action, clips): {len(all_action_clips)}", style="magenta")
 
     with open('data/dict_action_clips_sample.json') as json_file:
         dict_action_clips_sample = json.load(json_file)
     all_action_clips_sampled = {"+".join([action, c["video"], c["time_s"], c["time_e"]])
-                        for action, clips in dict_action_clips_sample.items()
-                        for c in clips}
+                                for action, clips in dict_action_clips_sample.items()
+                                for c in clips}
+    all_videos_sampled = {"+".join([c["video"], c["time_s"], c["time_e"]])
+                                for _, clips in dict_action_clips_sample.items()
+                                for c in clips}
     console.print(f"#Unique (action, clips) sampled: {len(all_action_clips_sampled)}", style="magenta")
     console.print(f"#Unique actions sampled: {len(dict_action_clips_sample.keys())}", style="magenta")
+    console.print(f"#Unique videos sampled: {len(all_videos_sampled)}", style="magenta")
+
 
 def get_video_diff():
     with open('data/dict_action_clips_sample.json') as json_file:
@@ -279,10 +282,8 @@ def get_video_diff():
 def sample_videos():
     with open('data/dict_action_clips.json') as json_file:
         dict_action_clips = json.load(json_file)
-    # nb_videos = 10
-    nb_videos = 2
-    # dict_action_clips_sample = {action: dict_action_clips[action][:nb_videos] for action in dict_action_clips.keys()}
-    dict_action_clips_sample = {action: dict_action_clips[action][2:10] for action in dict_action_clips.keys()}
+    nb_videos = 10
+    dict_action_clips_sample = {action: dict_action_clips[action][:nb_videos] for action in dict_action_clips.keys()}
     with open('data/dict_action_clips_sample.json', 'w+') as fp:
         json.dump(dict_action_clips_sample, fp)
     # 730 * 10 .. 7297 - put rose petal has 7 videos
@@ -294,9 +295,10 @@ if __name__ == '__main__':
 
     # get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
     # stats_videos()
-    # sample_videos()
-    #check: AV8qxtUDtTs
-    subprocess.run(["./download_videos.sh", "data/dict_action_clips_sample.json"]) #dict_action_clips_sample_remained
+    # sample_videos() # max 10 videos/ action
+    # check: AV8qxtUDtTs
+    subprocess.run(["./download_videos.sh",
+                    "data/dict_action_clips_sample.json","data/url_list_sample.txt","data/videos_sample"])  # dict_action_clips_sample_remained
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained

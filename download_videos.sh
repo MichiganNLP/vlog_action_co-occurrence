@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
-input_file=${1:-data/dict_action_clips_sample.json}
-output_folder=${2:-data/videos_sample}
+set -e
+
+if [ "$#" -ne 3 ]; then
+  echo "Illegal number of parameters"
+  exit
+fi
+
+input_file="$1"
+input_url_file="$2"
+output_folder="$3"
 
 echo "$input_file"
 mkdir -p "$output_folder"
@@ -10,12 +18,7 @@ mapfile -t video_ids < <(jq --raw-output 'to_entries | .[].value | .[].video' "$
 
 n=${#video_ids[@]}
 
-# Pairs of video and audio URLs.
-mapfile -t video_urls < <(youtube-dl -f 'worstvideo[height>=224][width>=224]' --ignore-errors --get-url -a <(
-  IFS=$'\n'
-  echo "${video_ids[*]}"
-) |& awk '{ if ( $0 ~ /^ERROR/ ) { print "ERROR" } else { print $0 } }' |
-  tqdm --total "$n" --desc "Getting URLs")
+mapfile -t video_urls <"$input_url_file"
 
 mapfile -t start_times < <(jq --raw-output 'to_entries | .[].value | .[].time_s' "$input_file")
 mapfile -t end_times < <(jq --raw-output 'to_entries | .[].value | .[].time_e' "$input_file")
@@ -54,22 +57,26 @@ subtract_times() (
 )
 
 for i in "${!video_ids[@]}"; do
-    video_id=${video_ids[$i]}
-    video_url=${video_urls[$i]}
-    if [ "$video_url" != "ERROR" ]; then
-      start_time=${start_times[$i]}
-      end_time=${end_times[$i]}
+  video_id=${video_ids[$i]}
+  video_url=${video_urls[$i]}
+  if [[ "$video_url" == ERROR* ]]; then
+    echo "There was an error to download the video ID ${video_id}: ${video_url}" >&2
+  else
+    echo "$video_id" >&2
 
-      duration=$(subtract_times "$start_time" "$end_time")
+    start_time=${start_times[$i]}
+    end_time=${end_times[$i]}
 
-      ffmpeg \
-        -ss "$start_time" \
-        -i "$video_url" \
-        -t "$duration" \
-        -n \
-        "$output_folder/$video_id+${start_time%%.*}+${end_time%%.*}.mp4" >/dev/null 2>&1 || true
-        # Note this uses floor to round the durations in the filename, not round.
-    fi
+    duration=$(subtract_times "$start_time" "$end_time")
+
+    ffmpeg \
+      -ss "$start_time" \
+      -i "$video_url" \
+      -t "$duration" \
+      -n \
+      "$output_folder/$video_id+${start_time%%.*}+${end_time%%.*}.mp4" >/dev/null || true
+    # Note this uses floor to round the durations in the filename, not round.
+  fi
   echo "$i"
 
 done | tqdm --total "$n" --desc "Downloading videos" >/dev/null
