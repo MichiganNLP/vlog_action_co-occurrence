@@ -2,14 +2,13 @@
 
 set -e
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 2 ]; then
   echo "Illegal number of parameters"
   exit
 fi
 
 input_file="$1"
-input_url_file="$2"
-output_folder="$3"
+output_folder="$2"
 
 echo "$input_file"
 mkdir -p "$output_folder"
@@ -17,8 +16,6 @@ mkdir -p "$output_folder"
 mapfile -t video_ids < <(jq --raw-output 'to_entries | .[].value | .[].video' "$input_file")
 
 n=${#video_ids[@]}
-
-mapfile -t video_urls <"$input_url_file"
 
 mapfile -t start_times < <(jq --raw-output 'to_entries | .[].value | .[].time_s' "$input_file")
 mapfile -t end_times < <(jq --raw-output 'to_entries | .[].value | .[].time_e' "$input_file")
@@ -58,7 +55,7 @@ subtract_times() (
 
 for i in "${!video_ids[@]}"; do
   video_id=${video_ids[$i]}
-  video_url=${video_urls[$i]}
+  video_url=$(youtube-dl -f 'worstvideo[height>=224][width>=224]' --ignore-errors --get-url "${video_id}" || true)
   if [[ "$video_url" == ERROR* ]]; then
     echo "There was an error to download the video ID ${video_id}: ${video_url}" >&2
   else
