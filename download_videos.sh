@@ -66,6 +66,7 @@ for i in "${!video_ids[@]}"; do
 
     duration=$(subtract_times "$start_time" "$end_time")
 
+    # TODO: could add -hide_banner and -nostdin
     ffmpeg \
       -ss "$start_time" \
       -i "$video_url" \
