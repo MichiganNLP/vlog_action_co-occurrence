@@ -301,6 +301,6 @@ if __name__ == '__main__':
     #                 "data/dict_action_clips_sample.json","data/url_list_sample.txt","data/videos_sample"])  # dict_action_clips_sample_remained
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
-    split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
-    image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    save_clip_features(image_features, text_features, action_clip_pairs)
+    # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
+    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    # save_clip_features(image_features, text_features, action_clip_pairs)

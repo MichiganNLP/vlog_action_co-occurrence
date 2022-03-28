@@ -536,6 +536,7 @@ def get_sentence_embedding_features(all_actions):
     return list_stsbrt_embeddings
 
 
+
 def get_text_clip_features(all_actions):
     data_dir = 'data/clip_features/'
     list_txt_clip_embeddings = []
@@ -689,11 +690,11 @@ def main():
 
     #
     ''' Combining the graph_plots for all videos '''
-    # all_action_pairs = combine_graphs(video_sample, sample=False, filter_by_link=True)
+    all_action_pairs = combine_graphs(video_sample, sample=False, filter_by_link=True)
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    # save_nodes_edges_df(all_action_pairs, name="all")
+    save_nodes_edges_df(all_action_pairs, name="all")
     #
 
     ''' Split graph by time -- might not need this'''
