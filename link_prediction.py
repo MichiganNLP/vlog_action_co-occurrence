@@ -1,5 +1,4 @@
 from collections import Counter
-
 from stellargraph.data import EdgeSplitter, BiasedRandomWalk, UnsupervisedSampler
 from stellargraph.mapper import FullBatchLinkGenerator, Node2VecLinkGenerator, Node2VecNodeGenerator, \
     Attri2VecLinkGenerator, Attri2VecNodeGenerator, GraphSAGELinkGenerator, GraphSAGENodeGenerator
@@ -11,7 +10,8 @@ from stellargraph import datasets
 from IPython.display import display, HTML
 from sknetwork.linkpred import CommonNeighbors, JaccardIndex, SaltonIndex, HubPromotedIndex, AdamicAdar, \
     ResourceAllocation, PreferentialAttachment, HubDepressedIndex, whitened_sigmoid
-from sknetwork.ranking import Katz
+from sknetwork.path import shortest_path
+# from sknetwork.ranking import Katz
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.neighbors import NearestNeighbors
 from sklearn.model_selection import train_test_split
@@ -140,7 +140,7 @@ def test_train_split(g):
 def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val):
     dict_method_threshold = {}
     for method_name in ["CommonNeighbors", "JaccardIndex", "SaltonIndex", "PreferentialAttachment", "AdamicAdar",
-                        "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation"]:
+                        "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation", "ShortestPath"]:
         if method_name == "CommonNeighbors":
             method = CommonNeighbors()
         elif method_name == "JaccardIndex":
@@ -157,18 +157,28 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val):
             method = AdamicAdar()
         elif method_name == "ResourceAllocation":
             method = ResourceAllocation()
+        elif method_name == "ShortestPath":
+            pass
         else:
             raise ValueError(f"method {method_name} nam not correct")
 
         adjacency = g_val.to_adjacency_matrix()
-        method.fit_predict(adjacency, 0)  # assigns a scores to edges
+        if method_name != "ShortestPath":
+            method.fit_predict(adjacency, 0)  # assigns a scores to edges
 
-        nodes_test = [list(g_val.node_ids_to_ilocs([edge_ids_val[i][0], edge_ids_val[i][1]])) for i in
+        nodes_val = [list(g_val.node_ids_to_ilocs([edge_ids_val[i][0], edge_ids_val[i][1]])) for i in
                       range(len(edge_ids_val))]
 
         list_sym_predicted = []
-        for (node1, node2), label in zip(nodes_test, edge_labels_val):
-            common_neighbour_similarity = method.predict((node1, node2))
+        for (node1, node2), label in zip(nodes_val, edge_labels_val):
+            if method_name != "ShortestPath":
+                common_neighbour_similarity = method.predict((node1, node2))
+            else:
+                list_shortest_path = shortest_path(adjacency, node1, node2)
+                if not list_shortest_path:
+                    common_neighbour_similarity = 0
+                else:
+                    common_neighbour_similarity = 1 / len(list_shortest_path)
             list_sym_predicted.append(common_neighbour_similarity)
 
         max_accuracy = 0
@@ -180,19 +190,21 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val):
                 max_accuracy = accuracy
                 max_threshold = threshold
         dict_method_threshold[method_name] = max_threshold
-        console.print(f"Method {method_name}, max accuracy: {max_accuracy} with threshold: {max_threshold}", style="magenta")
+        console.print(f"Method {method_name}, max accuracy: {max_accuracy:.2f} with threshold: {max_threshold:.2f}",
+                      style="magenta")
     return dict_method_threshold
+
 
 def baselines(g_test, edge_ids_test, edge_labels_test, dict_method_threshold):
     print("Running baselines on test...")
-    #TODO: Katz, Leich-Holme-Newman, Shortest Path?
+    # TODO: Katz, Leich-Holme-Newman?
 
-    for method_name in ["CommonNeighbors", "JaccardIndex", "SaltonIndex", "PreferentialAttachment",  "AdamicAdar",
-                        "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation"]:
+    for method_name in ["CommonNeighbors", "JaccardIndex", "SaltonIndex", "PreferentialAttachment", "AdamicAdar",
+                        "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation", "ShortestPath"]:
         if not dict_method_threshold:
             threshold = 0.5
         else:
-            threshold = dict_method_threshold[method_name] # finetuned on validation
+            threshold = dict_method_threshold[method_name]  # finetuned on validation
 
         if method_name == "CommonNeighbors":
             method = CommonNeighbors()
@@ -210,13 +222,17 @@ def baselines(g_test, edge_ids_test, edge_labels_test, dict_method_threshold):
             method = AdamicAdar()
         elif method_name == "ResourceAllocation":
             method = ResourceAllocation()
+        elif method_name == "ShortestPath":
+            pass
         else:
             raise ValueError(f"method {method_name} nam not correct")
 
         console.print(f"Method {method_name}", style="magenta")
+
         adjacency = g_test.to_adjacency_matrix()
-        method.fit_predict(adjacency, 0) # assigns a scores to edges
-        # method.predict(list(range(adjacency.shape[0])))
+        if method_name != "ShortestPath":
+            method.fit_predict(adjacency, 0)  # assigns a scores to edges
+            # method.predict(list(range(adjacency.shape[0])))
 
         nodes_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
                       range(len(edge_ids_test))]
@@ -224,20 +240,27 @@ def baselines(g_test, edge_ids_test, edge_labels_test, dict_method_threshold):
         # predicted = []
         list_sym_predicted = []
         for (node1, node2), label in zip(nodes_test, edge_labels_test):
-            #     print(node1, node2, label)
-            common_neighbour_similarity = method.predict((node1, node2))
+            if method_name != "ShortestPath":
+                common_neighbour_similarity = method.predict((node1, node2))
+            else:
+                list_shortest_path = shortest_path(adjacency, node1, node2)
+                if not list_shortest_path:
+                    common_neighbour_similarity = 0
+                else:
+                    common_neighbour_similarity = 1 / len(list_shortest_path)
             list_sym_predicted.append(common_neighbour_similarity)
             # link = 0 if common_neighbour_similarity < threshold else 1
             # predicted.append(link)
 
-        predicted = whitened_sigmoid(np.asarray(list_sym_predicted)) > threshold #TODO: keep whitened sigmoid?
+        predicted = whitened_sigmoid(np.asarray(
+            list_sym_predicted)) > threshold  # TODO: keep whitened sigmoid? https://scikit-network.readthedocs.io/en/latest/tutorials/linkpred/first_order.html
 
         # print(f"Test GT data labels: {Counter(edge_labels_test)}")
         # print(f"Test Pred data sym scores: {Counter(list_sym_predicted)}")
         # print(f"Test Pred data labels: {Counter(predicted)}")
 
         accuracy = accuracy_score(edge_labels_test, predicted)
-        console.print(f"Accuracy {accuracy:.2f} with method {method_name}", style="dim cyan")
+        console.print(f"Accuracy {accuracy:.2f} with method {method_name} and fine-tuned threshold {threshold:.2f}", style="magenta")
 
 
 def GCN_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -565,9 +588,9 @@ def main():
     # prediction = GNN_link_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train,
     #                                        labels_val, labels_test) # TODO: train models with more epochs and best params - embeddings depend on that too
 
-    # dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val)
     # dict_method_threshold = {}
-    # baselines(g_test, nodes_test, labels_test, dict_method_threshold)
+    dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val)
+    baselines(g_test, nodes_test, labels_test, dict_method_threshold)
 
     # get_nearest_neighbours(g)     # TODO: compare with embeddings before and after model training
 
