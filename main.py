@@ -591,7 +591,24 @@ def get_visual_clip_features(all_actions):
     return list_vis_clip_embeddings, all_actions_processed
 
 
+def get_average_embeddings():
+    txtclip_node_data = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
+    visclip_node_data = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
+
+    txtclip_embeddings = txtclip_node_data.values
+    visclip_embeddings = visclip_node_data.values
+    avg_embeddings = (txtclip_embeddings + visclip_embeddings) / 2
+    actions_txt = txtclip_node_data.index.tolist()
+    actions_clip = visclip_node_data.index.tolist()
+    assert actions_txt == actions_clip
+
+    # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
+    df = pd.DataFrame(avg_embeddings, index=actions_txt)
+    df.to_csv("data/graph/all" + "_avgclip" + "_nodes.csv")
+
+
 def save_nodes_edges_df(all_action_pairs, name):
+    #TODO: Save initial action SentenceEmb and transcript SentenceEmb
     all_action_pairs = [ast.literal_eval(action_pair) for action_pair in all_action_pairs]
     all_actions = set()
     for action_pair in all_action_pairs:
@@ -690,11 +707,12 @@ def main():
 
     #
     ''' Combining the graph_plots for all videos '''
-    all_action_pairs = combine_graphs(video_sample, sample=False, filter_by_link=True)
+    # all_action_pairs = combine_graphs(video_sample, sample=False, filter_by_link=True)
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    save_nodes_edges_df(all_action_pairs, name="all")
+    # save_nodes_edges_df(all_action_pairs, name="all")
+    get_average_embeddings()
     #
 
     ''' Split graph by time -- might not need this'''
