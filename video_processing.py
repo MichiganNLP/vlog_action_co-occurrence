@@ -2,7 +2,6 @@ import glob
 import json
 import os
 import shutil
-import subprocess
 from collections import defaultdict
 
 import clip
@@ -24,7 +23,7 @@ def split_video_by_frames(video_names, new_video_names):
                                   description="Splitting videos into frames..."):
         print(f"Processing video {video} ...")
         path_in = "data/videos_sample/" + video + ".mp4"
-        path_out = "data/videos_sample/" + video_new + "/"
+        path_out = "data/videos_sample2/" + video_new + "/"
         count_skipped = 0
         if not os.path.exists(path_in) or os.path.exists(path_out):
             count_skipped += 1
@@ -32,7 +31,7 @@ def split_video_by_frames(video_names, new_video_names):
             continue
         try:
             probe = ffmpeg.probe(path_in)
-            time = float(probe['streams'][0]['duration']) // 2
+            time = float(probe['streams'][0]['duration'])
             width = probe['streams'][0]['width']
         except:
             print(f"Skipping corrupted video: {path_in}")
@@ -41,7 +40,7 @@ def split_video_by_frames(video_names, new_video_names):
         if not os.path.exists(path_out):
             os.makedirs(path_out)
 
-        # spllit in middle frame
+        # split in middle frame
         # (
         #     ffmpeg
         #         .input(path_in, ss=time)
@@ -51,17 +50,27 @@ def split_video_by_frames(video_names, new_video_names):
         # )
 
         # Set how many spots you want to extract a video from.
-        parts = 4
-        intervals = time // parts
-        interval_list = [(i * intervals, (i + 1) * intervals) for i in range(parts)]
-        for i, item in enumerate(interval_list):
-            (
-                ffmpeg
-                    .input(path_in, ss=item[1])
-                    .filter('scale', width, -1)
-                    .output(path_out + video_new + "_" + str(i) + '.jpeg', vframes=1)
-                    .run()
-            )
+        # parts = 4
+        # intervals = time // parts
+        # interval_list = [(i * intervals, (i + 1) * intervals) for i in range(parts)]
+        # for i, item in enumerate(interval_list):
+        #     (
+        #         ffmpeg
+        #             .input(path_in, ss=item[1])
+        #             .filter('scale', width, -1)
+        #             .output(path_out + video_new + "_" + str(i) + '.jpeg', vframes=1)
+        #             .run()
+        #     )
+        (ffmpeg
+         .input(path_in)
+         .filter('fps', fps='1')
+         .output(path_out + video_new + "_%d" + '.jpeg',
+                 start_number=0)
+         .overwrite_output()
+         .run(quiet=True)
+         )
+
+    # print(interval_list, intervals, time)
     console.print(f"Skipped {count_skipped} clips from frame splitting", style="magenta")
 
 
@@ -141,7 +150,7 @@ def get_all_clips_for_action(output_file):
 
 
 def save_clip_features(image_features, text_features, directories):
-    data_dir = 'data/clip_features/'
+    data_dir = 'data/clip_features2/'
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     assert len(directories) == len(image_features)
@@ -170,8 +179,8 @@ def run_clip(input_file):
             list_folders_to_process.append(video_name)
     model, preprocess = clip.load("ViT-B/16")
     directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
-    nb_frames = 4
-    prompt = "This is a photo of a person "
+    # nb_frames = 4
+    prompt = "This is a photo of action "
     nb_elem_in_batch = 200
     list_img_features, list_text_features = [], []
     directories_batches = [directories[i:i + nb_elem_in_batch] for i in range(0, len(directories), nb_elem_in_batch)]
@@ -248,8 +257,8 @@ def stats_videos():
                                 for action, clips in dict_action_clips_sample.items()
                                 for c in clips}
     all_videos_sampled = {"+".join([c["video"], c["time_s"], c["time_e"]])
-                                for _, clips in dict_action_clips_sample.items()
-                                for c in clips}
+                          for _, clips in dict_action_clips_sample.items()
+                          for c in clips}
     console.print(f"#Unique (action, clips) sampled: {len(all_action_clips_sampled)}", style="magenta")
     console.print(f"#Unique actions sampled: {len(dict_action_clips_sample.keys())}", style="magenta")
     console.print(f"#Unique videos sampled: {len(all_videos_sampled)}", style="magenta")
@@ -290,17 +299,18 @@ def sample_videos():
 
 
 if __name__ == '__main__':
-    pass
     # get_video_diff()
 
     # get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
-    # stats_videos()
     # sample_videos() # max 10 videos/ action
-    # check: AV8qxtUDtTs
+    # stats_videos()
+
+    # TODO: Add 5 seconds before and after time to account for misalignment
     # subprocess.run(["./download_videos.sh",
-    #                 "data/dict_action_clips_sample.json","data/url_list_sample.txt","data/videos_sample"])  # dict_action_clips_sample_remained
+    #                 "data/dict_action_clips_sample.json", "data/videos_sample"])
+    # "data/dict_action_clips_sample.json", "data/url_list_sample.txt", "data/videos_sample"])
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
-    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    # save_clip_features(image_features, text_features, action_clip_pairs)
+    image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    save_clip_features(image_features, text_features, action_clip_pairs)
