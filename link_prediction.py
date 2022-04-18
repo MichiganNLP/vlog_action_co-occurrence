@@ -740,18 +740,21 @@ def similarity_method(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_v
 def graph_emb_as_neighbour_weighted_avg(feat_nodes):
     # g = test_my_data(input_nodes='data/graph/all_stsbrt_nodes.csv', input_edges='data/graph/all_edges.csv')
     g = test_my_data(input_nodes='data/graph/all_' + feat_nodes + '_nodes.csv', input_edges='data/graph/all_edges_missing.csv')
+    g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
+            test_val_train_split2(g)
+
     list_weigthed_avg_embeddings = []
     self_weight = 1
-    for node in track(g.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
-        node_emb_weighted = g.node_features(nodes=[node]) * self_weight
+    for node in track(g_val.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
+        node_emb_weighted = g_val.node_features(nodes=[node]) * self_weight
         sum_weights = self_weight
-        for (node_neighbour, edge_weight) in g.in_nodes(node, include_edge_weight=True):
-            node_neighbour_emb_weighted = g.node_features(nodes=[node_neighbour]) * edge_weight
+        for (node_neighbour, edge_weight) in g_val.in_nodes(node, include_edge_weight=True):
+            node_neighbour_emb_weighted = g_val.node_features(nodes=[node_neighbour]) * edge_weight
             node_emb_weighted += node_neighbour_emb_weighted
             sum_weights += edge_weight
         list_weigthed_avg_embeddings.append((node_emb_weighted / sum_weights)) # weigthed edge mean of neighbour nodes
 
-    df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weigthed_avg_embeddings], index=list(g.nodes()))
+    df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weigthed_avg_embeddings], index=list(g_val.nodes()))
     df.to_csv('data/graph/all_weighted_' + feat_nodes + '_avg_nodes.csv')
 
 
@@ -787,9 +790,9 @@ def main():
     dict_method_threshold = {}
     # for feat_nodes in ["stsbrt", "transcript_stsbrt", "weighted_avg", "txtclip", "visclip", "avgclip"]: #, "txtclip", "visclip", "avgclip"]:
     # for feat_nodes in ["weighted_txtclip_avg", "weighted_visclip_avg", "weighted_avgclip_avg"]:
-    for feat_nodes in ["stsbrt"]:
-    # for feat_nodes in ["txtclip", "visclip", "avgclip"]:
-    #     graph_emb_as_neighbour_weighted_avg(feat_nodes)
+    # for feat_nodes in ["stsbrt"]:
+    for feat_nodes in ["weighted_stsbrt_avg"]:
+        # graph_emb_as_neighbour_weighted_avg(feat_nodes)
 
         g = test_my_data(input_nodes='data/graph/all_' + feat_nodes + '_nodes.csv',
                          # input_edges='data/graph/all_edges.csv')
@@ -799,23 +802,23 @@ def main():
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
             test_val_train_split2(g)
 
-        # # weighted_heuristic_methods(g_val, nodes_val, labels_val) #TODO?
-        #
-        # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val,
-        #                   method_name="_".join(["Similarity", feat_nodes]))
+        predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val,
+                          method_name="_".join(["Similarity", feat_nodes]))
+
         # analyse_results(predicted, edge_labels_test, edges_ids_test)
 
         # GNN_link_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train,
         #                labels_val,
         #                labels_test, feat_nodes)
 
+        # # weighted_heuristic_methods(g_val, nodes_val, labels_val) #TODO?
+
     # get_nearest_neighbours()  # TODO: GNN methods don't work well
 
 
     ## doesn't depend on embeddings
-    dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val,
-                                                             dict_method_threshold)
-    heuristic_methods(g_test, nodes_test, labels_test, dict_method_threshold)
+    # dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val, dict_method_threshold)
+    # heuristic_methods(g_test, nodes_test, labels_test, dict_method_threshold)
 
 
 
