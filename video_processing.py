@@ -3,6 +3,8 @@ import json
 import os
 import shutil
 from collections import defaultdict
+from typing import Iterable, Mapping, Any, Sequence, Callable
+
 import pandas as pd
 import clip
 import cv2
@@ -13,6 +15,8 @@ from PIL import Image
 from rich.console import Console
 from rich.progress import track
 from sklearn.metrics.pairwise import cosine_similarity
+from torch.utils.data import Dataset
+from torch.utils.data.dataset import T_co
 
 console = Console()
 
@@ -165,6 +169,36 @@ def save_clip_features(image_features, text_features, directories):
         torch.save(text_feature_i, data_dir + directories[i] + "_text" + '.pt')
 
 
+class VideoDataset(Dataset):
+    def __init__(self, directories: Sequence[str], transform: Callable[[Image.Image], torch.Tensor],
+                 tokenizer: Callable[[str], torch.Tensor]) -> None:
+        super().__init__()
+        self.directories = directories
+        self.transform = transform
+        self.tokenizer = tokenizer
+
+    def __getitem__(self, i: int) -> Mapping[str, Any]:
+        directory = self.directories[i]
+
+        output = {}
+
+        images_per_video = sorted([filename
+                                   for filename in os.listdir(directory)
+                                   if filename.endswith((".png", ".jpg", ".jpeg"))])
+        name = os.path.splitext(images_per_video[0])[0]
+
+        action = " ".join(name.split("+")[0].split("_"))
+        output["text_tokens"] = self.tokenizer(f"This is a photo of action {action}")
+
+        output["video"] = [self.transform(Image.open(os.path.join(directory, image_name)))
+                           for image_name in images_per_video]
+
+        return output
+
+    def __len__(self) -> int:
+        return len(self.directories)
+
+
 def run_clip(input_file):
     # data_dir = "data/videos/"
     data_dir = "data/videos_sample/"
@@ -207,7 +241,7 @@ def run_clip(input_file):
         assert len(prep_images) / nb_frames == len(texts)
 
         image_input = torch.stack(prep_images).to(DEVICE)
-        text_tokens = clip.tokenize([desc for desc in texts]).to(DEVICE)
+        text_tokens = clip.tokenize(texts).to(DEVICE)
 
         with torch.no_grad():
             image_features = model.encode_image(image_input).float()
@@ -221,11 +255,11 @@ def run_clip(input_file):
         list_img_features.append(image_features)
         list_text_features.append(text_features)
 
-    image_features = torch.cat(list_img_features, dim=0)
-    text_features = torch.cat(list_text_features, dim=0)
+    image_features = torch.cat(list_img_features)
+    text_features = torch.cat(list_text_features)
 
-    image_features /= image_features.norm(dim=-1, keepdim=True)
-    text_features /= text_features.norm(dim=-1, keepdim=True)
+    # image_features /= image_features.norm(dim=-1, keepdim=True)
+    # text_features /= text_features.norm(dim=-1, keepdim=True)
 
     # similarity = image_features @ text_features.T
     # print(similarity)
@@ -417,10 +451,8 @@ if __name__ == '__main__':
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
 
-    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    # save_clip_features(image_features, text_features, action_clip_pairs)
+    image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    save_clip_features(image_features, text_features, action_clip_pairs)
 
-
-
-    test_run_clip(input_file="data/dict_action_clips_sample_test.json")
+    # test_run_clip(input_file="data/dict_action_clips_sample_test.json")
     # test_clip()
