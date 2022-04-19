@@ -409,31 +409,48 @@ def test_clip():
     nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col = 0)
     # print(nodes.index)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['clean kitchen']].to_numpy()
-    action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    action4 = nodes.loc[['put music']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add beet']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-    nodes = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['clean kitchen']].to_numpy()
-    action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    action4 = nodes.loc[['put music']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    # nodes = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
+    # action1 = nodes.loc[['clean sink']].to_numpy()
+    # action2 = nodes.loc[['clean kitchen']].to_numpy()
+    # action3 = nodes.loc[['compete with dollar store']].to_numpy()
+    # action4 = nodes.loc[['put music']].to_numpy()
+    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
 
     nodes = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['clean kitchen']].to_numpy()
-    action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    action4 = nodes.loc[['put music']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add beet']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-    nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
+
+    nodes = pd.read_csv('data/graph/all_weighted_visclip_avg_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['clean kitchen']].to_numpy()
-    action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    action4 = nodes.loc[['put music']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add beet']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
+
+    # nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
+    # action1 = nodes.loc[['clean sink']].to_numpy()
+    # action2 = nodes.loc[['clean kitchen']].to_numpy()
+    # action3 = nodes.loc[['compete with dollar store']].to_numpy()
+    # action4 = nodes.loc[['put music']].to_numpy()
+    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
 
 
 if __name__ == '__main__':
@@ -450,9 +467,9 @@ if __name__ == '__main__':
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
-
-    image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    save_clip_features(image_features, text_features, action_clip_pairs)
+    #
+    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
+    # save_clip_features(image_features, text_features, action_clip_pairs)
 
     # test_run_clip(input_file="data/dict_action_clips_sample_test.json")
-    # test_clip()
+    test_clip()

@@ -1,6 +1,6 @@
 import json
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import networkx as nx
 import numpy as np
@@ -117,6 +117,7 @@ def test_val_train_split2(g):
 
     # print(g_train.info())
     # print(g_val.info())
+    # print(g_test.info())
     # print(len(nodes_test), len(nodes_train), len(nodes_val))
     return g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test
 
@@ -218,6 +219,44 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_
             f"Method {method_name}, on validation max accuracy: {max_accuracy:.1f} with threshold: {max_threshold:.2f}",
             style="magenta")
     return dict_method_threshold
+
+def plot_features(method, top_features, feature_names): #TODO
+    import matplotlib.pyplot as plt
+    coef = method.coef_.ravel()
+    top_positive_coefficients = np.argsort(coef)[-top_features:]
+    top_negative_coefficients = np.argsort(coef)[:top_features]
+    top_coefficients = np.hstack([top_negative_coefficients, top_positive_coefficients])
+    plt.figure(figsize=(18, 7))
+    colors = ['green' if c < 0 else 'blue' for c in coef[top_coefficients]]
+    plt.bar(np.arange(2 * top_features), coef[top_coefficients], color=colors)
+    feature_names = np.array(feature_names)
+    plt.xticks(np.arange(1 + 2 * top_features), feature_names[top_coefficients], rotation=45, ha='right')
+    plt.savefig("data/plots/top_features.pdf")
+    # plt.show()
+
+def SVM(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_labels_val, method_name):
+    nodes_feat_pairs_test = [g_test.node_features(nodes=[edge_ids_test[i][0], edge_ids_test[i][1]])
+                        for i in range(len(edge_ids_test))]
+    nodes_feat_pairs_val = [g_val.node_features(nodes=[edge_ids_val[i][0], edge_ids_val[i][1]])
+                             for i in range(len(edge_ids_val))]
+
+    nodes_feat_test = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
+    nodes_feat_val = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_val]))
+    # print(nodes_feat_test.shape)
+    # print(edge_labels_test.shape)
+    # print(nodes_feat_val.shape)
+    # print(edge_labels_val.shape)
+
+    from sklearn import svm
+    method = svm.SVC()
+    method.fit(nodes_feat_val, edge_labels_val)
+
+    predicted = method.predict(nodes_feat_test)
+    accuracy = accuracy_score(edge_labels_test, predicted) * 100
+
+    console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
+    # print(Counter(predicted))
+    # print(Counter(edge_labels_test))
 
 
 def heuristic_methods(g_test, edge_ids_test, edge_labels_test, dict_method_threshold):
@@ -728,6 +767,8 @@ def similarity_method(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_v
 
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f} with threshold: {threshold:.2f}",
                   style="magenta")
+    print(Counter(predicted))
+    print(Counter(edge_labels_test))
 
     return predicted, edge_labels_test, edge_ids_test
 
@@ -739,19 +780,20 @@ def graph_emb_as_neighbour_weighted_avg(feat_nodes):
     g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
         test_val_train_split2(g)
 
-    list_weighted_avg_embeddings = []
-    self_weight = 1
-    for node in track(g_val.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
-        node_emb_weighted = g_val.node_features(nodes=[node]) * self_weight
-        sum_weights = self_weight
-        for node_neighbour, edge_weight in g_val.in_nodes(node, include_edge_weight=True):
-            edge_weight = 1
-            node_emb_weighted += g_val.node_features(nodes=[node_neighbour]) * edge_weight
-            sum_weights += edge_weight
-        list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
 
-    df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weighted_avg_embeddings], index=list(g_val.nodes()))
-    df.to_csv('data/graph/all_weighted_' + feat_nodes + '_avg_nodes.csv')
+    # list_weighted_avg_embeddings = []
+    # self_weight = 1
+    # for node in track(g_val.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
+    #     node_emb_weighted = g_val.node_features(nodes=[node]) * self_weight
+    #     sum_weights = self_weight
+    #     for node_neighbour, edge_weight in g_val.in_nodes(node, include_edge_weight=True):
+    #         edge_weight = 1
+    #         node_emb_weighted += g_val.node_features(nodes=[node_neighbour]) * edge_weight
+    #         sum_weights += edge_weight
+    #     list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
+    #
+    # df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weighted_avg_embeddings], index=list(g_val.nodes()))
+    # df.to_csv('data/graph/all_weighted_' + feat_nodes + '_avg_nodes.csv')
 
 
 def analyse_results(predicted_labels, edge_labels_test, edges_ids_test):
@@ -788,9 +830,10 @@ def main():
     dict_method_threshold = {}
     # for feat_nodes in ["stsbrt", "transcript_stsbrt", "weighted_avg", "txtclip", "visclip", "avgclip"]:  #, "txtclip", "visclip", "avgclip"]:
     # for feat_nodes in ["weighted_txtclip_avg", "weighted_visclip_avg", "weighted_avgclip_avg"]:
-    # for feat_nodes in ["visclip", "stsbrt"]:
-    for feat_nodes in ["weighted_visclip_avg", "weighted_stsbrt_avg"]:
-        # graph_emb_as_neighbour_weighted_avg(feat_nodes)
+    for feat_nodes in ["stsbrt"]:
+    # for feat_nodes in ["weighted_visclip_avg", "weighted_stsbrt_avg"]:
+    # for feat_nodes in ["weighted_visclip_avg", "weighted_stsbrt_avg"]:
+    #     graph_emb_as_neighbour_weighted_avg(feat_nodes)
 
         g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
                          # input_edges='data/graph/all_edges.csv')
@@ -800,10 +843,14 @@ def main():
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
             test_val_train_split2(g)
 
-        predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
-                                                                        nodes_val, labels_val,
-                                                                        method_name="_".join(
-                                                                            ["Similarity", feat_nodes]))
+        SVM(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, method_name="_".join(["SVM", feat_nodes]))
+
+        # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
+        #                                                                 nodes_val, labels_val,
+        #                                                                 method_name="_".join(
+        #                                                                     ["Similarity", feat_nodes]))
+
+
 
         # analyse_results(predicted, edge_labels_test, edges_ids_test)
 
