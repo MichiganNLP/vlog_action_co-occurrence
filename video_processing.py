@@ -1,5 +1,6 @@
 import glob
 import json
+import multiprocessing
 import os
 import shutil
 from collections import defaultdict
@@ -15,7 +16,7 @@ from PIL import Image
 from rich.console import Console
 from rich.progress import track
 from sklearn.metrics.pairwise import cosine_similarity
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 console = Console()
 
@@ -168,6 +169,9 @@ def save_clip_features(image_features, text_features, directories):
         torch.save(text_feature_i, data_dir + directories[i] + "_text" + '.pt')
 
 
+FRAME_COUNT = 4
+
+
 class VideoDataset(Dataset):
     def __init__(self, directories: Sequence[str], transform: Callable[[Image.Image], torch.Tensor],
                  tokenizer: Callable[[str], torch.Tensor]) -> None:
@@ -189,8 +193,10 @@ class VideoDataset(Dataset):
         action = " ".join(name.split("+")[0].split("_"))
         output["text_tokens"] = self.tokenizer(f"This is a photo of action {action}")
 
-        output["video"] = [self.transform(Image.open(os.path.join(directory, image_name)))
-                           for image_name in images_per_video]
+        output["video"] = torch.stack([self.transform(Image.open(os.path.join(directory, image_name)))
+                                       for image_name in images_per_video])
+
+        assert len(output["video"]) == FRAME_COUNT
 
         return output
 
@@ -211,48 +217,36 @@ def run_clip(input_file):
             video, time_s, time_e = dict_video_time.values()
             video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
             list_folders_to_process.append(video_name)
-    model, preprocess = clip.load("ViT-B/16")
-    directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
-    # nb_frames = 4
-    prompt = "This is a photo of action "
-    nb_elem_in_batch = 200
-    list_img_features, list_text_features = [], []
-    directories_batches = [directories[i:i + nb_elem_in_batch] for i in range(0, len(directories), nb_elem_in_batch)]
-    for batch_dir in track(directories_batches, description="Extracting data for CLIP..."):
-        prep_images, texts = [], []
-        for dir_video in batch_dir:
-            if not os.path.exists(dir_video):
-                list_folders_to_process.remove(dir_video.replace(data_dir, ''))
-                print(f"Path {dir_video} doesn't exist! Skipping ...")
-                continue
-            images_per_video = sorted(
-                [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
-            name = os.path.splitext(images_per_video[0])[0]
-            action = " ".join(name.split("+")[0].split("_"))
-            description = prompt + action
-            nb_frames = len(images_per_video)
-            for image_name in images_per_video:
-                image = Image.open(os.path.join(dir_video, image_name))
-                preprocessed_img = preprocess(image)
-                prep_images.append(preprocessed_img)
-            texts.append(description)
+    model, transform = clip.load("ViT-B/16")
+    directories = [data_dir + folder
+                   for folder in list_folders_to_process
+                   if os.path.exists(data_dir + folder)]  # FIXME: check why there are missing folders.
 
-        assert len(prep_images) / nb_frames == len(texts)
+    dataset = VideoDataset(directories, transform=transform, tokenizer=clip.tokenize)
+    data_loader = DataLoader(dataset, batch_size=200,
+                             num_workers=multiprocessing.cpu_count() // max(torch.cuda.device_count(), 1),
+                             pin_memory=True)
 
-        image_input = torch.stack(prep_images).to(DEVICE)
-        text_tokens = clip.tokenize(texts).to(DEVICE)
+    list_img_features = []
+    list_text_features = []
 
-        with torch.no_grad():
-            image_features = model.encode_image(image_input).float()
-            text_features = model.encode_text(text_tokens).float()
+    with torch.inference_mode():
+        for batch in track(data_loader, description="Extracting data for CLIP..."):
+            batch = {k: v.to(DEVICE) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
-        # Get the mean of image features for each video
-        reshaped_image_features = image_features.reshape(image_features.shape[0] // nb_frames, nb_frames, -1)
-        image_features = reshaped_image_features.mean(dim=1)
-        assert image_features.shape == text_features.shape
+            video = batch["video"]
+            video = video.view(-1, *video.shape[2:])
 
-        list_img_features.append(image_features)
-        list_text_features.append(text_features)
+            image_features = model.encode_image(video)
+            text_features = model.encode_text(batch["text_tokens"])
+
+            # Get the mean of image features for each video
+            reshaped_image_features = image_features.reshape(image_features.shape[0] // FRAME_COUNT, FRAME_COUNT, -1)
+            image_features = reshaped_image_features.mean(dim=1)
+            assert image_features.shape == text_features.shape
+
+            list_img_features.append(image_features)
+            list_text_features.append(text_features)
 
     image_features = torch.cat(list_img_features)
     text_features = torch.cat(list_text_features)
