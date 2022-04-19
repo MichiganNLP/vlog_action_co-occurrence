@@ -576,9 +576,9 @@ def get_visual_clip_features(all_actions, data_dir):
     return list_vis_clip_embeddings, all_actions_processed
 
 
-def get_average_clip_embeddings():
-    txtclip_node_data = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
-    visclip_node_data = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
+def get_average_clip_embeddings(input1, input2, output):
+    txtclip_node_data = pd.read_csv(input1, index_col=0)
+    visclip_node_data = pd.read_csv(input2, index_col=0)
 
     txtclip_embeddings = txtclip_node_data.values
     visclip_embeddings = visclip_node_data.values
@@ -589,7 +589,7 @@ def get_average_clip_embeddings():
 
     # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
     df = pd.DataFrame(avg_embeddings, index=actions_txt)
-    df.to_csv("data/graph/all" + "_avgclip" + "_nodes.csv")
+    df.to_csv(output)
 
 
 def save_nodes_null_df(all_action_pairs, name):
@@ -617,7 +617,7 @@ def save_nodes_edges_df(all_action_pairs, transcripts_per_action, name):
     # list_stsbrt_transcript_embeddings = get_sentence_embedding_features(all_transcripts)
     # list_stsbrt_embeddings = get_sentence_embedding_features(all_actions)
     list_txt_clip_embeddings, all_actions_txt = get_text_clip_features(all_actions, data_dir='data/clip_features2/')
-    # list_vis_clip_embeddings, all_actions_vis = get_visual_clip_features(all_actions, data_dir='data/clip_features2/')
+    list_vis_clip_embeddings, all_actions_vis = get_visual_clip_features(all_actions, data_dir='data/clip_features2/')
     #
     # # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
     # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_transcript_embeddings], index=all_actions)
@@ -629,10 +629,12 @@ def save_nodes_edges_df(all_action_pairs, transcripts_per_action, name):
     df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_txt_clip_embeddings], index=all_actions_txt)
     df.to_csv('data/graph/' + name + "_txtclip" + "_nodes.csv")
     #
-    # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_vis)
-    # df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_vis)
+    df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
     #
-    # get_average_clip_embeddings()
+    get_average_clip_embeddings(input1='data/graph/' + name + "_txtclip" + "_nodes.csv",
+                                input2='data/graph/' + name + "_visclip" + "_nodes.csv",
+                                output="data/graph/all" + "_avgclip" + "_nodes.csv")
 
     # Save graph edges
     counter = Counter(tuple(x) for x in all_action_pairs)

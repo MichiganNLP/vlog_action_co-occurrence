@@ -745,6 +745,7 @@ def graph_emb_as_neighbour_weighted_avg(feat_nodes):
         node_emb_weighted = g_val.node_features(nodes=[node]) * self_weight
         sum_weights = self_weight
         for node_neighbour, edge_weight in g_val.in_nodes(node, include_edge_weight=True):
+            edge_weight = 1
             node_emb_weighted += g_val.node_features(nodes=[node_neighbour]) * edge_weight
             sum_weights += edge_weight
         list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
@@ -787,8 +788,8 @@ def main():
     dict_method_threshold = {}
     # for feat_nodes in ["stsbrt", "transcript_stsbrt", "weighted_avg", "txtclip", "visclip", "avgclip"]:  #, "txtclip", "visclip", "avgclip"]:
     # for feat_nodes in ["weighted_txtclip_avg", "weighted_visclip_avg", "weighted_avgclip_avg"]:
-    for feat_nodes in ["weighted_txtclip_avg"]:
-    # for feat_nodes in ["weighted_stsbrt_avg"]:
+    # for feat_nodes in ["visclip", "stsbrt"]:
+    for feat_nodes in ["weighted_visclip_avg", "weighted_stsbrt_avg"]:
         # graph_emb_as_neighbour_weighted_avg(feat_nodes)
 
         g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
