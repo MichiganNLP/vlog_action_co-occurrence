@@ -11,10 +11,10 @@ from rich.console import Console
 from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import NearestNeighbors
-from sknetwork.linkpred import CommonNeighbors, JaccardIndex, SaltonIndex, HubPromotedIndex, AdamicAdar, \
-    ResourceAllocation, PreferentialAttachment, HubDepressedIndex, whitened_sigmoid
-from sknetwork.path import shortest_path
+# from sklearn.neighbors import NearestNeighbors
+# from sknetwork.linkpred import CommonNeighbors, JaccardIndex, SaltonIndex, HubPromotedIndex, AdamicAdar, \
+#     ResourceAllocation, PreferentialAttachment, HubDepressedIndex, whitened_sigmoid
+# from sknetwork.path import shortest_path
 from stellargraph import StellarGraph
 from stellargraph import datasets
 from stellargraph.data import EdgeSplitter, BiasedRandomWalk, UnsupervisedSampler
