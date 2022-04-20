@@ -3,20 +3,19 @@ import json
 import os
 import shutil
 from collections import defaultdict
-from typing import Iterable, Mapping, Any, Sequence, Callable
+from typing import Mapping, Any, Sequence, Callable
 
-import pandas as pd
 import clip
 import cv2
 import ffmpeg
 import numpy as np
+import pandas as pd
 import torch
 from PIL import Image
 from rich.console import Console
 from rich.progress import track
 from sklearn.metrics.pairwise import cosine_similarity
 from torch.utils.data import Dataset
-from torch.utils.data.dataset import T_co
 
 console = Console()
 
@@ -267,72 +266,72 @@ def run_clip(input_file):
 
 
 def test_run_clip(input_file):
-        data_dir = "data/videos_test/"
-        with open(input_file) as json_file:
-            dict_test_clip = json.load(json_file)
-        list_folders_to_process = []
-        for action in dict_test_clip:
-            for dict_video_time in dict_test_clip[action]:
-                video, time_s, time_e = dict_video_time.values()
-                video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
-                list_folders_to_process.append(video_name)
-        model, preprocess = clip.load("ViT-B/16")
-        directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
-        # nb_frames = 4
-        prompt = "This is a photo of a person "
-        nb_elem_in_batch = 200
-        list_img_features, list_text_features = [], []
-        directories_batches = [directories[i:i + nb_elem_in_batch] for i in
-                               range(0, len(directories), nb_elem_in_batch)]
-        for batch_dir in track(directories_batches, description="Extracting data for CLIP..."):
-            prep_images, texts = [], []
-            for dir_video in batch_dir:
-                if not os.path.exists(dir_video):
-                    list_folders_to_process.remove(dir_video.replace(data_dir, ''))
-                    # print(f"Path {dir_video} doesn't exist! Skipping ...")
-                    continue
-                images_per_video = sorted(
-                    [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
-                name = os.path.splitext(images_per_video[0])[0]
-                action = " ".join(name.split("+")[0].split("_"))
-                print(action)
-                description = prompt + action
-                nb_frames = len(images_per_video)
-                for image_name in images_per_video:
-                    image = Image.open(os.path.join(dir_video, image_name))
-                    preprocessed_img = preprocess(image)
-                    prep_images.append(preprocessed_img)
-                texts.append(description)
+    data_dir = "data/videos_test/"
+    with open(input_file) as json_file:
+        dict_test_clip = json.load(json_file)
+    list_folders_to_process = []
+    for action in dict_test_clip:
+        for dict_video_time in dict_test_clip[action]:
+            video, time_s, time_e = dict_video_time.values()
+            video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
+            list_folders_to_process.append(video_name)
+    model, preprocess = clip.load("ViT-B/16")
+    directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
+    # nb_frames = 4
+    prompt = "This is a photo of a person "
+    nb_elem_in_batch = 200
+    list_img_features, list_text_features = [], []
+    directories_batches = [directories[i:i + nb_elem_in_batch] for i in
+                           range(0, len(directories), nb_elem_in_batch)]
+    for batch_dir in track(directories_batches, description="Extracting data for CLIP..."):
+        prep_images, texts = [], []
+        for dir_video in batch_dir:
+            if not os.path.exists(dir_video):
+                list_folders_to_process.remove(dir_video.replace(data_dir, ''))
+                # print(f"Path {dir_video} doesn't exist! Skipping ...")
+                continue
+            images_per_video = sorted(
+                [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
+            name = os.path.splitext(images_per_video[0])[0]
+            action = " ".join(name.split("+")[0].split("_"))
+            print(action)
+            description = prompt + action
+            nb_frames = len(images_per_video)
+            for image_name in images_per_video:
+                image = Image.open(os.path.join(dir_video, image_name))
+                preprocessed_img = preprocess(image)
+                prep_images.append(preprocessed_img)
+            texts.append(description)
 
-            assert len(prep_images) / nb_frames == len(texts)
+        assert len(prep_images) / nb_frames == len(texts)
 
-            image_input = torch.stack(prep_images).to(DEVICE)
-            text_tokens = clip.tokenize([desc for desc in texts]).to(DEVICE)
+        image_input = torch.stack(prep_images).to(DEVICE)
+        text_tokens = clip.tokenize([desc for desc in texts]).to(DEVICE)
 
-            with torch.no_grad():
-                image_features = model.encode_image(image_input).float()
-                text_features = model.encode_text(text_tokens).float()
+        with torch.no_grad():
+            image_features = model.encode_image(image_input).float()
+            text_features = model.encode_text(text_tokens).float()
 
-            # Get the mean of image features for each video
-            reshaped_image_features = image_features.reshape(image_features.shape[0] // nb_frames, nb_frames, -1)
-            image_features = reshaped_image_features.mean(dim=1)
-            assert image_features.shape == text_features.shape
+        # Get the mean of image features for each video
+        reshaped_image_features = image_features.reshape(image_features.shape[0] // nb_frames, nb_frames, -1)
+        image_features = reshaped_image_features.mean(dim=1)
+        assert image_features.shape == text_features.shape
 
-            list_img_features.append(image_features)
-            list_text_features.append(text_features)
+        list_img_features.append(image_features)
+        list_text_features.append(text_features)
 
-        image_features = torch.cat(list_img_features, dim=0)
-        text_features = torch.cat(list_text_features, dim=0)
+    image_features = torch.cat(list_img_features, dim=0)
+    text_features = torch.cat(list_text_features, dim=0)
 
-        image_features /= image_features.norm(dim=-1, keepdim=True)
-        text_features /= text_features.norm(dim=-1, keepdim=True)
+    image_features /= image_features.norm(dim=-1, keepdim=True)
+    text_features /= text_features.norm(dim=-1, keepdim=True)
 
+    similarity = image_features @ text_features.T
+    print(similarity)
+    similarity = image_features @ image_features.T
+    print(similarity)
+    # return image_features, text_features, list_folders_to_process
 
-        similarity = image_features @ text_features.T
-        print(similarity)
-        similarity = image_features @ image_features.T
-        print(similarity)
-        # return image_features, text_features, list_folders_to_process
 
 def stats_videos():
     with open('data/coref_all_sentence_transcripts.json') as json_file:
@@ -396,7 +395,8 @@ def sample_videos():
         dict_action_clips = json.load(json_file)
     nb_videos = 10
     dict_action_clips_sample = {action: dict_action_clips[action][:nb_videos] for action in dict_action_clips.keys()}
-    dict_action_clips_sample_test = {action: dict_action_clips[action][:nb_videos] for action in dict_action_clips.keys()
+    dict_action_clips_sample_test = {action: dict_action_clips[action][:nb_videos] for action in
+                                     dict_action_clips.keys()
                                      if action in ["clean sink", 'clean kitchen', 'put music']}
     with open('data/dict_action_clips_sample.json', 'w+') as fp:
         json.dump(dict_action_clips_sample, fp)
@@ -405,8 +405,9 @@ def sample_videos():
         json.dump(dict_action_clips_sample_test, fp)
     # 730 * 10 .. 7297 - put rose petal has 7 videos
 
+
 def test_clip():
-    nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col = 0)
+    nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0)
     # print(nodes.index)
     action1 = nodes.loc[['clean sink']].to_numpy()
     action2 = nodes.loc[['scrub sink']].to_numpy()
@@ -433,7 +434,6 @@ def test_clip():
     action6 = nodes.loc[['add beet']].to_numpy()
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
-
 
     nodes = pd.read_csv('data/graph/all_weighted_visclip_avg_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()

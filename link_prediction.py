@@ -8,7 +8,6 @@ import pandas as pd
 import tensorflow as tf
 from IPython.display import display, HTML
 from rich.console import Console
-from rich.progress import track
 from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
@@ -234,6 +233,51 @@ def plot_features(method, top_features, feature_names): #TODO
     plt.savefig("data/plots/top_features.pdf")
     # plt.show()
 
+
+def save_edge_features(g_test, edge_ids_test, edge_labels_test, g_val):
+    nodes_feat_pairs_test = [g_test.node_features(nodes=[edge_ids_test[i][0], edge_ids_test[i][1]])
+                             for i in range(len(edge_ids_test))]
+
+    # heuristics
+    adjacency = g_val.to_adjacency_matrix() #TODO: g_val or g_test?
+    method_HD = HubDepressedIndex()
+    method_HD.fit_predict(adjacency, 0)  # assigns a scores to edges
+
+    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
+                  range(len(edge_ids_test))]
+    nodes_SP_pairs_test = [len(shortest_path(adjacency, node1, node2)) for (node1, node2) in nodes_pairs_test]
+    nodes_HD_pairs_test = [method_HD.predict((node1, node2)) for (node1, node2) in nodes_pairs_test]
+
+    # nodes_feat1_test = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
+    nodes_feat2_test = np.array(nodes_SP_pairs_test)[:, np.newaxis]
+    nodes_feat3_test = np.array(nodes_HD_pairs_test)[:, np.newaxis]
+    # concat_feat_test = np.concatenate((nodes_feat1_test, nodes_feat2_test), axis=1)
+    concat_feat_test = np.concatenate((nodes_feat2_test, nodes_feat3_test), axis=1)
+    # concat_feat_test = np.concatenate((nodes_feat1_test, nodes_feat2_test, nodes_feat3_test), axis=1)
+    # print(nodes_feat1_test.shape)
+    # print(nodes_feat2_test.shape)
+    # print(nodes_feat3_test.shape)
+    # print(concat_feat.shape)
+    # return concat_feat
+    # print(nodes_feat2_test)
+
+    from sklearn import svm
+    method = svm.SVC(kernel='linear')
+    method.fit(concat_feat_test, edge_labels_test)
+    method_name = "SVM"
+
+    predicted = method.predict(concat_feat_test)
+    accuracy = accuracy_score(edge_labels_test, predicted) * 100
+    coef = method.coef_.ravel()
+    # print(coef)
+
+    # print(coef.shape)
+    # print(Counter(predicted))
+    # print(Counter(edge_labels_test))
+
+    console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
+
+
 def SVM(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_labels_val, method_name):
     nodes_feat_pairs_test = [g_test.node_features(nodes=[edge_ids_test[i][0], edge_ids_test[i][1]])
                         for i in range(len(edge_ids_test))]
@@ -242,24 +286,28 @@ def SVM(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_label
 
     nodes_feat_test = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
     nodes_feat_val = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_val]))
+
+
     # print(nodes_feat_test.shape)
     # print(edge_labels_test.shape)
     # print(nodes_feat_val.shape)
     # print(edge_labels_val.shape)
 
     from sklearn import svm
-    method = svm.SVC()
+    method = svm.SVC(kernel='linear')
     method.fit(nodes_feat_val, edge_labels_val)
 
     predicted = method.predict(nodes_feat_test)
     accuracy = accuracy_score(edge_labels_test, predicted) * 100
+    coef = method.coef_.ravel()
+    # print(coef.shape)
 
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
     # print(Counter(predicted))
     # print(Counter(edge_labels_test))
 
 
-def heuristic_methods(g_test, edge_ids_test, edge_labels_test, dict_method_threshold):
+def heuristic_methods(g_test, edge_ids_test, edge_labels_test, g_val, dict_method_threshold):
     print("Running heuristic methods on test...")
     # TODO: Katz, Leich-Holme-Newman?
 
@@ -293,7 +341,7 @@ def heuristic_methods(g_test, edge_ids_test, edge_labels_test, dict_method_thres
 
         console.print(f"Method {method_name}", style="magenta")
 
-        adjacency = g_test.to_adjacency_matrix()
+        adjacency = g_val.to_adjacency_matrix() #TODO: g_val or g_test?
         if method_name != "ShortestPath":
             method.fit_predict(adjacency, 0)  # assigns a scores to edges
             # method.predict(list(range(adjacency.shape[0])))
@@ -843,7 +891,9 @@ def main():
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
             test_val_train_split2(g)
 
-        SVM(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, method_name="_".join(["SVM", feat_nodes]))
+        save_edge_features(g_test,  nodes_test, labels_test, g_val)
+
+        # SVM(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, method_name="_".join(["SVM", feat_nodes]))
 
         # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
         #                                                                 nodes_val, labels_val,
@@ -864,8 +914,8 @@ def main():
 
     # # doesn't depend on embeddings
     # dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val, dict_method_threshold)
-    # heuristic_methods(g_test, nodes_test, labels_test, dict_method_threshold)
-
+    # heuristic_methods(g_test, nodes_test, labels_test, g_val, dict_method_threshold)
+    #
     # #### might erase later
     # g_train, g_test, examples_train, labels_train, examples_test, labels_test = test_train_split(g)
     # g_train, g_test, nodes_train, nodes_val, labels_train, labels_val, nodes_test, labels_test =\
