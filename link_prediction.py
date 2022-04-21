@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from collections import defaultdict, Counter
 
@@ -143,36 +144,93 @@ def test_train_split(g):
 
     return g_train, g_test, edge_ids_train, edge_labels_train, edge_ids_test, edge_labels_test
 
+def node_strength(all_edge_info, node_z):
+    strength = 0
+    source, target, weights = all_edge_info[0].tolist(), all_edge_info[1].tolist(), all_edge_info[3].tolist()
+    for (s, t, w) in zip(source, target, weights):
+        if s == node_z or t == node_z:
+            strength += w
+    return strength
 
-def weighted_heuristic_methods(g_val, edge_ids_val, edge_labels_val):
-    nodes_names = [list([edge_ids_val[i][0], edge_ids_val[i][1]]) for i in range(len(edge_ids_val))]
-    # nodes_val = [list(g_val.node_ids_to_ilocs([edge_ids_val[i][0], edge_ids_val[i][1]])) for i in
-    #              range(len(edge_ids_val))]
 
+def weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test):
+    # using: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4744029/
+    nodes_val = [list([edge_ids_val[i][0], edge_ids_val[i][1]]) for i in range(len(edge_ids_val))]
+    nodes_test = [list([edge_ids_test[i][0], edge_ids_test[i][1]]) for i in range(len(edge_ids_test))]
+    all_nodes = nodes_val + nodes_test
     all_edge_info = g_val.edge_arrays(include_edge_weight=True)
     source, target, weights = all_edge_info[0].tolist(), all_edge_info[1].tolist(), all_edge_info[3].tolist()
 
     dict_common_neighbours = defaultdict()
     dict_common_neighbours_w = defaultdict()
-    for (node1, node2) in track(nodes_names):
+    for (node1, node2) in track(all_nodes, description="Computing WCN, WAA, WRA.."):
         common_neighbours = set(g_val.in_nodes(node1)).intersection(set(g_val.in_nodes(node2)))
         dict_common_neighbours[(node1, node2)] = common_neighbours
-        total_weight = 0
-        for n in common_neighbours:
+        WCN, WAA, WRA = 0, 0, 0
+        for node_z in common_neighbours:
+            weight_node_z = 0
+            strength_node_z = node_strength(all_edge_info, node_z)
             for (s, t, w) in zip(source, target, weights):
-                if (node1 == s and n == t) or (node2 == s and n == t) or (node1 == t and n == s) or (node2 == t and n == s):
-                    total_weight += w
-        dict_common_neighbours_w[(node1, node2)] = total_weight
+                if (node1 == s and node_z == t) or (node2 == s and node_z == t) or (node1 == t and node_z == s) or (node2 == t and node_z == s):
+                    weight_node_z += w
+            WCN += weight_node_z
+            WAA += weight_node_z / math.log(1 + strength_node_z)
+            WRA += weight_node_z / strength_node_z
 
-    print(dict_common_neighbours_w)
-    # print(node1, node2, label, common_neighbours)
-    # dict_info = defaultdict()
+        dict_common_neighbours_w[(node1, node2)] = {"WCN": WCN, "WAA": WAA, "WRA": WRA}
 
-    # for (node1, node2) in dict_common_neighbours:
-    #     for (s, t, w) in zip(source, target, weights):
-    #         if (s == source and t == target) or (s == target and t == source):
-    #             dict_info[(s, t)].append()
+    return dict_common_neighbours_w
 
+def evaluate_weighted_heuristic_methods(edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_labels_val):
+    dict_common_neighbours_w = weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test)
+    nodes_val = [list([edge_ids_val[i][0], edge_ids_val[i][1]]) for i in range(len(edge_ids_val))]
+    nodes_test = [list([edge_ids_test[i][0], edge_ids_test[i][1]]) for i in range(len(edge_ids_test))]
+
+    list_sim_predicted_WCN_val, list_sim_predicted_WCN_test = [], []
+    list_sim_predicted_WAA_val, list_sim_predicted_WAA_test = [], []
+    list_sim_predicted_WRA_val, list_sim_predicted_WRA_test = [], []
+    for (node1, node2) in nodes_val:
+        list_sim_predicted_WCN_val.append(dict_common_neighbours_w[(node1, node2)]["WCN"])
+        list_sim_predicted_WAA_val.append(dict_common_neighbours_w[(node1, node2)]["WAA"])
+        list_sim_predicted_WRA_val.append(dict_common_neighbours_w[(node1, node2)]["WRA"])
+
+    for (node1, node2) in nodes_test:
+        list_sim_predicted_WCN_test.append(dict_common_neighbours_w[(node1, node2)]["WCN"])
+        list_sim_predicted_WAA_test.append(dict_common_neighbours_w[(node1, node2)]["WAA"])
+        list_sim_predicted_WRA_test.append(dict_common_neighbours_w[(node1, node2)]["WRA"])
+
+    for method_name in ["WCN", "WAA", "WRA"]:
+        if method_name == "WCN":
+            list_sim_predicted_val = list_sim_predicted_WCN_val
+            list_sim_predicted_test = list_sim_predicted_WCN_test
+        elif method_name == "WAA":
+            list_sim_predicted_val = list_sim_predicted_WAA_val
+            list_sim_predicted_test = list_sim_predicted_WAA_test
+        elif method_name == "WRA":
+            list_sim_predicted_val = list_sim_predicted_WRA_val
+            list_sim_predicted_test = list_sim_predicted_WRA_test
+        else:
+            raise ValueError(f"Error with method name, not one of WCN, WAA or WRA")
+
+        max_accuracy, max_threshold = 0, 0
+        for threshold in np.linspace(0, 1, 10).tolist():
+            predicted = whitened_sigmoid(np.asarray(list_sim_predicted_val)) > threshold  # TODO: keep whitened sigmoid?
+            # predicted = np.asarray(list_sym_predicted) > threshold  # TODO: keep whitened sigmoid?
+            accuracy = accuracy_score(edge_labels_val, predicted)
+            if accuracy > max_accuracy:
+                max_accuracy = accuracy
+                max_threshold = threshold
+        max_accuracy = max_accuracy * 100
+        console.print(
+            f"Method {method_name}, on validation max accuracy: {max_accuracy:.1f} with threshold: {max_threshold:.2f}",
+            style="magenta")
+
+        predicted = whitened_sigmoid(np.asarray(list_sim_predicted_test)) > max_threshold
+        accuracy = accuracy_score(edge_labels_test, predicted) * 100
+        console.print(
+            f"Method {method_name}, on test accuracy: {accuracy:.1f} with threshold: {max_threshold:.2f}",
+            style="magenta")
+        print(Counter(predicted))
 
 
 def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_method_threshold):
@@ -207,7 +265,7 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_
                      range(len(edge_ids_val))]
 
         list_sim_predicted = []
-        for (node1, node2), label in zip(nodes_val, edge_labels_val):
+        for (node1, node2) in nodes_val:
             if method_name != "ShortestPath":
                 common_neighbour_similarity = method.predict((node1, node2))
             else:
@@ -878,7 +936,7 @@ def main():
         #                labels_val,
         #                labels_test, feat_nodes)
 
-        weighted_heuristic_methods(g_val, nodes_val, labels_val)  #  TODO?
+        # evaluate_weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
 
     # get_nearest_neighbours()  # TODO: GNN methods don't work well
 
