@@ -179,7 +179,6 @@ def filter_videos_by_motion(videos_path: str, problematic_videos_path: str, para
             corr2 = corr2_matrix[0][1]
             corr_list.append(corr2)
 
-        # print(video_name, np.median(corr_list))
         if np.median(corr_list) >= param_corr2d_coeff:
             count += 1
             shutil.move(video, problematic_videos_path + video_name)
@@ -312,7 +311,6 @@ def stats_videos() -> None:
     console.print(f"#Unique videos: {nb_videos}", style="magenta")
 
     with open('data/dict_action_clips.json') as json_file:
-        # with open('data/dict_action_clips_sample.json') as json_file:
         dict_action_clips = json.load(json_file)
 
     all_clips = {"+".join([c["video"], c["time_s"], c["time_e"]])
@@ -348,8 +346,6 @@ def get_video_diff() -> None:
     print(len(all_videos))
     all_videos_downloaded = {video_name.replace('data/videos_sample/', '') for video_name in
                              glob.glob("data/videos_sample/*.mp4") + glob.glob("data/filtered_videos/*.mp4")}
-    # all_videos_downloaded = {video_name.replace('data/videos_sample/', '')
-    #                          for video_name in glob.glob("data/videos_sample/*.mp4")}
     print(len(all_videos_downloaded))
     not_downloaded = all_videos - all_videos_downloaded
     print(len(not_downloaded))
