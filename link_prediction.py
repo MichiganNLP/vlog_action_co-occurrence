@@ -883,6 +883,7 @@ def analyse_results(predicted_labels, edge_labels_test, edges_ids_test):
     all_actions = get_all_actions(all_action_pairs)
 
     nodes_name_pairs = [(edges_ids_test[i][0], edges_ids_test[i][1]) for i in range(len(edges_ids_test))]
+    # nodes_name_pairs = [edge_ids[:2] for edge_ids in edges_ids_test]
 
     dict_results_correct = defaultdict()
     dict_results_errors = {"FP": {}, "FN": {}}

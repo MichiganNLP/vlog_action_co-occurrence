@@ -1,10 +1,11 @@
+#!/usr/bin/env python
 import glob
 import json
 import multiprocessing
 import os
 import shutil
 from collections import defaultdict
-from typing import Mapping, Any, Sequence, Callable
+from typing import Mapping, Any, Sequence, Callable, Tuple
 
 import clip
 import cv2
@@ -22,11 +23,65 @@ console = Console()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+NUM_WORKERS = multiprocessing.cpu_count() // max(torch.cuda.device_count(), 1)
+
+FRAME_COUNT = 4
+
+TEMPLATES = [
+    "a photo of a person {}.",
+    "a video of a person {}.",
+    "a example of a person {}.",
+    "a demonstration of a person {}.",
+    "a photo of the person {}.",
+    "a video of the person {}.",
+    "a example of the person {}.",
+    "a demonstration of the person {}.",
+    "a photo of a person using {}.",
+    "a video of a person using {}.",
+    "a example of a person using {}.",
+    "a demonstration of a person using {}.",
+    "a photo of the person using {}.",
+    "a video of the person using {}.",
+    "a example of the person using {}.",
+    "a demonstration of the person using {}.",
+    "a photo of a person doing {}.",
+    "a video of a person doing {}.",
+    "a example of a person doing {}.",
+    "a demonstration of a person doing {}.",
+    "a photo of the person doing {}.",
+    "a video of the person doing {}.",
+    "a example of the person doing {}.",
+    "a demonstration of the person doing {}.",
+    "a photo of a person during {}.",
+    "a video of a person during {}.",
+    "a example of a person during {}.",
+    "a demonstration of a person during {}.",
+    "a photo of the person during {}.",
+    "a video of the person during {}.",
+    "a example of the person during {}.",
+    "a demonstration of the person during {}.",
+    "a photo of a person performing {}.",
+    "a video of a person performing {}.",
+    "a example of a person performing {}.",
+    "a demonstration of a person performing {}.",
+    "a photo of the person performing {}.",
+    "a video of the person performing {}.",
+    "a example of the person performing {}.",
+    "a demonstration of the person performing {}.",
+    "a photo of a person practicing {}.",
+    "a video of a person practicing {}.",
+    "a example of a person practicing {}.",
+    "a demonstration of a person practicing {}.",
+    "a photo of the person practicing {}.",
+    "a video of the person practicing {}.",
+    "a example of the person practicing {}.",
+    "a demonstration of the person practicing {}.",
+]
+
 
 def split_video_by_frames(video_names, new_video_names):
-    for video, video_new in track(list(zip(video_names, new_video_names)),
-                                  description="Splitting videos into frames..."):
-        print(f"Processing video {video} ...")
+    for video, video_new in zip(video_names, track(new_video_names, description="Splitting videos into frames…")):
+        print(f"Processing video {video}…")
         path_in = "data/videos_sample/" + video + ".mp4"
         path_out = "data/videos_sample2/" + video_new + "/"
         count_skipped = 0
@@ -99,7 +154,7 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
     list_videos = sorted(glob.glob(path_videos + "*.mp4"), key=os.path.getmtime)
     os.makedirs(path_problematic_videos, exist_ok=True)
 
-    for video in track(list_videos, description="Filtering videos by motion..."):
+    for video in track(list_videos, description="Filtering videos by motion…"):
         vidcap = cv2.VideoCapture(video)
         if not vidcap.isOpened():
             continue
@@ -150,26 +205,15 @@ def get_all_clips_for_action(output_file):
             if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_2]:
                 dict_action_clips[action_2].append({"video": video, "time_s": time_s, "time_e": time_e})
 
-    with open(output_file, 'w+') as fp:
-        json.dump(dict_action_clips, fp)
+    with open(output_file, 'w+') as file:
+        json.dump(dict_action_clips, file)
 
 
-def save_clip_features(image_features, text_features, directories):
-    data_dir = 'data/clip_features2/'
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-    assert len(directories) == len(image_features)
-    console.print(f"#Saved CLIP features: {len(directories)}", style="magenta")
-    for i in track(range(len(directories)), description="Saving CLIP features..."):
-        # action, video = directories[i].split("+")[0], "+".join(directories[i].split("+")[1:])
-        clip_feature_i = image_features[i]
-        text_feature_i = text_features[i]
-
-        torch.save(clip_feature_i, data_dir + directories[i] + "_clip" + '.pt')
-        torch.save(text_feature_i, data_dir + directories[i] + "_text" + '.pt')
-
-
-FRAME_COUNT = 4
+def save_clip_features(video_features: torch.Tensor, text_features: torch.Tensor, video_names: Sequence[str],
+                       output_path: str = "data/clip_features3.pt") -> None:
+    torch.save({video_name: {"visual": video_feature, "text": text_feature}
+                for video_feature, text_feature, video_name in zip(video_features, text_features, video_names)},
+               output_path)
 
 
 class VideoDataset(Dataset):
@@ -187,11 +231,11 @@ class VideoDataset(Dataset):
 
         images_per_video = sorted([filename
                                    for filename in os.listdir(directory)
-                                   if filename.endswith((".png", ".jpg", ".jpeg"))])
+                                   if filename.lower().endswith((".jpg", ".jpeg", ".png"))])
         name = os.path.splitext(images_per_video[0])[0]
 
-        action = " ".join(name.split("+")[0].split("_"))
-        output["text_tokens"] = self.tokenizer(f"This is a photo of action {action}")
+        action = " ".join(name.split("+", maxsplit=1)[0].split("_"))
+        output["text_tokens"] = self.tokenizer(f"This is a photo of action {action}").squeeze(dim=0)
 
         output["video"] = torch.stack([self.transform(Image.open(os.path.join(directory, image_name)))
                                        for image_name in images_per_video])
@@ -204,127 +248,57 @@ class VideoDataset(Dataset):
         return len(self.directories)
 
 
-def run_clip(input_file):
-    # data_dir = "data/videos/"
-    data_dir = "data/videos_sample/"
+def run_clip(path: str, data_dir: str = "data/videos_sample") -> Tuple[torch.Tensor, torch.Tensor, Sequence[str]]:
+    with open(path) as file:
+        dict_test_clip = json.load(file)
 
-    with open(input_file) as json_file:
-        dict_test_clip = json.load(json_file)
-
-    list_folders_to_process = []
-    for action in dict_test_clip:
-        for dict_video_time in dict_test_clip[action]:
+    video_names = []
+    directories = []
+    for action, dict_video_times in dict_test_clip.items():
+        for dict_video_time in dict_video_times:
             video, time_s, time_e = dict_video_time.values()
             video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
-            list_folders_to_process.append(video_name)
-    model, transform = clip.load("ViT-B/16")
-    directories = [data_dir + folder
-                   for folder in list_folders_to_process
-                   if os.path.exists(data_dir + folder)]  # FIXME: check why there are missing folders.
+            video_path = os.path.join(data_dir, video_name)
+            if os.path.exists(video_path):  # Sometimes there are missing videos from YouTube, so we check.
+                video_names.append(video_name)
+                directories.append(video_path)
+
+    model, transform = clip.load("ViT-L/14", device=DEVICE, jit=True)
 
     dataset = VideoDataset(directories, transform=transform, tokenizer=clip.tokenize)
-    data_loader = DataLoader(dataset, batch_size=200,
-                             num_workers=multiprocessing.cpu_count() // max(torch.cuda.device_count(), 1),
-                             pin_memory=True)
+    data_loader = DataLoader(dataset, batch_size=256, num_workers=NUM_WORKERS, pin_memory=True)
 
-    list_img_features = []
-    list_text_features = []
+    video_feature_list = []
+    text_feature_list = []
 
     with torch.inference_mode():
-        for batch in track(data_loader, description="Extracting data for CLIP..."):
+        for batch in track(data_loader, description="Extracting data for CLIP…"):
             batch = {k: v.to(DEVICE) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
             video = batch["video"]
             video = video.view(-1, *video.shape[2:])
 
-            image_features = model.encode_image(video)
+            video_features = model.encode_image(video)
             text_features = model.encode_text(batch["text_tokens"])
 
             # Get the mean of image features for each video
-            reshaped_image_features = image_features.reshape(image_features.shape[0] // FRAME_COUNT, FRAME_COUNT, -1)
-            image_features = reshaped_image_features.mean(dim=1)
-            assert image_features.shape == text_features.shape
+            reshaped_video_features = video_features.reshape(video_features.shape[0] // FRAME_COUNT, FRAME_COUNT, -1)
+            video_features = reshaped_video_features.mean(dim=1)
+            assert video_features.shape == text_features.shape
 
-            list_img_features.append(image_features)
-            list_text_features.append(text_features)
+            video_feature_list.append(video_features)
+            text_feature_list.append(text_features)
 
-    image_features = torch.cat(list_img_features)
-    text_features = torch.cat(list_text_features)
+    video_features = torch.cat(video_feature_list)
+    text_features = torch.cat(text_feature_list)
 
-    # image_features /= image_features.norm(dim=-1, keepdim=True)
+    # video_features /= video_features.norm(dim=-1, keepdim=True)
     # text_features /= text_features.norm(dim=-1, keepdim=True)
 
-    # similarity = image_features @ text_features.T
+    # similarity = video_features @ text_features.T
     # print(similarity)
-    return image_features, text_features, list_folders_to_process
 
-
-def test_run_clip(input_file):
-    data_dir = "data/videos_test/"
-    with open(input_file) as json_file:
-        dict_test_clip = json.load(json_file)
-    list_folders_to_process = []
-    for action in dict_test_clip:
-        for dict_video_time in dict_test_clip[action]:
-            video, time_s, time_e = dict_video_time.values()
-            video_name = "+".join(["_".join(action.split()), video, time_s, time_e])
-            list_folders_to_process.append(video_name)
-    model, preprocess = clip.load("ViT-B/16")
-    directories = [video_dir for video_dir in [data_dir + folder for folder in list_folders_to_process]]
-    # nb_frames = 4
-    prompt = "This is a photo of a person "
-    nb_elem_in_batch = 200
-    list_img_features, list_text_features = [], []
-    directories_batches = [directories[i:i + nb_elem_in_batch] for i in
-                           range(0, len(directories), nb_elem_in_batch)]
-    for batch_dir in track(directories_batches, description="Extracting data for CLIP..."):
-        prep_images, texts = [], []
-        for dir_video in batch_dir:
-            if not os.path.exists(dir_video):
-                list_folders_to_process.remove(dir_video.replace(data_dir, ''))
-                # print(f"Path {dir_video} doesn't exist! Skipping ...")
-                continue
-            images_per_video = sorted(
-                [filename for filename in os.listdir(dir_video) if filename.endswith((".png", ".jpeg"))])
-            name = os.path.splitext(images_per_video[0])[0]
-            action = " ".join(name.split("+")[0].split("_"))
-            print(action)
-            description = prompt + action
-            nb_frames = len(images_per_video)
-            for image_name in images_per_video:
-                image = Image.open(os.path.join(dir_video, image_name))
-                preprocessed_img = preprocess(image)
-                prep_images.append(preprocessed_img)
-            texts.append(description)
-
-        assert len(prep_images) / nb_frames == len(texts)
-
-        image_input = torch.stack(prep_images).to(DEVICE)
-        text_tokens = clip.tokenize([desc for desc in texts]).to(DEVICE)
-
-        with torch.no_grad():
-            image_features = model.encode_image(image_input).float()
-            text_features = model.encode_text(text_tokens).float()
-
-        # Get the mean of image features for each video
-        reshaped_image_features = image_features.reshape(image_features.shape[0] // nb_frames, nb_frames, -1)
-        image_features = reshaped_image_features.mean(dim=1)
-        assert image_features.shape == text_features.shape
-
-        list_img_features.append(image_features)
-        list_text_features.append(text_features)
-
-    image_features = torch.cat(list_img_features, dim=0)
-    text_features = torch.cat(list_text_features, dim=0)
-
-    image_features /= image_features.norm(dim=-1, keepdim=True)
-    text_features /= text_features.norm(dim=-1, keepdim=True)
-
-    similarity = image_features @ text_features.T
-    print(similarity)
-    similarity = image_features @ image_features.T
-    print(similarity)
-    # return image_features, text_features, list_folders_to_process
+    return video_features, text_features, video_names
 
 
 def stats_videos():
@@ -447,7 +421,7 @@ def test_clip():
     # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
 
 
-if __name__ == '__main__':
+def main() -> None:
     # get_video_diff()
 
     # get_all_clips_for_action(output_file="data/dict_action_clips.json") #dict_action_clips_sample
@@ -462,8 +436,12 @@ if __name__ == '__main__':
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
     #
-    # image_features, text_features, action_clip_pairs = run_clip(input_file="data/dict_action_clips_sample.json")
-    # save_clip_features(image_features, text_features, action_clip_pairs)
+    video_features, text_features, video_names = run_clip(path="data/dict_action_clips_sample.json")
+    assert len(video_features) == len(text_features) == len(video_names)
+    save_clip_features(video_features, text_features, video_names)
 
-    # test_run_clip(input_file="data/dict_action_clips_sample_test.json")
-    test_clip()
+    # test_clip()
+
+
+if __name__ == '__main__':
+    main()
