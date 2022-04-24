@@ -5,7 +5,7 @@ import multiprocessing
 import os
 import shutil
 from collections import defaultdict
-from typing import Mapping, Any, Sequence, Callable, Tuple
+from typing import Mapping, Any, Sequence, Callable, Tuple, Iterable
 
 import clip
 import cv2
@@ -79,22 +79,22 @@ TEMPLATES = [
 ]
 
 
-def split_video_by_frames(video_names, new_video_names):
+def split_video_by_frames(video_names: Iterable[str], new_video_names: Sequence[str]) -> None:
+    count_skipped = 0
     for video, video_new in zip(video_names, track(new_video_names, description="Splitting videos into frames…")):
         print(f"Processing video {video}…")
-        path_in = "data/videos_sample/" + video + ".mp4"
-        path_out = "data/videos_sample2/" + video_new + "/"
-        count_skipped = 0
+        path_in = os.path.join("data/videos_sample", video + ".mp4")
+        path_out = os.path.join("data/videos_sample2", video_new)
         if not os.path.exists(path_in) or os.path.exists(path_out):
             count_skipped += 1
-            print(f"Skipping splitting video by frames: {video_new}")
+            print("Skipping splitting video by frames:", video_new)
             continue
         try:
             probe = ffmpeg.probe(path_in)
             time = float(probe['streams'][0]['duration'])
             width = probe['streams'][0]['width']
         except:
-            print(f"Skipping corrupted video: {path_in}")
+            print("Skipping corrupted video:", path_in)
             continue
 
         if not os.path.exists(path_out):
@@ -134,13 +134,13 @@ def split_video_by_frames(video_names, new_video_names):
     console.print(f"Skipped {count_skipped} clips from frame splitting", style="magenta")
 
 
-def split_videos_into_frames(input_file):
-    with open(input_file) as json_file:
-        dict_test_clip = json.load(json_file)
+def split_videos_into_frames(path: str) -> None:
+    with open(path) as file:
+        dict_test_clip = json.load(file)
     video_names = []
     new_video_names = []
-    for action in dict_test_clip:
-        for dict_video_time in dict_test_clip[action]:
+    for action, dict_video_times in dict_test_clip.items():
+        for dict_video_time in dict_video_times:
             video_name, time_s, time_e = dict_video_time.values()
             video_name = "+".join([video_name, time_s, time_e])
             new_video_name = "+".join(["_".join(action.split()), video_name])
@@ -150,10 +150,11 @@ def split_videos_into_frames(input_file):
     split_video_by_frames(video_names, new_video_names)
 
 
-def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_COEFF):
-    list_videos = sorted(glob.glob(path_videos + "*.mp4"), key=os.path.getmtime)
-    os.makedirs(path_problematic_videos, exist_ok=True)
+def filter_videos_by_motion(videos_path: str, problematic_videos_path: str, param_corr2d_coeff: float) -> None:
+    list_videos = sorted(glob.glob(videos_path + "*.mp4"), key=os.path.getmtime)
+    os.makedirs(problematic_videos_path, exist_ok=True)
 
+    count = 0
     for video in track(list_videos, description="Filtering videos by motion…"):
         vidcap = cv2.VideoCapture(video)
         if not vidcap.isOpened():
@@ -180,14 +181,14 @@ def filter_videos_by_motion(path_videos, path_problematic_videos, PARAM_CORR2D_C
             corr_list.append(corr2)
 
         # print(video_name, np.median(corr_list))
-        count = 0
-        if np.median(corr_list) >= PARAM_CORR2D_COEFF:
+        if np.median(corr_list) >= param_corr2d_coeff:
             count += 1
-            shutil.move(video, path_problematic_videos + video_name)
-    console.print(f"Filtered out {count} videos to {path_problematic_videos}", style="magenta")
+            shutil.move(video, problematic_videos_path + video_name)
+
+    console.print(f"Filtered out {count} videos to {problematic_videos_path}", style="magenta")
 
 
-def get_all_clips_for_action(output_file):
+def get_all_clips_for_action(output_path: str) -> None:
     with open('data/dict_video_action_pairs_filtered_by_link.json') as json_file:
         dict_video_action_pairs_filtered = json.load(json_file)
 
@@ -205,7 +206,7 @@ def get_all_clips_for_action(output_file):
             if {"video": video, "time_s": time_s, "time_e": time_e} not in dict_action_clips[action_2]:
                 dict_action_clips[action_2].append({"video": video, "time_s": time_s, "time_e": time_e})
 
-    with open(output_file, 'w+') as file:
+    with open(output_path, 'w+') as file:
         json.dump(dict_action_clips, file)
 
 
@@ -305,7 +306,7 @@ def run_clip(path: str, data_dir: str = "data/videos_sample") -> Tuple[torch.Ten
     return video_features, text_features, video_names
 
 
-def stats_videos():
+def stats_videos() -> None:
     with open('data/coref_all_sentence_transcripts.json') as json_file:
         all_sentence_transcripts_rachel = json.load(json_file)
     nb_videos = len(all_sentence_transcripts_rachel)
@@ -338,31 +339,32 @@ def stats_videos():
     console.print(f"#Unique videos sampled: {len(all_videos_sampled)}", style="magenta")
 
 
-def get_video_diff():
+def get_video_diff() -> None:
     with open('data/dict_action_clips_sample.json') as json_file:
         dict_action_clips = json.load(json_file)
 
-    all_videos = {"+".join([dict["video"], dict["time_s"], dict["time_e"]]) + ".mp4"
+    all_videos = {"+".join([dict_["video"], dict_["time_s"], dict_["time_e"]]) + ".mp4"
                   for values in dict_action_clips.values()
-                  for dict in values}
+                  for dict_ in values}
     print(len(all_videos))
     all_videos_downloaded = {video_name.replace('data/videos_sample/', '') for video_name in
                              glob.glob("data/videos_sample/*.mp4") + glob.glob("data/filtered_videos/*.mp4")}
-    # all_videos_downloaded = {video_name.replace('data/videos_sample/', '') for video_name in glob.glob("data/videos_sample/*.mp4")}
+    # all_videos_downloaded = {video_name.replace('data/videos_sample/', '')
+    #                          for video_name in glob.glob("data/videos_sample/*.mp4")}
     print(len(all_videos_downloaded))
     not_downloaded = all_videos - all_videos_downloaded
     print(len(not_downloaded))
 
     dict_action_clips_sample_remained = defaultdict(list)
     for action, values in dict_action_clips.items():
-        for dict in values:
-            if "+".join([dict["video"], dict["time_s"], dict["time_e"]]) + ".mp4" in not_downloaded:
-                dict_action_clips_sample_remained[action].append(dict)
+        for dict_ in values:
+            if "+".join([dict_["video"], dict_["time_s"], dict_["time_e"]]) + ".mp4" in not_downloaded:
+                dict_action_clips_sample_remained[action].append(dict_)
     with open('data/dict_action_clips_sample_remained.json', 'w+') as fp:
         json.dump(dict_action_clips_sample_remained, fp)
 
 
-def sample_videos():
+def sample_videos() -> None:
     with open('data/dict_action_clips.json') as json_file:
         dict_action_clips = json.load(json_file)
     nb_videos = 10
@@ -395,7 +397,8 @@ def test_clip() -> None:
     # action2 = nodes.loc[['clean kitchen']].to_numpy()
     # action3 = nodes.loc[['compete with dollar store']].to_numpy()
     # action4 = nodes.loc[['put music']].to_numpy()
-    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3),
+    #       cosine_similarity(action1, action4))
 
     nodes = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
@@ -422,7 +425,8 @@ def test_clip() -> None:
     # action2 = nodes.loc[['clean kitchen']].to_numpy()
     # action3 = nodes.loc[['compete with dollar store']].to_numpy()
     # action4 = nodes.loc[['put music']].to_numpy()
-    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4))
+    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3),
+    #       cosine_similarity(action1, action4))
 
 
 def main() -> None:
