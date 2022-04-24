@@ -227,22 +227,19 @@ class VideoDataset(Dataset):
     def __getitem__(self, i: int) -> Mapping[str, Any]:
         directory = self.directories[i]
 
-        output = {}
+        frame_filenames = sorted([filename
+                                  for filename in os.listdir(directory)
+                                  if filename.lower().endswith((".jpg", ".jpeg", ".png"))])
+        assert len(frame_filenames) == FRAME_COUNT
 
-        images_per_video = sorted([filename
-                                   for filename in os.listdir(directory)
-                                   if filename.lower().endswith((".jpg", ".jpeg", ".png"))])
-        name = os.path.splitext(images_per_video[0])[0]
-
+        name = os.path.splitext(frame_filenames[0])[0]
         action = " ".join(name.split("+", maxsplit=1)[0].split("_"))
-        output["text_tokens"] = self.tokenizer(f"This is a photo of action {action}").squeeze(dim=0)
 
-        output["video"] = torch.stack([self.transform(Image.open(os.path.join(directory, image_name)))
-                                       for image_name in images_per_video])
-
-        assert len(output["video"]) == FRAME_COUNT
-
-        return output
+        return {
+            "text_tokens": self.tokenizer(template.format(action) for template in TEMPLATES),  # noqa
+            "video": torch.stack([self.transform(Image.open(os.path.join(directory, frame_filename)))
+                                  for frame_filename in frame_filenames]),
+        }
 
     def __len__(self) -> int:
         return len(self.directories)
@@ -266,7 +263,7 @@ def run_clip(path: str, data_dir: str = "data/videos_sample") -> Tuple[torch.Ten
     model, transform = clip.load("ViT-L/14", device=DEVICE, jit=True)
 
     dataset = VideoDataset(directories, transform=transform, tokenizer=clip.tokenize)
-    data_loader = DataLoader(dataset, batch_size=256, num_workers=NUM_WORKERS, pin_memory=True)
+    data_loader = DataLoader(dataset, batch_size=96, num_workers=NUM_WORKERS, pin_memory=True)
 
     video_feature_list = []
     text_feature_list = []
@@ -277,13 +274,20 @@ def run_clip(path: str, data_dir: str = "data/videos_sample") -> Tuple[torch.Ten
 
             video = batch["video"]
             video = video.view(-1, *video.shape[2:])
-
             video_features = model.encode_image(video)
-            text_features = model.encode_text(batch["text_tokens"])
 
-            # Get the mean of image features for each video
+            token_ids = batch["text_tokens"]
+            token_ids = token_ids.view(-1, *token_ids.shape[2:])
+            text_features = model.encode_text(token_ids)
+
+            # Get the mean of frame features for each video.
             reshaped_video_features = video_features.reshape(video_features.shape[0] // FRAME_COUNT, FRAME_COUNT, -1)
             video_features = reshaped_video_features.mean(dim=1)
+
+            # Get the mean of text features for the different prompts, for each video.
+            reshaped_text_features = text_features.reshape(text_features.shape[0] // len(TEMPLATES), len(TEMPLATES), -1)
+            text_features = reshaped_text_features.mean(dim=1)
+
             assert video_features.shape == text_features.shape
 
             video_feature_list.append(video_features)
@@ -374,7 +378,7 @@ def sample_videos():
     # 730 * 10 .. 7297 - put rose petal has 7 videos
 
 
-def test_clip():
+def test_clip() -> None:
     nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0)
     # print(nodes.index)
     action1 = nodes.loc[['clean sink']].to_numpy()
@@ -403,7 +407,7 @@ def test_clip():
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-    nodes = pd.read_csv('data/graph/all_weighted_visclip_avg_nodes.csv', index_col=0)
+    nodes = pd.read_csv('data/graph/all_weighted_visclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
     action2 = nodes.loc[['scrub sink']].to_numpy()
     action3 = nodes.loc[['clean kitchen']].to_numpy()
@@ -435,7 +439,7 @@ def main() -> None:
     # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json") # dict_action_clips_sample_remained
-    #
+
     video_features, text_features, video_names = run_clip(path="data/dict_action_clips_sample.json")
     assert len(video_features) == len(text_features) == len(video_names)
     save_clip_features(video_features, text_features, video_names)
