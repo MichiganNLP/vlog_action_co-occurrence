@@ -23,7 +23,7 @@ console = Console()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_WORKERS = multiprocessing.cpu_count() // max(torch.cuda.device_count(), 1)
+NUM_WORKERS = len(os.sched_getaffinity(0)) // max(torch.cuda.device_count(), 1)
 
 FRAME_COUNT = 4
 
