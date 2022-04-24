@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import glob
 import json
-import multiprocessing
 import os
 import shutil
 from collections import defaultdict
