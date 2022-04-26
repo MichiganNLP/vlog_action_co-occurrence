@@ -226,57 +226,23 @@ def extract_clip_features(metadata_path: str, videos_dir: str) -> Sequence[Mappi
     return feature_dicts
 
 
+def _evaluate_nodes(nodes: pd.DataFrame) -> None:
+    action1 = nodes.loc[['clean sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
+
+
 def test_clip() -> None:
-    nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0)
-    # print(nodes.index)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['wash sink']].to_numpy()
-    action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['combine gallon bag']].to_numpy()
-    action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add barbecue']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
-          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
-
-    nodes = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['wash sink']].to_numpy()
-    action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['combine gallon bag']].to_numpy()
-    action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add barbecue']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
-          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
-
-    nodes = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['wash sink']].to_numpy()
-    action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['combine gallon bag']].to_numpy()
-    action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add barbecue']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
-          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
-
-    nodes = pd.read_csv('data/graph/all_weighted_visclip_nodes.csv', index_col=0)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['wash sink']].to_numpy()
-    action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['combine gallon bag']].to_numpy()
-    action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add barbecue']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
-          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
-
-    nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
-    action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['wash sink']].to_numpy()
-    action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['combine gallon bag']].to_numpy()
-    action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add barbecue']].to_numpy()
-    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
-          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
+    _evaluate_nodes(pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/all_weighted_visclip_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0))
 
 
 def evaluate_clip_embeddings(feature_dicts: Sequence[Mapping[str, Any]]) -> None:
