@@ -5,7 +5,7 @@ import os
 import shutil
 from collections import defaultdict
 from typing import Sequence, Iterable
-
+import subprocess
 import cv2
 import ffmpeg
 import numpy as np
@@ -22,7 +22,7 @@ def split_video_by_frames(video_names: Iterable[str], new_video_names: Sequence[
     count_skipped = 0
     for video, video_new in zip(video_names, track(new_video_names, description="Splitting videos into frames…")):
         print(f"Processing video {video}…")
-        path_in = os.path.join("data/videos_sample", video + ".mp4")
+        path_in = os.path.join("data/video_clips_sample", video + ".mp4")
         path_out = os.path.join("data/frames_sample", video_new)
         if not os.path.exists(path_in) or os.path.exists(path_out):
             count_skipped += 1
@@ -162,14 +162,14 @@ def stats_videos() -> None:
     all_action_clips_sampled = {"+".join([action, c["video"], c["time_s"], c["time_e"]])
                                 for action, clips in dict_action_clips_sample.items()
                                 for c in clips}
-    all_videos_sampled = {"+".join([c["video"], c["time_s"], c["time_e"]])
+    all_video_clips_sampled = {"+".join([c["video"], c["time_s"], c["time_e"]])
                           for _, clips in dict_action_clips_sample.items()
                           for c in clips}
     console.print(f"#Unique (action, clips) sampled: {len(all_action_clips_sampled)}", style="magenta")
     console.print(f"#Unique actions sampled: {len(dict_action_clips_sample.keys())}", style="magenta")
-    console.print(f"#Unique videos sampled: {len(all_videos_sampled)}", style="magenta")
+    console.print(f"#Unique videos sampled: {len(all_video_clips_sampled)}", style="magenta")
 
-    folder = 'data/videos_sample'
+    folder = 'data/video_clips_sample'
     sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
     set_actions_downloaded = set()
     for video_name in sub_folders:
@@ -187,11 +187,15 @@ def get_video_diff() -> None:
                   for values in dict_action_clips.values()
                   for dict_ in values}
     print(len(all_videos))
-    all_videos_downloaded = {video_name.replace('data/videos_sample/', '') for video_name in
-                             glob.glob("data/videos_sample/*.mp4") + glob.glob("data/filtered_videos/*.mp4")}
+    all_videos_downloaded = {video_name.replace('data/video_clips_sample/', '') for video_name in
+                             glob.glob("data/video_clips_sample/*.mp4") + glob.glob("data/filtered_videos/*.mp4")}
     print(len(all_videos_downloaded))
     not_downloaded = all_videos - all_videos_downloaded
+    not_in_dict = all_videos_downloaded - all_videos
     print(len(not_downloaded))
+    print(len(not_in_dict))
+    # for video_name in not_in_dict:
+    #     shutil.move('data/video_clips_sample/' + video_name, 'data/videos_old/' + video_name)
 
     dict_action_clips_sample_remained = defaultdict(list)
     for action, values in dict_action_clips.items():
@@ -222,12 +226,13 @@ def main() -> None:
     #                          output_file="data/dict_action_clips.json")
     # sample_videos(input_file='data/dict_action_clips.json', output_file='data/dict_action_clips_sample.json',
     #               max_videos_per_action=10)
-    stats_videos()
+    # stats_videos()
 
     # TODO: Add 5 seconds before and after time to account for misalignment
+    # subprocess.run(["./download_video_clips.sh", "data/dict_action_clips_sample.json", "data/video_clips_sample"])
     # subprocess.run(["./download_videos.sh", "data/dict_action_clips_sample.json", "data/videos_sample"])
 
-    # filter_videos_by_motion(path_videos="data/videos_sample/", path_problematic_videos="data/filtered_videos/",
+    # filter_videos_by_motion(path_videos="data/video_clips_sample/", path_problematic_videos="data/filtered_videos/",
     #                         PARAM_CORR2D_COEFF=0.9)
 
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")

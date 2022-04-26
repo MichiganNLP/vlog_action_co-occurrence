@@ -560,7 +560,7 @@ def get_clip_features(all_actions, input_file):
     list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions_processed = [], [], []
     for action in actions_features_dict:
         if not actions_features_dict[action]['text'] or not actions_features_dict[action]['visual']:
-            # print(f"Action {action} doesn't have CLIP features")
+            print(f"Action {action} doesn't have CLIP features")
             count_actions_not_found += 1
         else:
             count_actions_found += 1
@@ -642,43 +642,43 @@ def save_nodes_edges_df(all_action_pairs, transcripts_per_action, name):
     all_actions = sorted(all_actions)
     all_transcripts = [transcripts_per_action[action] for action in all_actions]
 
-    # list_stsbrt_transcript_embeddings = get_sentence_embedding_features(all_transcripts)
-    # list_stsbrt_embeddings = get_sentence_embedding_features(all_actions)
+    list_stsbrt_transcript_embeddings = get_sentence_embedding_features(all_transcripts)
+    list_stsbrt_embeddings = get_sentence_embedding_features(all_actions)
     # list_txt_clip_embeddings, all_actions_txt = get_text_clip_features(all_actions, data_dir='data/clip_features2/')
-    list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions = get_clip_features(all_actions, input_file='data/clip_features3.pt')
+    list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions_CLIP = get_clip_features(all_actions, input_file='data/clip_features4.pt')
     # list_vis_clip_embeddings, all_actions_vis = get_visual_clip_features(all_actions, data_dir='data/clip_features2/')
 
 
-    # # # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
-    # # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_transcript_embeddings], index=all_actions)
-    # # df.to_csv('data/graph/' + name + "_transcript_stsbrt" + "_nodes.csv")
-    # #
-    # # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
-    # # df.to_csv('data/graph/' + name + "_stsbrt" + "_nodes.csv")
-    # #
-    # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_txt_clip_embeddings], index=all_actions_txt)
-    # df.to_csv('data/graph/' + name + "_txtclip" + "_nodes.csv")
-    # #
-    # df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_vis)
-    # df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
-    # #
-    # get_average_clip_embeddings(input1='data/graph/' + name + "_txtclip" + "_nodes.csv",
-    #                             input2='data/graph/' + name + "_visclip" + "_nodes.csv",
-    #                             output="data/graph/all" + "_avgclip" + "_nodes.csv")
+    # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_transcript_embeddings], index=all_actions)
+    df.to_csv('data/graph/' + name + "_transcript_stsbrt" + "_nodes.csv")
+
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
+    df.to_csv('data/graph/' + name + "_stsbrt" + "_nodes.csv")
     #
-    # # Save graph edges
-    # counter = Counter(tuple(x) for x in all_action_pairs)
-    # actions_not_found = ['mix blood', 'drip around side', 'place utensil', 'steal in loading dock', 'put on track', 'call guy',
-    #                      'use jelly', 'put saliva sample', 'type notability', 'put in way', 'use tractor', 'buy teacup']
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_txt_clip_embeddings], index=all_actions_CLIP)
+    df.to_csv('data/graph/' + name + "_txtclip" + "_nodes.csv")
+    #
+    df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_CLIP)
+    df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
+    #
+    get_average_clip_embeddings(input1='data/graph/' + name + "_txtclip" + "_nodes.csv",
+                                input2='data/graph/' + name + "_visclip" + "_nodes.csv",
+                                output="data/graph/all" + "_avgclip" + "_nodes.csv")
+
+    # Save graph edges
+    counter = Counter(tuple(x) for x in all_action_pairs)
+    actions_not_found = list(set(all_actions) - set(all_actions_CLIP))
+    print(f"Actions not found with CLIP (missing videos): {actions_not_found}")
     # list_tuples_actions = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter]
-    # list_tuples_actions_missing = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter
-    #                                if action_pair[0] not in actions_not_found and action_pair[1] not in actions_not_found]
-    #
-    # # list_tuples_actions = [(action_pair[0], action_pair[1], 1) for action_pair in counter] #weight 1
-    # # df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
-    # # df.to_csv('data/graph/' + name + "_edges.csv", index=False)
-    # df = pd.DataFrame(list_tuples_actions_missing, columns=['source', 'target', 'weight'])
-    # df.to_csv('data/graph/' + name + "_edges_missing.csv", index=False)
+    list_tuples_actions_missing = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter
+                                   if action_pair[0] not in actions_not_found and action_pair[1] not in actions_not_found]
+
+    # list_tuples_actions = [(action_pair[0], action_pair[1], 1) for action_pair in counter] #weight 1
+    # df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
+    # df.to_csv('data/graph/' + name + "_edges.csv", index=False)
+    df = pd.DataFrame(list_tuples_actions_missing, columns=['source', 'target', 'weight'])
+    df.to_csv('data/graph/' + name + "_edges_missing.csv", index=False)
 
 
 def convert_datetime_to_seconds(clip_a1):

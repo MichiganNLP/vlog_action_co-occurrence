@@ -141,23 +141,27 @@ class ConvertBHWCtoBCHW(nn.Module):
 
 
 def extract_clip_features(path: str,
-                          data_dir: str = "data/videos_sample") -> Tuple[torch.Tensor, torch.Tensor, Sequence[str]]:
+                          data_dir: str = "data/video_clips_sample") -> Tuple[torch.Tensor, torch.Tensor, Sequence[str]]:
     with open(path) as file:
         action_clips_dict = json.load(file)
 
-    video_ids = []
+    # video_ids = []
+    video_names = []
     video_paths = []
     actions = []
     for action, video_time_dicts in track(action_clips_dict.items(), total=len(action_clips_dict),
                                           description="Checking the video files"):
         for video_time_dict in video_time_dicts:
             video_id = "+".join(video_time_dict.values())
+            video_name = "+".join([action.replace(" ", "_")] + list(video_time_dict.values()))
             video_path = os.path.join(data_dir, video_id + ".mp4")
             if os.path.exists(video_path):  # Sometimes there are missing videos from YouTube, so we check.
-                video_ids.append(video_id)
+                # video_ids.append(video_id)
+                video_names.append(video_name)
                 video_paths.append(video_path)
                 actions.append(action)
 
+    print(len(set(actions)), len(set(video_paths)))
     model = clip.load("ViT-L/14", device=DEVICE, jit=True)[0]
 
     input_size = model.input_resolution.item()
@@ -212,56 +216,61 @@ def extract_clip_features(path: str,
     # similarity = video_features @ text_features.T
     # print(similarity)
 
-    return video_features, text_features, video_ids
+    return video_features, text_features, video_names
 
 
 def test_clip() -> None:
     nodes = pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0)
     # print(nodes.index)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
     action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
     action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add beet']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-    # nodes = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
-    # action1 = nodes.loc[['clean sink']].to_numpy()
-    # action2 = nodes.loc[['clean kitchen']].to_numpy()
-    # action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    # action4 = nodes.loc[['put music']].to_numpy()
-    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3),
-    #       cosine_similarity(action1, action4))
+    nodes = pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0)
+    action1 = nodes.loc[['clean sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
     nodes = pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
     action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
     action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add beet']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
     nodes = pd.read_csv('data/graph/all_weighted_visclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
-    action2 = nodes.loc[['scrub sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
     action3 = nodes.loc[['clean kitchen']].to_numpy()
-    action4 = nodes.loc[['compete with dollar store']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
     action5 = nodes.loc[['put music']].to_numpy()
-    action6 = nodes.loc[['add beet']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-    # nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
-    # action1 = nodes.loc[['clean sink']].to_numpy()
-    # action2 = nodes.loc[['clean kitchen']].to_numpy()
-    # action3 = nodes.loc[['compete with dollar store']].to_numpy()
-    # action4 = nodes.loc[['put music']].to_numpy()
-    # print(cosine_similarity(action1, action2), cosine_similarity(action1, action3),
-    #       cosine_similarity(action1, action4))
+
+    nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
+    action1 = nodes.loc[['clean sink']].to_numpy()
+    action2 = nodes.loc[['wash sink']].to_numpy()
+    action3 = nodes.loc[['clean kitchen']].to_numpy()
+    action4 = nodes.loc[['combine gallon bag']].to_numpy()
+    action5 = nodes.loc[['put music']].to_numpy()
+    action6 = nodes.loc[['add barbecue']].to_numpy()
+    print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
+          cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
 
 def evaluate_clip_embeddings(path: str) -> None:
@@ -309,7 +318,7 @@ def stats_clip(input_file):
         dict_action_clips_sample = json.load(file)
     console.print(f"#Unique actions in dict_action_clips_sample: {len(dict_action_clips_sample)}", style="magenta")
 
-    folder = 'data/videos_sample'
+    folder = 'data/video_clips_sample'
     sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
     set_actions_downloaded = set()
     for video_name in sub_folders:
@@ -324,13 +333,14 @@ def stats_clip(input_file):
 
 
 def main() -> None:
-    video_features, text_features, video_names = extract_clip_features(path="data/dict_action_clips_sample.json")
-    assert len(video_features) == len(text_features) == len(video_names)
-    output_path = "data/clip_features4.pt"
-    save_clip_features(video_features, text_features, video_names, output_path=output_path)
+    pass
+    # video_features, text_features, video_names = extract_clip_features(path="data/dict_action_clips_sample.json")
+    # assert len(video_features) == len(text_features) == len(video_names)
+    # output_path = "data/clip_features4.pt"
+    # save_clip_features(video_features, text_features, video_names, output_path=output_path)
 
-    # stats_clip(input_file="data/clip_features3.pt")
-    evaluate_clip_embeddings(output_path)
+    # stats_clip(input_file=output_path)
+    # evaluate_clip_embeddings(output_path)
     # test_clip()
 
 

@@ -911,10 +911,10 @@ def main():
     all_embeddings = ["stsbrt", "transcript_stsbrt", "txtclip", "visclip", "avgclip"]
     all_weighted_embeddings = ["weighted_" + el for el in all_embeddings]
 
-    # for feat_nodes in all_weighted_embeddings:
+    for feat_nodes in all_weighted_embeddings:
     # for feat_nodes in all_embeddings:
-    for feat_nodes in ["stsbrt"]:
-        # get_graph_weighted_embeddings(feat_nodes)
+    # for feat_nodes in ["stsbrt"]:
+    #     get_graph_weighted_embeddings(feat_nodes)
 
         g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
                          # input_edges='data/graph/all_edges.csv')
@@ -926,10 +926,10 @@ def main():
 
         # SVM(g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes])) #TODO: PIPELINE select from all features
 
-        # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
-        #                                                                 nodes_val, labels_val,
-        #                                                                 method_name="_".join(
-        #                                                                     ["Similarity", feat_nodes]))
+        predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
+                                                                        nodes_val, labels_val,
+                                                                        method_name="_".join(
+                                                                            ["Similarity", feat_nodes]))
 
         # analyse_results(predicted, edge_labels_test, edges_ids_test)
 
