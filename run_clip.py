@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 from __future__ import annotations
 
+import datetime
 import json
 import logging
 import os
-from typing import Mapping, Any, Sequence, Callable, Tuple
+import time
+from typing import Mapping, Any, Sequence, Callable
 
 import clip
 import decord
@@ -83,11 +85,8 @@ TEMPLATES = [
 ]
 
 
-def save_clip_features(video_features: torch.Tensor, text_features: torch.Tensor, video_names: Sequence[str],
-                       output_path: str) -> None:
-    torch.save({video_name: {"visual": video_feature, "text": text_feature}
-                for video_feature, text_feature, video_name in zip(video_features, text_features, video_names)},
-               output_path)
+def save_clip_features(feature_dicts: Sequence[Mapping[str, Any]], output_path: str) -> None:
+    torch.save(feature_dicts, output_path)
 
 
 decord.bridge.set_bridge("torch")
@@ -100,39 +99,85 @@ def time_to_indices(time: float | Sequence[float], video_reader: decord.VideoRea
                     indices - 1)
 
 
+def time_string_to_seconds(time_str: str) -> float:
+    t = time.strptime(time_str.split(",", maxsplit=1)[0], "%H:%M:%S")
+    return datetime.timedelta(hours=t.tm_hour, minutes=t.tm_min, seconds=t.tm_sec).total_seconds()
+
+
 class VideoDataset(Dataset):
-    def __init__(self, video_paths: Sequence[str], actions: Sequence[str],
+    def __init__(self, metadata_path: str, videos_dir: str,
                  transform: Callable[[Image.Image], torch.Tensor], tokenizer: Callable[[str], torch.Tensor],
-                 num_frames: int = 4) -> None:
+                 num_frames: int = 4, extra_time: int = 0) -> None:
         super().__init__()
-        self.video_paths = video_paths
-        self.actions = actions
+
+        with open(metadata_path) as file:
+            action_clips_dict = json.load(file)
+
+        self.action_clips_flatten = []
+        for action, video_time_dicts in track(action_clips_dict.items(), total=len(action_clips_dict),
+                                              description="Checking the video files"):
+            for video_time_dict in video_time_dicts:
+                parent_video_id, start_time, end_time = video_time_dict.values()
+                path = os.path.join(videos_dir, parent_video_id + ".mp4")
+                if os.path.exists(path):
+                    try:
+                        decord.VideoReader(path, num_threads=1)
+
+                        self.action_clips_flatten.append({
+                            "action": action,
+                            "parent_video_id": parent_video_id,
+                            "start_time": time_string_to_seconds(start_time),
+                            "end_time": time_string_to_seconds(end_time),
+                            "path": path,
+                        })
+                    except decord.DECORDError:
+                        LOGGER.warning(f"Can't open video {path}.")
+                else:
+                    LOGGER.warning(f"Missing video {path}.")
+
         self.transform = transform
         self.tokenizer = tokenizer
         self.num_frames = num_frames
+        self.extra_time = extra_time
 
     def __getitem__(self, i: int) -> Mapping[str, Any]:
-        video_path = self.video_paths[i]
-        action = self.actions[i]
+        action_clip = self.action_clips_flatten[i]
+
+        action = action_clip["action"]
+        parent_video_id = action_clip["parent_video_id"]
+        start_time = action_clip["start_time"]
+        end_time = action_clip["end_time"]
+        path = action_clip["path"]
 
         try:
-            video_reader = decord.VideoReader(video_path, num_threads=1)
-            indices = torch.linspace(0, len(video_reader) - 1, steps=self.num_frames).round().to(torch.int)
+            video_reader = decord.VideoReader(path, num_threads=1)
+
+            start_frame_idx, end_frame_idx = time_to_indices([start_time - self.extra_time, end_time + self.extra_time],
+                                                             video_reader)
+            start_frame_idx = max(start_frame_idx, 0)
+            end_frame_idx = min(end_frame_idx, len(video_reader) - 1)
+
+            indices = torch.linspace(start_frame_idx, end_frame_idx, steps=self.num_frames).round().to(torch.int)
             video = video_reader.get_batch(indices)
         except decord.DECORDError:
-            LOGGER.error(f"An error occurred when trying to read the video with path {video_path}.")
+            LOGGER.error(f"An error occurred when trying to read the video with path {path}.")
             video = torch.zeros(self.num_frames, 256, 256, 3)
 
         # To save a frame to later visualize it:
         # plt.imsave("abc.png", video[0].numpy())
 
         return {
+            "action": action,
+            "parent_video_id": parent_video_id,
+            "start_time": start_time,
+            "end_time": end_time,
+            "path": path,
             "text_tokens": self.tokenizer(template.format(action) for template in TEMPLATES),  # noqa
             "video": self.transform(video),
         }
 
     def __len__(self) -> int:
-        return len(self.video_paths)
+        return len(self.action_clips_flatten)
 
 
 class ConvertBHWCtoBCHW(nn.Module):
@@ -140,28 +185,7 @@ class ConvertBHWCtoBCHW(nn.Module):
         return v.permute(0, 3, 1, 2)
 
 
-def extract_clip_features(path: str,
-                          data_dir: str = "data/video_clips_sample") -> Tuple[torch.Tensor, torch.Tensor, Sequence[str]]:
-    with open(path) as file:
-        action_clips_dict = json.load(file)
-
-    # video_ids = []
-    video_names = []
-    video_paths = []
-    actions = []
-    for action, video_time_dicts in track(action_clips_dict.items(), total=len(action_clips_dict),
-                                          description="Checking the video files"):
-        for video_time_dict in video_time_dicts:
-            video_id = "+".join(video_time_dict.values())
-            video_name = "+".join([action.replace(" ", "_")] + list(video_time_dict.values()))
-            video_path = os.path.join(data_dir, video_id + ".mp4")
-            if os.path.exists(video_path):  # Sometimes there are missing videos from YouTube, so we check.
-                # video_ids.append(video_id)
-                video_names.append(video_name)
-                video_paths.append(video_path)
-                actions.append(action)
-
-    print(len(set(actions)), len(set(video_paths)))
+def extract_clip_features(metadata_path: str, videos_dir: str) -> Sequence[Mapping[str, Any]]:
     model = clip.load("ViT-L/14", device=DEVICE, jit=True)[0]
 
     input_size = model.input_resolution.item()
@@ -176,11 +200,11 @@ def extract_clip_features(path: str,
         T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
     ])
 
-    dataset = VideoDataset(video_paths, actions, transform=transform, tokenizer=clip.tokenize)
+    dataset = VideoDataset(metadata_path=metadata_path, videos_dir=videos_dir, transform=transform,
+                           tokenizer=clip.tokenize)
     data_loader = DataLoader(dataset, batch_size=96, num_workers=NUM_WORKERS, pin_memory=True)
 
-    video_feature_list = []
-    text_feature_list = []
+    feature_dicts = []
 
     with torch.inference_mode():
         for batch in track(data_loader, description="Extracting CLIP features"):
@@ -204,19 +228,20 @@ def extract_clip_features(path: str,
 
             assert video_features.shape == text_features.shape
 
-            video_feature_list.append(video_features)
-            text_feature_list.append(text_features)
+            for action, start_time, end_time, path, parent_video_id, visual, text \
+                in zip(batch["action"], batch["start_time"], batch["end_time"], batch["path"], batch["parent_video_id"],
+                       video_features, text_features):
+                feature_dicts.append({
+                    "action": action,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "path": path,
+                    "parent_video_id": parent_video_id,
+                    "visual_features": visual,
+                    "text_features": text,
+                })
 
-    video_features = torch.cat(video_feature_list)
-    text_features = torch.cat(text_feature_list)
-
-    # video_features /= video_features.norm(dim=-1, keepdim=True)
-    # text_features /= text_features.norm(dim=-1, keepdim=True)
-
-    # similarity = video_features @ text_features.T
-    # print(similarity)
-
-    return video_features, text_features, video_names
+    return feature_dicts
 
 
 def test_clip() -> None:
@@ -273,12 +298,10 @@ def test_clip() -> None:
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
 
-def evaluate_clip_embeddings(path: str) -> None:
-    features_dict = torch.load(path)
-
+def evaluate_clip_embeddings(feature_dicts: Sequence[Mapping[str, Any]]) -> None:
     with torch.inference_mode():
-        video_features = torch.stack([b["visual"] for b in features_dict.values()]).to(DEVICE)
-        text_features = torch.stack([b["text"] for b in features_dict.values()]).to(DEVICE)
+        video_features = torch.stack([f["visual_features"] for f in feature_dicts]).to(DEVICE)
+        text_features = torch.stack([f["text_features"] for f in feature_dicts]).to(DEVICE)
 
         video_features /= video_features.norm(dim=-1, keepdim=True)
         text_features /= text_features.norm(dim=-1, keepdim=True)
@@ -305,8 +328,8 @@ def evaluate_clip_embeddings(path: str) -> None:
         print("Median ground truth probability:", ground_truth_probs.median())
 
 
-def stats_clip(input_file):
-    features_dict = torch.load(input_file)
+def stats_clip(path: str) -> None:
+    features_dict = torch.load(path)
     actions = set()
     for video_name in features_dict:
         action_in_dict = video_name.split("+")[0].replace("_", " ")
@@ -334,14 +357,14 @@ def stats_clip(input_file):
 
 def main() -> None:
     pass
-    # video_features, text_features, video_names = extract_clip_features(path="data/dict_action_clips_sample.json")
-    # assert len(video_features) == len(text_features) == len(video_names)
-    # output_path = "data/clip_features4.pt"
-    # save_clip_features(video_features, text_features, video_names, output_path=output_path)
+    feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
+                                          videos_dir="data/videos_test")
+    output_path = "data/clip_features4.pt"
+    save_clip_features(feature_dicts, output_path=output_path)
 
-    # stats_clip(input_file=output_path)
-    # evaluate_clip_embeddings(output_path)
-    # test_clip()
+    stats_clip(path=output_path)
+    evaluate_clip_embeddings(feature_dicts)
+    test_clip()
 
 
 if __name__ == '__main__':
