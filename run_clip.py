@@ -7,7 +7,7 @@ import logging
 import os
 import time
 from typing import Mapping, Any, Sequence, Callable
-
+from pyinflect import getInflection
 import clip
 import decord
 import numpy as np
@@ -85,17 +85,13 @@ TEMPLATES = [
 ]
 
 
-def save_clip_features(feature_dicts: Sequence[Mapping[str, Any]], output_path: str) -> None:
-    torch.save(feature_dicts, output_path)
-
-
 decord.bridge.set_bridge("torch")
 
 
-def time_to_indices(time: float | Sequence[float], video_reader: decord.VideoReader) -> np.ndarray:
+def time_to_indices(t: float | Sequence[float], video_reader: decord.VideoReader) -> np.ndarray:
     times = video_reader.get_frame_timestamp(range(len(video_reader))).mean(-1)
-    indices = np.searchsorted(times, time)
-    return np.where(np.bitwise_or(indices == 0, times[indices] - time <= time - times[indices - 1]), indices,
+    indices = np.searchsorted(times, t)
+    return np.where(np.bitwise_or(indices == 0, times[indices] - t <= t - times[indices - 1]), indices,
                     indices - 1)
 
 
@@ -105,9 +101,8 @@ def time_string_to_seconds(time_str: str) -> float:
 
 
 class VideoDataset(Dataset):
-    def __init__(self, metadata_path: str, videos_dir: str,
-                 transform: Callable[[Image.Image], torch.Tensor], tokenizer: Callable[[str], torch.Tensor],
-                 num_frames: int = 4, extra_time: int = 0) -> None:
+    def __init__(self, metadata_path: str, videos_dir: str, transform: Callable[[Image.Image], torch.Tensor],
+                 tokenizer: Callable[[str], torch.Tensor], num_frames: int = 4) -> None:
         super().__init__()
 
         with open(metadata_path) as file:
@@ -118,27 +113,19 @@ class VideoDataset(Dataset):
                                               description="Checking the video files"):
             for video_time_dict in video_time_dicts:
                 parent_video_id, start_time, end_time = video_time_dict.values()
-                path = os.path.join(videos_dir, parent_video_id + ".mp4")
+                path = os.path.join(videos_dir, f"{parent_video_id}+{start_time}+{end_time}.mp4")
                 if os.path.exists(path):
-                    try:
-                        decord.VideoReader(path, num_threads=1)
-
-                        self.action_clips_flatten.append({
-                            "action": action,
-                            "parent_video_id": parent_video_id,
-                            "start_time": time_string_to_seconds(start_time),
-                            "end_time": time_string_to_seconds(end_time),
-                            "path": path,
-                        })
-                    except decord.DECORDError:
-                        LOGGER.warning(f"Can't open video {path}.")
-                else:
-                    LOGGER.warning(f"Missing video {path}.")
+                    self.action_clips_flatten.append({
+                        "action": action,
+                        "parent_video_id": parent_video_id,
+                        "start_time": time_string_to_seconds(start_time),
+                        "end_time": time_string_to_seconds(end_time),
+                        "path": path,
+                    })
 
         self.transform = transform
         self.tokenizer = tokenizer
         self.num_frames = num_frames
-        self.extra_time = extra_time
 
     def __getitem__(self, i: int) -> Mapping[str, Any]:
         action_clip = self.action_clips_flatten[i]
@@ -151,13 +138,7 @@ class VideoDataset(Dataset):
 
         try:
             video_reader = decord.VideoReader(path, num_threads=1)
-
-            start_frame_idx, end_frame_idx = time_to_indices([start_time - self.extra_time, end_time + self.extra_time],
-                                                             video_reader)
-            start_frame_idx = max(start_frame_idx, 0)
-            end_frame_idx = min(end_frame_idx, len(video_reader) - 1)
-
-            indices = torch.linspace(start_frame_idx, end_frame_idx, steps=self.num_frames).round().to(torch.int)
+            indices = torch.linspace(0, len(video_reader) - 1, steps=self.num_frames).round().int()
             video = video_reader.get_batch(indices)
         except decord.DECORDError:
             LOGGER.error(f"An error occurred when trying to read the video with path {path}.")
@@ -166,13 +147,14 @@ class VideoDataset(Dataset):
         # To save a frame to later visualize it:
         # plt.imsave("abc.png", video[0].numpy())
 
+        action_gerund = getInflection(action.split()[0], "VBG")[0] + " " + " ".join(action.split()[1:])
         return {
             "action": action,
             "parent_video_id": parent_video_id,
             "start_time": start_time,
             "end_time": end_time,
             "path": path,
-            "text_tokens": self.tokenizer(template.format(action) for template in TEMPLATES),  # noqa
+            "text_tokens": self.tokenizer(template.format(action_gerund) for template in TEMPLATES),  # noqa
             "video": self.transform(video),
         }
 
@@ -286,7 +268,6 @@ def test_clip() -> None:
     print(cosine_similarity(action1, action2), cosine_similarity(action1, action3), cosine_similarity(action1, action4),
           cosine_similarity(action1, action5), cosine_similarity(action1, action6))
 
-
     nodes = pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0)
     action1 = nodes.loc[['clean sink']].to_numpy()
     action2 = nodes.loc[['wash sink']].to_numpy()
@@ -327,14 +308,17 @@ def evaluate_clip_embeddings(feature_dicts: Sequence[Mapping[str, Any]]) -> None
         print("Mean ground truth probability:", ground_truth_probs.mean())
         print("Median ground truth probability:", ground_truth_probs.median())
 
+        print()
+        print("For reference:")
+        print("Random mean/median rank:", len(video_features) / 2)
+        print("Random R@1:", 1 / len(video_features))
+        print("Random R@5:", 5 / len(video_features))
+        print("Random R@10:", 10 / len(video_features))
 
-def stats_clip(path: str) -> None:
-    features_dict = torch.load(path)
-    actions = set()
-    for video_name in features_dict:
-        action_in_dict = video_name.split("+")[0].replace("_", " ")
-        actions.add(action_in_dict)
-    console.print(f"#Unique (action, clips) in CLIP features dict: {len(features_dict)}", style="magenta")
+
+def stats_clip(feature_dicts: Sequence[Mapping[str, Any]]) -> None:
+    actions = {f["action"] for f in feature_dicts}
+    console.print(f"#Unique (action, clips) in CLIP features dict: {len(feature_dicts)}", style="magenta")
     console.print(f"#Unique actions in CLIP features dict: {len(actions)}", style="magenta")
 
     with open("data/dict_action_clips_sample.json") as file:
@@ -343,10 +327,7 @@ def stats_clip(path: str) -> None:
 
     folder = 'data/video_clips_sample'
     sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
-    set_actions_downloaded = set()
-    for video_name in sub_folders:
-        action = video_name.split("+")[0].replace("_", " ")
-        set_actions_downloaded.add(action)
+    set_actions_downloaded = {video_name.split("+")[0].replace("_", " ") for video_name in sub_folders}
     console.print(f"#Unique (action, clips) downloaded: {len(sub_folders)}", style="magenta")
     console.print(f"#Unique actions downloaded: {len(set_actions_downloaded)}", style="magenta")
 
@@ -356,15 +337,13 @@ def stats_clip(path: str) -> None:
 
 
 def main() -> None:
-    pass
     feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
-                                          videos_dir="data/videos_test")
-    output_path = "data/clip_features4.pt"
-    save_clip_features(feature_dicts, output_path=output_path)
+                                          videos_dir="data/video_clips_sample")
+    torch.save(feature_dicts, "data/clip_features4.pt")
 
-    stats_clip(path=output_path)
+    # stats_clip(feature_dicts)
     evaluate_clip_embeddings(feature_dicts)
-    test_clip()
+    # test_clip()
 
 
 if __name__ == '__main__':

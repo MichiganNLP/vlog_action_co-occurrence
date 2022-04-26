@@ -63,3 +63,4 @@ wcwidth~=0.2.5
 wheel~=0.37.0
 youtube-dl~=2021.12.17
 yt-dlp~=2022.4.8
+pyinflect~=0.5.1
