@@ -283,7 +283,7 @@ def get_action_pairs_by_time():
                     # dict_video_action_pairs[video].append([(action_1, clip_a1), (action_2, clip_a2), difference])
                     # print((action_1, clip_a1), (action_2, clip_a2), difference)
                     # print((action_1, transcript_a1), (action_2, transcript_a2))
-    console.print(f"#Unique actions before time filtering: {len(set(all_actions))}", style="magenta")
+    console.print(f"#Unique actions before co-occurrence: {len(set(all_actions))}", style="magenta")
     with open('data/dict_video_action_pairs.json', 'w+') as fp:
         json.dump(dict_video_action_pairs, fp)
     return dict_video_action_pairs
@@ -316,13 +316,10 @@ def get_stats_actions(before_clustering):
             all_verbs.append(action_2.split()[0])
 
     word = "before" if before_clustering else "after"
-    console.print(f"#Unique actions after time filtering, {word} clustering: {len(set(all_actions))}", style="magenta")
-    console.print(f"#Unique action pairs after time filtering, {word} clustering: {len(set(all_action_pairs))}",
+    console.print(f"#Unique actions after co-occurrence, {word} clustering: {len(set(all_actions))}", style="magenta")
+    console.print(f"#Unique action pairs after co-occurrence, {word} clustering: {len(set(all_action_pairs))}",
                   style="magenta")
-    console.print(f"#unique verbs after time filtering, {word} clustering: {len(set(all_verbs))}", style="magenta")
-    # pprint(f"20 most common verbs: {Counter(all_verbs).most_common(20)}", expand_all=True)
-    # pprint(f"20 most common actions: {Counter(all_actions).most_common(20)}", expand_all=True)
-    # pprint(f"20 most common action pairs: {Counter(all_action_pairs).most_common(20)}", expand_all=True)
+    console.print(f"#unique verbs after co-occurrence, {word} clustering: {len(set(all_verbs))}", style="magenta")
     return set(all_verbs)
 
 
@@ -519,41 +516,17 @@ def get_sentence_embedding_features(all_actions):
     list_stsbrt_embeddings = model.encode(list(all_actions), show_progress_bar=True, convert_to_tensor=True)
     return list_stsbrt_embeddings
 
-
-def get_text_clip_features(all_actions, data_dir):
-    list_txt_clip_embeddings = []
-    count_action_no_txt_feat = 0
-    all_actions_processed = []
-    all_files = {file_name for file_name in glob.glob(data_dir + "*_text.pt")}
-    for action in track(all_actions, description="Getting CLIP txt features for all actions"):
-        found_action = False
-        for file in all_files:
-            action_file_name = file.split("+")[0].replace(data_dir, '').replace("_", " ")
-            if action_file_name == action:
-                found_action = True
-                features_action = torch.load(file, map_location='cpu')
-                list_txt_clip_embeddings.append(features_action)
-                all_actions_processed.append(action)
-                break
-        if not found_action:
-            # raise ValueError(f"Action {action} doesn't have CLIP txt features")
-            print(f"Action {action} doesn't have CLIP txt features")
-            count_action_no_txt_feat += 1
-    console.print(f"There are {count_action_no_txt_feat} action with no text feat, from {len(all_actions)} total.",
-                  style="magenta")
-    return list_txt_clip_embeddings, all_actions_processed
-
 def get_clip_features(all_actions, input_file):
-    features_dict = torch.load(input_file)
+    list_features_dict = torch.load(input_file)
     actions_features_dict = {}
     for action in track(all_actions, description="Getting CLIP txt features for all actions"):
         if action not in actions_features_dict:
             actions_features_dict[action] = {'text': [], 'visual': []}
-        for video_name in features_dict:
-            action_in_dict = video_name.split("+")[0].replace("_", " ")
+        for features_dict in list_features_dict:
+            action_in_dict = features_dict['action']
             if action_in_dict == action:
-                actions_features_dict[action]['text'].append(torch.unsqueeze(features_dict[video_name]['text'], 0))
-                actions_features_dict[action]['visual'].append(torch.unsqueeze(features_dict[video_name]['visual'], 0))
+                actions_features_dict[action]['text'].append(torch.unsqueeze(features_dict['text_features'], 0))
+                actions_features_dict[action]['visual'].append(torch.unsqueeze(features_dict['visual_features'], 0))
 
     count_actions_not_found = 0
     count_actions_found = 0
@@ -574,35 +547,6 @@ def get_clip_features(all_actions, input_file):
     console.print(f"There are {count_actions_found} actions with CLIP feat, {count_actions_not_found} actions with NO CLIP feat, from {len(all_actions)} total.",
                   style="magenta")
     return list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions_processed
-
-def get_visual_clip_features(all_actions, data_dir):
-    # Take average of all video features for given action
-    list_vis_clip_embeddings = []
-    all_files = {file_name for file_name in glob.glob(data_dir + "*_clip.pt")}
-    count_action_no_vis_feat = 0
-    all_actions_processed = []
-    for action in track(all_actions, description="Getting CLIP visual features for all actions"):
-        list_action_vis_features = []
-        found_action = False
-        for file in all_files:
-            action_file_name = file.split("+")[0].replace(data_dir, '').replace("_", " ")
-            if action_file_name == action:
-                found_action = True
-                features_action = torch.load(file)
-                list_action_vis_features.append(torch.unsqueeze(features_action, 0))
-        if not found_action:
-            # raise ValueError(f"Action {action} doesn't have CLIP visual features")
-            print(f"Action {action} doesn't have CLIP visual features")
-            count_action_no_vis_feat += 1
-        else:
-            all_actions_processed.append(action)
-            concat_features_action = torch.cat(list_action_vis_features, dim=0)
-            avg_features_action = torch.mean(concat_features_action, dim=0)
-            list_vis_clip_embeddings.append(avg_features_action)
-    console.print(f"There are {count_action_no_vis_feat} action with no vis feat, from {len(all_actions)} total.",
-                  style="magenta")
-    return list_vis_clip_embeddings, all_actions_processed
-
 
 def get_average_clip_embeddings(input1, input2, output):
     txtclip_node_data = pd.read_csv(input1, index_col=0)
@@ -644,24 +588,17 @@ def save_nodes_edges_df(all_action_pairs, transcripts_per_action, name):
 
     list_stsbrt_transcript_embeddings = get_sentence_embedding_features(all_transcripts)
     list_stsbrt_embeddings = get_sentence_embedding_features(all_actions)
-    # list_txt_clip_embeddings, all_actions_txt = get_text_clip_features(all_actions, data_dir='data/clip_features2/')
-    list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions_CLIP = get_clip_features(all_actions, input_file='data/clip_features4.pt')
-    # list_vis_clip_embeddings, all_actions_vis = get_visual_clip_features(all_actions, data_dir='data/clip_features2/')
+    list_txt_clip_embeddings, list_vis_clip_embeddings, all_actions_CLIP = get_clip_features(all_actions, input_file='data/clip_features.pt')
 
-
-    # Save graph node features: Sentence Bert, Text CLIP, Visual CLIP
+    # Save graph nodes
     df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_transcript_embeddings], index=all_actions)
     df.to_csv('data/graph/' + name + "_transcript_stsbrt" + "_nodes.csv")
-
     df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_stsbrt_embeddings], index=all_actions)
     df.to_csv('data/graph/' + name + "_stsbrt" + "_nodes.csv")
-    #
     df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_txt_clip_embeddings], index=all_actions_CLIP)
     df.to_csv('data/graph/' + name + "_txtclip" + "_nodes.csv")
-    #
     df = pd.DataFrame([tensor.cpu().numpy() for tensor in list_vis_clip_embeddings], index=all_actions_CLIP)
     df.to_csv('data/graph/' + name + "_visclip" + "_nodes.csv")
-    #
     get_average_clip_embeddings(input1='data/graph/' + name + "_txtclip" + "_nodes.csv",
                                 input2='data/graph/' + name + "_visclip" + "_nodes.csv",
                                 output="data/graph/all" + "_avgclip" + "_nodes.csv")
@@ -670,15 +607,11 @@ def save_nodes_edges_df(all_action_pairs, transcripts_per_action, name):
     counter = Counter(tuple(x) for x in all_action_pairs)
     actions_not_found = list(set(all_actions) - set(all_actions_CLIP))
     print(f"Actions not found with CLIP (missing videos): {actions_not_found}")
-    # list_tuples_actions = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter]
-    list_tuples_actions_missing = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter
+    list_tuples_actions = [(action_pair[0], action_pair[1], counter[action_pair]) for action_pair in counter
                                    if action_pair[0] not in actions_not_found and action_pair[1] not in actions_not_found]
 
-    # list_tuples_actions = [(action_pair[0], action_pair[1], 1) for action_pair in counter] #weight 1
-    # df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
-    # df.to_csv('data/graph/' + name + "_edges.csv", index=False)
-    df = pd.DataFrame(list_tuples_actions_missing, columns=['source', 'target', 'weight'])
-    df.to_csv('data/graph/' + name + "_edges_missing.csv", index=False)
+    df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
+    df.to_csv('data/graph/' + name + "_edges.csv", index=False)
 
 
 def convert_datetime_to_seconds(clip_a1):
@@ -785,7 +718,7 @@ def main():
     # get_all_actions(all_verbs, video_sample, try_per_video=False)  # saves the data
     # filter_actions() # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
 
-    # get_action_pairs_by_time()
+    # get_action_pairs_by_time() # get stats initial
 
     # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
     # get_stats_actions(before_clustering=True)
@@ -804,7 +737,7 @@ def main():
     # show_graph_actions(all_action_pairs, video="all_videos")
     #
     # # ''' Saving dataframes for all nodes and edges '''
-    save_nodes_edges_df(all_action_pairs, transcripts_per_action, name="all")
+    # save_nodes_edges_df(all_action_pairs, transcripts_per_action, name="all")
     # save_nodes_null_df(all_action_pairs, name="all")
 
     ''' Split graph by time -- might not need this'''

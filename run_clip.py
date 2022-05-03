@@ -282,33 +282,27 @@ def evaluate_clip_embeddings(feature_dicts: Sequence[Mapping[str, Any]]) -> None
         print("Random R@10:", 10 / len(video_features))
 
 
-def stats_clip(feature_dicts: Sequence[Mapping[str, Any]]) -> None:
-    actions = {f["action"] for f in feature_dicts}
-    console.print(f"#Unique (action, clips) in CLIP features dict: {len(feature_dicts)}", style="magenta")
+def stats_clip(input_file: str) -> None:
+    list_features_dict = torch.load(input_file)
+    actions, video_clips, videos = set(), set(), set()
+    for features_dict in list_features_dict:
+        actions.add(features_dict['action'])
+        videos.add(features_dict['parent_video_id'])
+        video_clips.add(features_dict['path'])
+
+    console.print(f"#Unique (action, clips) in CLIP features dict: {len(list_features_dict)}", style="magenta")
     console.print(f"#Unique actions in CLIP features dict: {len(actions)}", style="magenta")
-
-    with open("data/dict_action_clips_sample.json") as file:
-        dict_action_clips_sample = json.load(file)
-    console.print(f"#Unique actions in dict_action_clips_sample: {len(dict_action_clips_sample)}", style="magenta")
-
-    folder = 'data/video_clips_sample'
-    sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
-    set_actions_downloaded = {video_name.split("+")[0].replace("_", " ") for video_name in sub_folders}
-    console.print(f"#Unique (action, clips) downloaded: {len(sub_folders)}", style="magenta")
-    console.print(f"#Unique actions downloaded: {len(set_actions_downloaded)}", style="magenta")
-
-    # for action in actions:
-    #     if action not in dict_action_clips_sample:
-    #         print(action)
+    console.print(f"#Unique clips in CLIP features dict: {len(video_clips)}", style="magenta")
+    console.print(f"#Unique videos in CLIP features dict: {len(videos)}", style="magenta")
 
 
 def main() -> None:
-    feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
-                                          videos_dir="data/video_clips_sample")
-    torch.save(feature_dicts, "data/clip_features4.pt")
+    # feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
+    #                                       videos_dir="data/video_clips_sample")
+    # torch.save(feature_dicts, "data/clip_features.pt")
 
-    # stats_clip(feature_dicts)
-    evaluate_clip_embeddings(feature_dicts)
+    stats_clip("data/clip_features.pt")
+    # evaluate_clip_embeddings(feature_dicts)
     # test_clip()
 
 

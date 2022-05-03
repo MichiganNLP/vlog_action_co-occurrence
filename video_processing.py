@@ -169,14 +169,14 @@ def stats_videos() -> None:
     console.print(f"#Unique actions sampled: {len(dict_action_clips_sample.keys())}", style="magenta")
     console.print(f"#Unique videos sampled: {len(all_video_clips_sampled)}", style="magenta")
 
-    folder = 'data/video_clips_sample'
-    sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
-    set_actions_downloaded = set()
-    for video_name in sub_folders:
-        action = video_name.split("+")[0].replace("_", " ")
-        set_actions_downloaded.add(action)
-    console.print(f"#Unique (action, clips) downloaded: {len(sub_folders)}", style="magenta")
-    console.print(f"#Unique actions downloaded: {len(set_actions_downloaded)}", style="magenta")
+    # folder = 'data/video_clips_sample'
+    # sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
+    # set_actions_downloaded = set()
+    # for video_name in sub_folders:
+    #     action = video_name.split("+")[0].replace("_", " ")
+    #     set_actions_downloaded.add(action)
+    # console.print(f"#Unique (action, clips) downloaded: {len(sub_folders)}", style="magenta")
+    # console.print(f"#Unique actions downloaded: {len(set_actions_downloaded)}", style="magenta")
 
 
 def get_video_diff() -> None:
@@ -226,7 +226,7 @@ def main() -> None:
     #                          output_file="data/dict_action_clips.json")
     # sample_videos(input_file='data/dict_action_clips.json', output_file='data/dict_action_clips_sample.json',
     #               max_videos_per_action=10)
-    # stats_videos()
+    stats_videos()
 
     # TODO: Add 5 seconds before and after time to account for misalignment
     # subprocess.run(["./download_video_clips.sh", "data/dict_action_clips_sample.json", "data/video_clips_sample"])
