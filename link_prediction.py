@@ -2,6 +2,8 @@ import json
 import math
 import os
 from collections import defaultdict, Counter
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 import networkx as nx
 import numpy as np
@@ -305,6 +307,61 @@ def plot_features(method, top_features, feature_names):  # TODO
     plt.xticks(np.arange(1 + 2 * top_features), feature_names[top_coefficients], rotation=45, ha='right')
     plt.savefig("data/plots/top_features.pdf")
     # plt.show()
+
+def get_all_heuristic_models(g_test, edge_ids_test, g_val):
+    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
+                        range(len(edge_ids_test))]
+
+    adjacency = g_val.to_adjacency_matrix()
+    list_features = []
+    for method in [CommonNeighbors(), JaccardIndex(), SaltonIndex(), PreferentialAttachment(),
+                   HubPromotedIndex(), HubDepressedIndex(), AdamicAdar(), ResourceAllocation()]:
+    # for method in [CommonNeighbors(), SaltonIndex(), PreferentialAttachment(), HubDepressedIndex(), AdamicAdar(), ResourceAllocation()]:
+        method.fit_predict(adjacency, 0)
+        nodes_method_pairs_test = [method.predict((node1, node2)) for (node1, node2) in nodes_pairs_test]
+        nodes_feat_test = np.array(nodes_method_pairs_test)[:, np.newaxis]
+        # print(f"Heuristic nodes_feat_test.shape: {nodes_feat_test.shape}")
+        list_features.append(nodes_feat_test)
+
+    nodes_SP_pairs_test = [len(shortest_path(adjacency, node1, node2)) for (node1, node2) in nodes_pairs_test]
+    nodes_feat_test = np.array(nodes_SP_pairs_test)[:, np.newaxis]
+    list_features.append(nodes_feat_test)
+    concat_feat_test = np.concatenate(list_features, axis=1)
+    print(f"Heuristic concat_feat_test.shape: {concat_feat_test.shape}")
+    return concat_feat_test
+
+
+
+def SVM_pipeline(all_embeddings, g_test, edge_ids_test, edge_labels_test, g_val, method_name):
+    heuristic_concat_feat_test = get_all_heuristic_models(g_test, edge_ids_test, g_val)
+    embedding_concat_feat_test = get_all_embedding_graphs(all_embeddings)
+    print(f"Heuristic heuristic_concat_feat_test.shape: {heuristic_concat_feat_test.shape}")
+    print(f"Embedding embedding_concat_feat_test.shape: {embedding_concat_feat_test.shape}")
+    concat_feat_test = np.concatenate((embedding_concat_feat_test, heuristic_concat_feat_test), axis=1)
+    # concat_feat_test = embedding_concat_feat_test
+    sc = StandardScaler()
+    concat_feat_test = sc.fit_transform(concat_feat_test)
+
+    print(f"All concat_feat_test.shape: {concat_feat_test.shape}")
+
+    from sklearn import svm
+    #
+    # from sklearn.decomposition import PCA
+    # from sklearn.pipeline import Pipeline
+    #
+    # # method = Pipeline(
+    # #     [('pca', PCA(n_components=4)), ('std', StandardScaler()), ('SVM', svm.SVC())])
+    method = svm.SVC()
+    method.fit(concat_feat_test, edge_labels_test)
+    predicted = method.predict(concat_feat_test)
+    accuracy = accuracy_score(edge_labels_test, predicted) * 100
+    #
+    # # coef = method.coef_.ravel()
+    # # print(coef)
+    print(Counter(predicted))
+    print(Counter(edge_labels_test))
+    #
+    console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
 
 
 def SVM(g_test, edge_ids_test, edge_labels_test, g_val, method_name):
@@ -896,6 +953,44 @@ def analyse_results(predicted_labels, edge_labels_test, edges_ids_test):
     print(dict(sorted(dict_results_errors["FP"].items()), key=lambda item: item[0]))
     print("#TP + TN", len(dict_results_correct))
 
+def get_all_embedding_graphs(all_embeddings):
+    list_features_train = []
+    list_features_test = []
+    for feat_nodes in all_embeddings:
+        g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
+                         input_edges='data/graph/all_edges.csv')  # all_one_edges
+        g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
+            test_val_train_split2(g)
+
+        nodes_feat_pairs_train = [g_train.node_features(nodes=[nodes_train[i][0], nodes_train[i][1]])
+                                 for i in range(len(nodes_train))]
+
+        nodes_feat_train = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1)
+                                               for nodes_feat_pairs_feat in nodes_feat_pairs_train]))
+
+
+        nodes_feat_pairs_test = [g_val.node_features(nodes=[nodes_test[i][0], nodes_test[i][1]])
+                                 for i in range(len(nodes_test))]
+
+        nodes_feat_test = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1)
+                                               for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
+
+        list_features_train.append(nodes_feat_train)
+        list_features_test.append(nodes_feat_test)
+    concat_feat_train = np.concatenate(list_features_train, axis=1)
+    concat_feat_test = np.concatenate(list_features_test, axis=1)
+
+    # sc = StandardScaler()
+    # # pca = PCA(n_components=2)
+    #
+    # nodes_feat_train = sc.fit_transform(concat_feat_train)
+    # concat_feat_test = sc.transform(concat_feat_test)
+    #
+    # # pca.fit_transform(nodes_feat_train)
+    # # nodes_feat_test = pca.transform(nodes_feat_test)
+
+    print(f"Embedding concat_feat_test.shape: {concat_feat_test.shape}")
+    return concat_feat_test
 
 def main():
     # g = test_cora()
@@ -903,8 +998,8 @@ def main():
     all_embeddings = ["stsbrt", "transcript_stsbrt", "txtclip", "visclip", "avgclip"]
     all_weighted_embeddings = ["weighted_" + el for el in all_embeddings]
 
-    # for feat_nodes in all_weighted_embeddings:
-    # for feat_nodes in all_embeddings:
+    # # for feat_nodes in all_weighted_embeddings:
+    # # for feat_nodes in all_embeddings:
     for feat_nodes in ["stsbrt"]:
     #     get_graph_weighted_embeddings(feat_nodes)
         g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
@@ -913,7 +1008,8 @@ def main():
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
             test_val_train_split2(g)
 
-        # SVM(g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes])) #TODO: select from all features
+    #     # SVM(g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes]))
+        SVM_pipeline(all_embeddings + all_weighted_embeddings, g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes]))
 
         # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
         #                                                                 nodes_val, labels_val,
@@ -925,7 +1021,7 @@ def main():
         # GNN_link_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train,
         #                labels_val, labels_test, feat_nodes)
 
-        evaluate_weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
+        # evaluate_weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
 
     # get_nearest_neighbours()
 
