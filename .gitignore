@@ -2,5 +2,7 @@
 data/
 cache_dir
 outputs
-runs
 .python-version
+checkpoint
+.ipynb_checkpoints
+coref

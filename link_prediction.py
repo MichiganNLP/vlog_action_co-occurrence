@@ -1,32 +1,28 @@
+import argparse
 import json
 import math
 import os
-from collections import defaultdict, Counter
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-
-import networkx as nx
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from IPython.display import display, HTML
-from rich.console import Console
+from collections import defaultdict, Counter
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
+from sklearn import svm
 from sknetwork.linkpred import CommonNeighbors, JaccardIndex, SaltonIndex, HubPromotedIndex, AdamicAdar, \
     ResourceAllocation, PreferentialAttachment, HubDepressedIndex, whitened_sigmoid
 from sknetwork.path import shortest_path
 from stellargraph import StellarGraph
-from stellargraph import datasets
 from stellargraph.data import EdgeSplitter, BiasedRandomWalk, UnsupervisedSampler
 from stellargraph.layer import GCN, LinkEmbedding, Node2Vec, Attri2Vec, GraphSAGE
 from stellargraph.mapper import FullBatchLinkGenerator, Node2VecLinkGenerator, Node2VecNodeGenerator, \
     Attri2VecLinkGenerator, Attri2VecNodeGenerator, GraphSAGELinkGenerator, GraphSAGENodeGenerator
 from tensorflow import keras
 from rich.progress import track
-
+from rich.console import Console
 from data_analysis import get_all_actions, get_all_action_pairs
 
 random_seed = 10
@@ -57,44 +53,7 @@ def test_my_data(input_nodes, input_edges):
     return g
 
 
-def test_cora():
-    dataset = datasets.Cora()
-    display(HTML(dataset.description))
-    g, _ = dataset.load(subject_as_feature=True)
-    print(g.info())
-    return g
-
-
 def test_val_train_split(g):
-    # Define an edge splitter on the original graph g:
-    edge_splitter_test = EdgeSplitter(g)
-
-    # Randomly sample a fraction p=0.1 of all positive links, and same number of negative links, from g, and obtain the
-    # reduced graph g_test with the sampled links removed:
-    g_test, nodes_test, labels_test = edge_splitter_test.train_test_split(
-        p=0.1, method="global", keep_connected=True, seed=random_seed
-    )
-
-    # Define an edge splitter on the reduced graph g_test:
-    edge_splitter_train = EdgeSplitter(g_test)
-
-    g_train, nodes, labels = edge_splitter_train.train_test_split(
-        p=0.1, method="global"
-    )
-
-    (
-        nodes_train,
-        nodes_val,  # validation, model_selection
-        labels_train,
-        labels_val,
-    ) = train_test_split(nodes, labels, train_size=0.75, test_size=0.25)
-
-    print(g_train.info())
-    print(len(nodes_test), len(nodes_train), len(nodes_val))
-    return g_train, g_test, nodes_train, nodes_val, labels_train, labels_val, nodes_test, labels_test
-
-
-def test_val_train_split2(g):
     # Define an edge splitter on the original graph g:
     edge_splitter_test = EdgeSplitter(g)
 
@@ -125,27 +84,6 @@ def test_val_train_split2(g):
     return g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test
 
 
-def test_train_split(g):
-    # Define an edge splitter on the original graph g:
-    edge_splitter_test = EdgeSplitter(g)
-
-    # Randomly sample a fraction p=0.1 of all positive links, and same number of negative links, from g, and obtain the
-    # reduced graph g_test with the sampled links removed:
-    g_test, edge_ids_test, edge_labels_test = edge_splitter_test.train_test_split(
-        p=0.1, method="global", keep_connected=True, seed=random_seed
-    )
-
-    # Define an edge splitter on the reduced graph g_test:
-    edge_splitter_train = EdgeSplitter(g_test)
-
-    # Randomly sample a fraction p=0.1 of all positive links, and same number of negative links, from g_test, and obtain the
-    # reduced graph g_train with the sampled links removed:
-    g_train, edge_ids_train, edge_labels_train = edge_splitter_train.train_test_split(
-        p=0.1, method="global", keep_connected=True, seed=random_seed
-    )
-
-    return g_train, g_test, edge_ids_train, edge_labels_train, edge_ids_test, edge_labels_test
-
 def node_strength(all_edge_info, node_z):
     strength = 0
     source, target, weights = all_edge_info[0].tolist(), all_edge_info[1].tolist(), all_edge_info[3].tolist()
@@ -155,10 +93,10 @@ def node_strength(all_edge_info, node_z):
     return strength
 
 
-def weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test):
-    # using: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4744029/
-    nodes_val = [list([edge_ids_val[i][0], edge_ids_val[i][1]]) for i in range(len(edge_ids_val))]
-    nodes_test = [list([edge_ids_test[i][0], edge_ids_test[i][1]]) for i in range(len(edge_ids_test))]
+# using: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4744029/
+def weighted_heuristic_methods(g_val, nodes_val, nodes_test):
+    nodes_val = [list([nodes_val[i][0], nodes_val[i][1]]) for i in range(len(nodes_val))]
+    nodes_test = [list([nodes_test[i][0], nodes_test[i][1]]) for i in range(len(nodes_test))]
     all_nodes = nodes_val + nodes_test
     all_edge_info = g_val.edge_arrays(include_edge_weight=True)
     source, target, weights = all_edge_info[0].tolist(), all_edge_info[1].tolist(), all_edge_info[3].tolist()
@@ -173,7 +111,8 @@ def weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test):
             weight_node_z = 0
             strength_node_z = node_strength(all_edge_info, node_z)
             for (s, t, w) in zip(source, target, weights):
-                if (node1 == s and node_z == t) or (node2 == s and node_z == t) or (node1 == t and node_z == s) or (node2 == t and node_z == s):
+                if (node1 == s and node_z == t) or (node2 == s and node_z == t) or (node1 == t and node_z == s) or (
+                        node2 == t and node_z == s):
                     weight_node_z += w
             WCN += weight_node_z
             WAA += weight_node_z / math.log(1 + strength_node_z)
@@ -183,10 +122,11 @@ def weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test):
 
     return dict_common_neighbours_w
 
-def evaluate_weighted_heuristic_methods(edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_labels_val):
-    dict_common_neighbours_w = weighted_heuristic_methods(g_val, edge_ids_val, edge_ids_test)
-    nodes_val = [list([edge_ids_val[i][0], edge_ids_val[i][1]]) for i in range(len(edge_ids_val))]
-    nodes_test = [list([edge_ids_test[i][0], edge_ids_test[i][1]]) for i in range(len(edge_ids_test))]
+
+def weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val):
+    dict_common_neighbours_w = weighted_heuristic_methods(g_val, nodes_val, nodes_test)
+    nodes_val = [list([nodes_val[i][0], nodes_val[i][1]]) for i in range(len(nodes_val))]
+    nodes_test = [list([nodes_test[i][0], nodes_test[i][1]]) for i in range(len(nodes_test))]
 
     list_sim_predicted_WCN_val, list_sim_predicted_WCN_test = [], []
     list_sim_predicted_WAA_val, list_sim_predicted_WAA_test = [], []
@@ -218,7 +158,7 @@ def evaluate_weighted_heuristic_methods(edge_ids_test, edge_labels_test, g_val, 
         for threshold in np.linspace(0, 1, 10).tolist():
             predicted = whitened_sigmoid(np.asarray(list_sim_predicted_val)) > threshold  # TODO: keep whitened sigmoid?
             # predicted = np.asarray(list_sym_predicted) > threshold  # TODO: keep whitened sigmoid?
-            accuracy = accuracy_score(edge_labels_val, predicted)
+            accuracy = accuracy_score(labels_val, predicted)
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
                 max_threshold = threshold
@@ -228,14 +168,15 @@ def evaluate_weighted_heuristic_methods(edge_ids_test, edge_labels_test, g_val, 
             style="magenta")
 
         predicted = whitened_sigmoid(np.asarray(list_sim_predicted_test)) > max_threshold
-        accuracy = accuracy_score(edge_labels_test, predicted) * 100
+        accuracy = accuracy_score(labels_test, predicted) * 100
         console.print(
             f"Method {method_name}, on test accuracy: {accuracy:.1f} with threshold: {max_threshold:.2f}",
             style="magenta")
         print(Counter(predicted))
 
 
-def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_method_threshold):
+def finetune_threshold_on_validation(g_val, nodes_val, labels_val):
+    dict_method_threshold = {}
     for method_name in ["CommonNeighbors", "JaccardIndex", "SaltonIndex", "PreferentialAttachment", "AdamicAdar",
                         "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation", "ShortestPath"]:
         if method_name == "CommonNeighbors":
@@ -263,11 +204,11 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_
         if method_name != "ShortestPath":
             method.fit_predict(adjacency, 0)  # assigns a scores to edges
 
-        nodes_val = [list(g_val.node_ids_to_ilocs([edge_ids_val[i][0], edge_ids_val[i][1]])) for i in
-                     range(len(edge_ids_val))]
+        nodes_pairs_val = [list(g_val.node_ids_to_ilocs([nodes_val[i][0], nodes_val[i][1]])) for i in
+                           range(len(nodes_val))]
 
         list_sim_predicted = []
-        for (node1, node2) in nodes_val:
+        for (node1, node2) in nodes_pairs_val:
             if method_name != "ShortestPath":
                 common_neighbour_similarity = method.predict((node1, node2))
             else:
@@ -282,7 +223,7 @@ def finetune_threshold_on_validation(g_val, edge_ids_val, edge_labels_val, dict_
         for threshold in np.linspace(0, 1, 10).tolist():
             predicted = whitened_sigmoid(np.asarray(list_sim_predicted)) > threshold  # TODO: keep whitened sigmoid?
             # predicted = np.asarray(list_sym_predicted) > threshold  # TODO: keep whitened sigmoid?
-            accuracy = accuracy_score(edge_labels_val, predicted)
+            accuracy = accuracy_score(labels_val, predicted)
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
                 max_threshold = threshold
@@ -308,109 +249,99 @@ def plot_features(method, top_features, feature_names):  # TODO
     plt.savefig("data/plots/top_features.pdf")
     # plt.show()
 
-def get_all_heuristic_models(g_test, edge_ids_test, g_val):
-    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
-                        range(len(edge_ids_test))]
 
-    adjacency = g_val.to_adjacency_matrix()
-    list_features = []
+def get_all_heuristic_models(g_test, nodes_test, g_train, nodes_train):
+    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([nodes_test[i][0], nodes_test[i][1]])) for i in
+                        range(len(nodes_test))]
+    nodes_pairs_train = [list(g_train.node_ids_to_ilocs([nodes_train[i][0], nodes_train[i][1]])) for i in
+                         range(len(nodes_train))]
+
+    adjacency = g_train.to_adjacency_matrix()
+    list_features_test, list_features_train = [], []
     for method in [CommonNeighbors(), JaccardIndex(), SaltonIndex(), PreferentialAttachment(),
                    HubPromotedIndex(), HubDepressedIndex(), AdamicAdar(), ResourceAllocation()]:
-    # for method in [CommonNeighbors(), SaltonIndex(), PreferentialAttachment(), HubDepressedIndex(), AdamicAdar(), ResourceAllocation()]:
         method.fit_predict(adjacency, 0)
         nodes_method_pairs_test = [method.predict((node1, node2)) for (node1, node2) in nodes_pairs_test]
-        nodes_feat_test = np.array(nodes_method_pairs_test)[:, np.newaxis]
-        # print(f"Heuristic nodes_feat_test.shape: {nodes_feat_test.shape}")
-        list_features.append(nodes_feat_test)
+        nodes_method_pairs_train = [method.predict((node1, node2)) for (node1, node2) in nodes_pairs_train]
+        list_features_test.append(np.array(nodes_method_pairs_test)[:, np.newaxis])
+        list_features_train.append(np.array(nodes_method_pairs_train)[:, np.newaxis])
 
     nodes_SP_pairs_test = [len(shortest_path(adjacency, node1, node2)) for (node1, node2) in nodes_pairs_test]
-    nodes_feat_test = np.array(nodes_SP_pairs_test)[:, np.newaxis]
-    list_features.append(nodes_feat_test)
-    concat_feat_test = np.concatenate(list_features, axis=1)
+    nodes_SP_pairs_train = [len(shortest_path(adjacency, node1, node2)) for (node1, node2) in nodes_pairs_train]
+    list_features_test.append(np.array(nodes_SP_pairs_test)[:, np.newaxis])
+    list_features_train.append(np.array(nodes_SP_pairs_train)[:, np.newaxis])
+
+    concat_feat_test = np.concatenate(list_features_test, axis=1)
+    concat_feat_train = np.concatenate(list_features_train, axis=1)
     print(f"Heuristic concat_feat_test.shape: {concat_feat_test.shape}")
-    return concat_feat_test
+    print(f"Heuristic concat_feat_train.shape: {concat_feat_train.shape}")
+    return concat_feat_test, concat_feat_train
 
 
+def save_results_for_analysis(nodes_test, labels_test, predicted, method_name):
+    with open('data/results/labels_test.npy', 'wb') as f:
+        np.save(f, np.array(labels_test))
+    with open('data/results/nodes_test.npy', 'wb') as f:
+        np.save(f, np.array(nodes_test))
+    with open(f'data/results/predicted_{method_name}.npy', 'wb') as f:
+        np.save(f, np.array(predicted))
 
-def SVM_pipeline(all_embeddings, g_test, edge_ids_test, edge_labels_test, g_val, method_name):
-    heuristic_concat_feat_test = get_all_heuristic_models(g_test, edge_ids_test, g_val)
-    embedding_concat_feat_test = get_all_embedding_graphs(all_embeddings)
-    print(f"Heuristic heuristic_concat_feat_test.shape: {heuristic_concat_feat_test.shape}")
-    print(f"Embedding embedding_concat_feat_test.shape: {embedding_concat_feat_test.shape}")
+
+def SVM_all_features(all_txt_vis_embeddings, g_test, nodes_test, labels_test, g_train, nodes_train, labels_train):
+    method_name = "_".join(["SVM", "all_txt_vis_embeddings_all_heuristics"])
+    heuristic_concat_feat_test, heuristic_concat_feat_train = get_all_heuristic_models(g_test, nodes_test, g_train,
+                                                                                       nodes_train)
+    embedding_concat_feat_test, embedding_concat_feat_train = get_all_embedding_graphs(all_txt_vis_embeddings)
+
+    print(f"Heuristic heuristic_concat_feat_train.shape: {heuristic_concat_feat_train.shape}")
+    print(f"Embedding embedding_concat_feat_train.shape: {embedding_concat_feat_train.shape}")
     concat_feat_test = np.concatenate((embedding_concat_feat_test, heuristic_concat_feat_test), axis=1)
-    # concat_feat_test = embedding_concat_feat_test
+    concat_feat_train = np.concatenate((embedding_concat_feat_train, heuristic_concat_feat_train), axis=1)
     sc = StandardScaler()
     concat_feat_test = sc.fit_transform(concat_feat_test)
+    concat_feat_train = sc.fit_transform(concat_feat_train)
+    print(f"All concat_feat_train.shape: {concat_feat_train.shape}")
 
-    print(f"All concat_feat_test.shape: {concat_feat_test.shape}")
-
-    from sklearn import svm
-    #
-    # from sklearn.decomposition import PCA
-    # from sklearn.pipeline import Pipeline
-    #
-    # # method = Pipeline(
-    # #     [('pca', PCA(n_components=4)), ('std', StandardScaler()), ('SVM', svm.SVC())])
     method = svm.SVC()
-    method.fit(concat_feat_test, edge_labels_test)
+    method.fit(concat_feat_train, labels_train)
     predicted = method.predict(concat_feat_test)
-    accuracy = accuracy_score(edge_labels_test, predicted) * 100
-    #
-    # # coef = method.coef_.ravel()
-    # # print(coef)
-    print(Counter(predicted))
-    print(Counter(edge_labels_test))
-    #
-    console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
-
-
-def SVM(g_test, edge_ids_test, edge_labels_test, g_val, method_name):
-    nodes_feat_pairs_test = [g_val.node_features(nodes=[edge_ids_test[i][0], edge_ids_test[i][1]])
-                             for i in range(len(edge_ids_test))]
-
-    adjacency = g_val.to_adjacency_matrix()
-    method_CN = CommonNeighbors()
-    # method_HD = HubDepressedIndex()
-    method_CN.fit_predict(adjacency, 0)
-
-    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
-                        range(len(edge_ids_test))]
-    nodes_SP_pairs_test = [len(shortest_path(adjacency, node1, node2)) for (node1, node2) in nodes_pairs_test]
-    nodes_CN_pairs_test = [method_CN.predict((node1, node2)) for (node1, node2) in nodes_pairs_test]
-
-    nodes_feat1_test = np.squeeze(
-        np.array([nodes_feat_pairs_feat.reshape(1, -1) for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
-    nodes_feat2_test = np.array(nodes_SP_pairs_test)[:, np.newaxis]
-    nodes_feat3_test = np.array(nodes_CN_pairs_test)[:, np.newaxis]
-    # concat_feat_test = nodes_feat1_test
-    # concat_feat_test = np.concatenate((nodes_feat1_test, nodes_feat2_test), axis=1)
-    concat_feat_test = np.concatenate((nodes_feat1_test, nodes_feat3_test), axis=1)
-
-
-    from sklearn import svm
-    method = svm.SVC()
-    method.fit(concat_feat_test, edge_labels_test)
-    predicted = method.predict(concat_feat_test)
-    accuracy = accuracy_score(edge_labels_test, predicted) * 100
-    # coef = method.coef_.ravel()
-    # print(coef)
-    # print(Counter(predicted))
-    # print(Counter(edge_labels_test))
+    accuracy = accuracy_score(labels_test, predicted) * 100
 
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
+    save_results_for_analysis(nodes_test, labels_test, predicted, method_name)  # optional, for error analysis
 
 
-def heuristic_methods(g_test, edge_ids_test, edge_labels_test, g_val, dict_method_threshold):
+def SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, feat_nodes):
+    method_name = "_".join(["SVM", feat_nodes])
+
+    nodes_feat_pairs_train = [g_train.node_features(nodes=[nodes_train[i][0], nodes_train[i][1]])
+                              for i in range(len(nodes_train))]
+    nodes_feat_pairs_test = [g_test.node_features(nodes=[nodes_test[i][0], nodes_test[i][1]])
+                             for i in range(len(nodes_test))]
+
+    nodes_feat_train = np.squeeze(
+        np.array([nodes_feat_pairs.reshape(1, -1) for nodes_feat_pairs in nodes_feat_pairs_train]))
+    nodes_feat_test = np.squeeze(
+        np.array([nodes_feat_pairs.reshape(1, -1) for nodes_feat_pairs in nodes_feat_pairs_test]))
+
+    method = svm.SVC()
+    method.fit(nodes_feat_train, labels_train)
+    predicted = method.predict(nodes_feat_test)
+    accuracy = accuracy_score(labels_test, predicted) * 100
+
+    console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
+    return predicted
+
+
+def heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val, labels_val):
+    dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val)
     print("Running heuristic methods on test...")
-    # TODO: Katz, Leich-Holme-Newman?
-
     for method_name in ["CommonNeighbors", "JaccardIndex", "SaltonIndex", "PreferentialAttachment", "AdamicAdar",
                         "HubPromotedIndex", "HubDepressedIndex", "ResourceAllocation", "ShortestPath"]:
         if not dict_method_threshold:
             threshold = 0.5
         else:
-            threshold = dict_method_threshold[method_name]  # finetuned on validation
-
+            threshold = dict_method_threshold[method_name]  # fine-tuned on validation
         if method_name == "CommonNeighbors":
             method = CommonNeighbors()
         elif method_name == "JaccardIndex":
@@ -434,17 +365,15 @@ def heuristic_methods(g_test, edge_ids_test, edge_labels_test, g_val, dict_metho
 
         console.print(f"Method {method_name}", style="magenta")
 
-        adjacency = g_val.to_adjacency_matrix()
+        adjacency = g_train.to_adjacency_matrix()
         if method_name != "ShortestPath":
-            method.fit_predict(adjacency, 0)  # assigns a scores to edges
-            # method.predict(list(range(adjacency.shape[0])))
+            method.fit_predict(adjacency, 0)
 
-        nodes_test = [list(g_test.node_ids_to_ilocs([edge_ids_test[i][0], edge_ids_test[i][1]])) for i in
-                      range(len(edge_ids_test))]
+        nodes_pairs_test = [list(g_test.node_ids_to_ilocs([nodes_test[i][0], nodes_test[i][1]])) for i in
+                            range(len(nodes_test))]
 
-        # predicted = []
         list_sim_predicted = []
-        for (node1, node2), label in zip(nodes_test, edge_labels_test):
+        for (node1, node2), label in zip(nodes_pairs_test, labels_test):
             if method_name != "ShortestPath":
                 common_neighbour_similarity = method.predict((node1, node2))
             else:
@@ -454,26 +383,17 @@ def heuristic_methods(g_test, edge_ids_test, edge_labels_test, g_val, dict_metho
                 else:
                     common_neighbour_similarity = 1 / len(list_shortest_path)
             list_sim_predicted.append(common_neighbour_similarity)
-            # link = 0 if common_neighbour_similarity < threshold else 1
-            # predicted.append(link)
 
         predicted = whitened_sigmoid(np.asarray(
-            list_sim_predicted)) > threshold  # TODO: keep whitened sigmoid? https://scikit-network.readthedocs.io/en/latest/tutorials/linkpred/first_order.html
+            list_sim_predicted)) > threshold
 
-        # print(f"Test GT data labels: {Counter(edge_labels_test)}")
-        # print(f"Test Pred data sym scores: {Counter(list_sym_predicted)}")
-        # print(f"Test Pred data labels: {Counter(predicted)}")
-
-        accuracy = accuracy_score(edge_labels_test, predicted) * 100
+        accuracy = accuracy_score(labels_test, predicted) * 100
         console.print(
             f"Accuracy on test {accuracy:.1f} with method {method_name} and fine-tuned threshold {threshold:.2f}",
             style="magenta")
 
 
-def evaluate_GNN_model(model, history, model_name, train_flow, val_flow, test_flow):
-    # fig = sg.utils.plot_history(history, return_figure=True)
-    # fig.savefig(f'data/plots/history_{model_name}_loss.pdf')
-
+def evaluate_GNN_model(model, model_name, train_flow, val_flow, test_flow):
     train_metrics = model.evaluate(train_flow)
     val_metrics = model.evaluate(val_flow)
     test_metrics = model.evaluate(test_flow)
@@ -541,7 +461,6 @@ def GCN_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels
         loss=keras.losses.binary_crossentropy,
         metrics=["binary_accuracy"],
     )
-    # print(model.summary())
     # Train model
     history = model.fit(
         train_flow, validation_data=val_flow, callbacks=[callback_es, callback_mc], epochs=300, verbose=1, shuffle=False
@@ -562,7 +481,7 @@ def GCN_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels
     with open('data/utils/GCN_node_embeddings.npy', 'wb') as f:
         np.save(f, node_embeddings)
 
-    return train_flow, val_flow, test_flow, history, model
+    return train_flow, val_flow, test_flow, model
 
 
 def GraphSage_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -626,14 +545,10 @@ def GraphSage_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, 
     )
     node_embeddings = embedding_model.predict(node_gen, workers=1, verbose=0)
 
-    # def get_embedding(u):
-    #     u_index = g_train.nodes().index(u)
-    #     return node_embeddings[u_index]
-
     with open('data/utils/graphsage_node_embeddings.npy', 'wb') as f:
         np.save(f, node_embeddings)
 
-    return train_flow, val_flow, test_flow, history, model
+    return train_flow, val_flow, test_flow, model
 
 
 def attri2vec_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
@@ -671,7 +586,6 @@ def attri2vec_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, 
         loss=keras.losses.binary_crossentropy,
         metrics=["binary_accuracy"],
     )
-    # print(model.summary())
 
     # Train model
     history = model.fit(
@@ -695,7 +609,7 @@ def attri2vec_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, 
     with open('data/utils/attri2vec_node_embeddings.npy', 'wb') as f:
         np.save(f, node_embeddings)
 
-    return train_flow, val_flow, test_flow, history, model
+    return train_flow, val_flow, test_flow, model
 
 
 def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, labels_test):
@@ -704,18 +618,6 @@ def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, la
     batch_size = 50
     emb_size = 128
     nb_epochs = 60  # 10
-
-    # TODO
-    # num_walks = 10
-    # walk_length = 80
-
-    # walker = BiasedRandomWalk(
-    #     g_train,
-    #     n=walk_number,
-    #     length=walk_length,
-    #     p=0.5,  # defines probability, 1/p, of returning to source node
-    #     q=2.0,  # defines probability, 1/q, for moving to a node away from the source node
-    # )
 
     # Create the biased random walker to generate random walks
     walker = create_biased_random_walker(g_train, walk_number, walk_length)
@@ -751,7 +653,6 @@ def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, la
         loss=keras.losses.binary_crossentropy,
         metrics=["binary_accuracy"],
     )
-    # print(model.summary())
 
     # Train model
     history = model.fit(
@@ -775,43 +676,33 @@ def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, la
     with open('data/utils/node2vec_node_embeddings.npy', 'wb') as f:
         np.save(f, node_embeddings)
 
-    return train_flow, val_flow, test_flow, history, model
+    return train_flow, val_flow, test_flow, model
 
 
-def GNN_link_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test,
-                   feat_nodes):
-    # for model_name in ["GraphSage", "Attri2vec", "Node2vec"]: #GCN
-    for model_name in ["GCN"]:  # GCN
+def GNN_methods(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
+    for model_name in ["GCN", "GraphSage", "Attri2vec", "Node2vec"]:
         if model_name == "GCN":
-            train_flow, val_flow, test_flow, history, model = GCN_model(g_train, g_val, g_test,
-                                                                        nodes_train, nodes_val,
-                                                                        nodes_test, labels_train,
-                                                                        labels_val, labels_test)
+            train_flow, val_flow, test_flow, model = GCN_model(g_train, g_val, g_test,
+                                                               nodes_train, nodes_val,
+                                                               nodes_test, labels_train,
+                                                               labels_val, labels_test)
         elif model_name == "GraphSage":
-            train_flow, val_flow, test_flow, history, model = GraphSage_model(g_train, g_val, g_test,
-                                                                              nodes_train, nodes_val,
-                                                                              nodes_test, labels_train,
-                                                                              labels_val, labels_test)
+            train_flow, val_flow, test_flow, model = GraphSage_model(g_train, g_val, g_test,
+                                                                     nodes_train, nodes_val,
+                                                                     nodes_test, labels_train,
+                                                                     labels_val, labels_test)
         elif model_name == "Attri2vec":
-            train_flow, val_flow, test_flow, history, model = attri2vec_model(g_train, g_val, g_test,
-                                                                              nodes_train, nodes_val,
-                                                                              nodes_test, labels_train,
-                                                                              labels_val, labels_test)
+            train_flow, val_flow, test_flow, model = attri2vec_model(g_train, g_val, g_test,
+                                                                     nodes_train, nodes_val,
+                                                                     nodes_test, labels_train,
+                                                                     labels_val, labels_test)
         elif model_name == "Node2vec":
-            train_flow, val_flow, test_flow, history, model = node2vec_model(g_train, g_val, g_test,
-                                                                             nodes_val, nodes_test,
-                                                                             labels_val, labels_test)
+            train_flow, val_flow, test_flow, model = node2vec_model(g_train, g_val, g_test,
+                                                                    nodes_val, nodes_test,
+                                                                    labels_val, labels_test)
         else:
             raise ValueError("Wrong graph embeddings name!!")
-        # model_name = "Node2vec"
-        # for (walk_number, walk_length) in [(30, 30)]:
-        #     console.print(f"walk nb: {walk_number}, walk length: {walk_length}", style="magenta")
-        #     train_flow, val_flow, test_flow, history, model = node2vec_model(g_train, g_val, g_test,
-        #                                                                      nodes_val, nodes_test,
-        #                                                                      labels_val, labels_test, walk_number, walk_length)
-        #     evaluate_GNN_model(model, history, model_name, train_flow, val_flow, test_flow)
-        model_name = "_".join([model_name, feat_nodes])
-        evaluate_GNN_model(model, history, model_name, train_flow, val_flow, test_flow)
+        evaluate_GNN_model(model, model_name, train_flow, val_flow, test_flow)
 
 
 def get_nearest_neighbours():
@@ -826,7 +717,7 @@ def get_nearest_neighbours():
     visclip_node_data_names = visclip_node_data.index.values.tolist()
 
     # AverageNeighbourWeight embeddings
-    avg_node_data = pd.read_csv('data/graph/all_weighted_stsbrt_nodes.csv', index_col=0)
+    avg_node_data = pd.read_csv('data/graph/all_graph_stsbrt_nodes.csv', index_col=0)
     avg_node_data_values = avg_node_data.values
     avg_node_data_names = avg_node_data.index.values.tolist()
 
@@ -858,9 +749,9 @@ def get_nearest_neighbours():
         console.print(f"Graph Neighbours for: {check_action}: {neighbours}", style="magenta")
 
 
-def finetune_threshold_similarity_method(g_val, edge_ids_val, edge_labels_val, method_name):
-    nodes_feat_pairs = [g_val.node_features(nodes=[edge_ids_val[i][0], edge_ids_val[i][1]])
-                        for i in range(len(edge_ids_val))]
+def finetune_threshold_cosine_similarity(g_val, nodes_val, labels_val, method_name):
+    nodes_feat_pairs = [g_val.node_features(nodes=[nodes_val[i][0], nodes_val[i][1]])
+                        for i in range(len(nodes_val))]
     list_sim_predicted = [cosine_similarity(node1_feat.reshape(1, -1), node2_feat.reshape(1, -1))[0][0] for
                           [node1_feat, node2_feat] in nodes_feat_pairs]
 
@@ -869,7 +760,7 @@ def finetune_threshold_similarity_method(g_val, edge_ids_val, edge_labels_val, m
     for threshold in np.linspace(-1, 1, 10).tolist():
         # predicted = whitened_sigmoid(np.asarray(list_sym_predicted)) > threshold  # TODO: keep whitened sigmoid?
         predicted = np.asarray(list_sim_predicted) > threshold  # TODO: keep whitened sigmoid?
-        accuracy = accuracy_score(edge_labels_val, predicted)
+        accuracy = accuracy_score(labels_val, predicted)
         if accuracy > max_accuracy:
             max_accuracy = accuracy
             max_threshold = threshold
@@ -880,159 +771,123 @@ def finetune_threshold_similarity_method(g_val, edge_ids_val, edge_labels_val, m
     return max_threshold
 
 
-# baseline no graph method
-def similarity_method(g_test, edge_ids_test, edge_labels_test, g_val, edge_ids_val, edge_labels_val, method_name):
-    # nodes_name_pairs = [[edge_ids_val[i][0], edge_ids_val[i][1]] for i in range(len(edge_ids_val))]
-    # nodes_val = [list(g_val.node_ids_to_ilocs([edge_ids_val[i][0], edge_ids_val[i][1]])) for i in range(len(edge_ids_val))]
+def similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, feat_nodes):
+    method_name = "_".join(["similarity", feat_nodes])
 
-    nodes_feat_pairs = [g_test.node_features(nodes=[edge_ids_test[i][0], edge_ids_test[i][1]])
-                        for i in range(len(edge_ids_test))]
+    nodes_feat_pairs = [g_test.node_features(nodes=[nodes_test[i][0], nodes_test[i][1]]) for i in
+                        range(len(nodes_test))]
     list_sim_predicted = [cosine_similarity(node1_feat.reshape(1, -1), node2_feat.reshape(1, -1))[0][0] for
                           [node1_feat, node2_feat] in nodes_feat_pairs]
 
-    threshold = finetune_threshold_similarity_method(g_val, edge_ids_val, edge_labels_val, method_name)
+    threshold = finetune_threshold_cosine_similarity(g_val, nodes_val, labels_val, method_name)
 
     predicted = np.asarray(list_sim_predicted) > threshold
-    accuracy = accuracy_score(edge_labels_test, predicted) * 100
+    accuracy = accuracy_score(labels_test, predicted) * 100
 
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f} with threshold: {threshold:.2f}",
                   style="magenta")
-    print(Counter(predicted))
-    print(Counter(edge_labels_test))
-
-    return predicted, edge_labels_test, edge_ids_test
 
 
-def get_graph_weighted_embeddings(feat_nodes):
+def save_graph_embeddings(feat_nodes):
     g = test_my_data(input_nodes='data/graph/all_' + feat_nodes + '_nodes.csv',
                      input_edges='data/graph/all_edges.csv')
     g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
-        test_val_train_split2(g)
+        test_val_train_split(g)
 
     list_weighted_avg_embeddings = []
     self_weight = 1
-    for node in track(g_val.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
-        node_emb_weighted = g_val.node_features(nodes=[node]) * self_weight
+    for node in track(g_train.nodes(), description="Computing graph embeddings from weighted avg of neighbours..."):
+        node_emb_weighted = g_train.node_features(nodes=[node]) * self_weight
         sum_weights = self_weight
-        for node_neighbour, edge_weight in g_val.in_nodes(node, include_edge_weight=True):
-            edge_weight = 1
-            node_emb_weighted += g_val.node_features(nodes=[node_neighbour]) * edge_weight
+        for node_neighbour, edge_weight in g_train.in_nodes(node, include_edge_weight=True):
+            # edge_weight = 1
+            node_emb_weighted += g_train.node_features(nodes=[node_neighbour]) * edge_weight
             sum_weights += edge_weight
         list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
 
-    df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weighted_avg_embeddings], index=list(g_val.nodes()))
-    df.to_csv('data/graph/all_weighted_' + feat_nodes + '_nodes.csv')
+    df = pd.DataFrame([np.squeeze(tensor) for tensor in list_weighted_avg_embeddings], index=list(g_train.nodes()))
+    df.to_csv('data/graph/all_graph_' + feat_nodes + '_nodes.csv')
 
 
-def analyse_results(predicted_labels, edge_labels_test, edges_ids_test):
-    with open('data/dict_video_action_pairs_filtered_by_link.json') as json_file:
-        dict_video_action_pairs_filtered = json.load(json_file)
-
-    all_action_pairs = get_all_action_pairs(dict_video_action_pairs_filtered)
-    all_actions = get_all_actions(all_action_pairs)
-
-    nodes_name_pairs = [(edges_ids_test[i][0], edges_ids_test[i][1]) for i in range(len(edges_ids_test))]
-    # nodes_name_pairs = [edge_ids[:2] for edge_ids in edges_ids_test]
-
-    dict_results_correct = defaultdict()
-    dict_results_errors = {"FP": {}, "FN": {}}
-    for i, (predicted, gt) in enumerate(zip(predicted_labels, edge_labels_test)):
-        if predicted == gt:
-            dict_results_correct[nodes_name_pairs[i]] = all_actions.count(nodes_name_pairs[i][0]) + all_actions.count(
-                nodes_name_pairs[i][1])
-        elif predicted == 0 and gt == 1:
-            dict_results_errors["FN"][nodes_name_pairs[i]] = all_actions.count(
-                nodes_name_pairs[i][0]) + all_actions.count(nodes_name_pairs[i][1])
-        else:
-            dict_results_errors["FP"][nodes_name_pairs[i]] = all_actions.count(
-                nodes_name_pairs[i][0]) + all_actions.count(nodes_name_pairs[i][1])
-
-    print("#FN", str(len(dict_results_errors["FN"])))
-    print(dict(sorted(dict_results_errors["FN"].items()), key=lambda item: item[0]))
-    print("#FP", str(len(dict_results_errors["FP"])))
-    print(dict(sorted(dict_results_errors["FP"].items()), key=lambda item: item[0]))
-    print("#TP + TN", len(dict_results_correct))
-
-def get_all_embedding_graphs(all_embeddings):
-    list_features_train = []
-    list_features_test = []
-    for feat_nodes in all_embeddings:
+def get_all_embedding_graphs(all_txt_vis_embeddings):
+    list_features_train, list_features_test = [], []
+    for feat_nodes in all_txt_vis_embeddings:
         g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
                          input_edges='data/graph/all_edges.csv')  # all_one_edges
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
-            test_val_train_split2(g)
-
-        nodes_feat_pairs_train = [g_train.node_features(nodes=[nodes_train[i][0], nodes_train[i][1]])
-                                 for i in range(len(nodes_train))]
-
-        nodes_feat_train = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1)
-                                               for nodes_feat_pairs_feat in nodes_feat_pairs_train]))
-
+            test_val_train_split(g)
 
         nodes_feat_pairs_test = [g_val.node_features(nodes=[nodes_test[i][0], nodes_test[i][1]])
                                  for i in range(len(nodes_test))]
+        nodes_feat_pairs_train = [g_train.node_features(nodes=[nodes_train[i][0], nodes_train[i][1]])
+                                  for i in range(len(nodes_train))]
 
-        nodes_feat_test = np.squeeze(np.array([nodes_feat_pairs_feat.reshape(1, -1)
-                                               for nodes_feat_pairs_feat in nodes_feat_pairs_test]))
+        nodes_feat_test = np.squeeze(np.array([nodes_feat_pairs.reshape(1, -1)
+                                               for nodes_feat_pairs in nodes_feat_pairs_test]))
+        nodes_feat_train = np.squeeze(np.array([nodes_feat_pairs.reshape(1, -1)
+                                                for nodes_feat_pairs in nodes_feat_pairs_train]))
 
-        list_features_train.append(nodes_feat_train)
         list_features_test.append(nodes_feat_test)
+        list_features_train.append(nodes_feat_train)
     concat_feat_train = np.concatenate(list_features_train, axis=1)
     concat_feat_test = np.concatenate(list_features_test, axis=1)
 
     # sc = StandardScaler()
     # # pca = PCA(n_components=2)
-    #
     # nodes_feat_train = sc.fit_transform(concat_feat_train)
     # concat_feat_test = sc.transform(concat_feat_test)
-    #
     # # pca.fit_transform(nodes_feat_train)
     # # nodes_feat_test = pca.transform(nodes_feat_test)
 
     print(f"Embedding concat_feat_test.shape: {concat_feat_test.shape}")
-    return concat_feat_test
+    print(f"Embedding concat_feat_train.shape: {concat_feat_train.shape}")
+    return concat_feat_test, concat_feat_train
 
-def main():
-    # g = test_cora()
-    dict_method_threshold = {}
-    all_embeddings = ["stsbrt", "transcript_stsbrt", "txtclip", "visclip", "avgclip"]
-    all_weighted_embeddings = ["weighted_" + el for el in all_embeddings]
 
-    # # for feat_nodes in all_weighted_embeddings:
-    # # for feat_nodes in all_embeddings:
-    for feat_nodes in ["stsbrt"]:
-    #     get_graph_weighted_embeddings(feat_nodes)
-        g = test_my_data(input_nodes=f'data/graph/all_{feat_nodes}_nodes.csv',
-                         input_edges='data/graph/all_edges.csv') #all_one_edges
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--compute_graph_embeddings', action=argparse.BooleanOptionalAction)
+    parser.add_argument("--method", choices=["heuristics", "GNN", "cosine", "SVM"], default="Cosine")
+    parser.add_argument('--get_nearest_neighbours', action=argparse.BooleanOptionalAction)
+    return parser.parse_args()
 
-        g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
-            test_val_train_split2(g)
 
-    #     # SVM(g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes]))
-        SVM_pipeline(all_embeddings + all_weighted_embeddings, g_test, nodes_test, labels_test, g_val, method_name="_".join(["SVM", feat_nodes]))
+def main() -> None:
+    args = parse_args()
 
-        # predicted, edge_labels_test, edges_ids_test = similarity_method(g_test, nodes_test, labels_test, g_val,
-        #                                                                 nodes_val, labels_val,
-        #                                                                 method_name="_".join(
-        #                                                                     ["Similarity", feat_nodes]))
+    all_txt_vis_embeddings = ["stsbrt", "transcript_stsbrt", "txtclip", "visclip", "avgclip"]
+    all_graph_embeddings = ["graph_" + el for el in all_txt_vis_embeddings]
 
-        # analyse_results(predicted, edge_labels_test, edges_ids_test)
+    if args.compute_graph_embeddings:
+        for feat_nodes in all_txt_vis_embeddings:
+            save_graph_embeddings(feat_nodes)
 
-        # GNN_link_model(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train,
-        #                labels_val, labels_test, feat_nodes)
+    default_feat_nodes = "stsbrt"
+    g = test_my_data(input_nodes=f'data/graph/all_{default_feat_nodes}_nodes.csv',
+                     input_edges='data/graph/all_edges.csv')
+    g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
+        test_val_train_split(g)
 
-        # evaluate_weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
+    if args.method == "heuristics":
+        heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val, labels_val)
+        weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
+    elif args.method == "GNN":
+        GNN_methods(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test)
+    elif args.method == "cosine":
+        # ablation per input representation/ embedding type
+        for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
+            similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, feat_nodes)
+    elif args.method == "SVM":
+        # ablation per input representation/ embedding type
+        for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
+            SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, feat_nodes)
+        SVM_all_features(all_txt_vis_embeddings + all_graph_embeddings, g_test, nodes_test, labels_test, g_train,
+                         nodes_train, labels_train)
+    else:
+        raise ValueError(f"Unknown method: {args.method}")
 
-    # get_nearest_neighbours()
-
-    # doesn't depend on embeddings
-    # dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val, dict_method_threshold)
-    # heuristic_methods(g_test, nodes_test, labels_test, g_val, dict_method_threshold)
-
-    # #### might erase later
-    # g_train, g_test, examples_train, labels_train, examples_test, labels_test = test_train_split(g)
-    # g_train, g_test, nodes_train, nodes_val, labels_train, labels_val, nodes_test, labels_test =\
-    #     test_val_train_split(g)
+    if args.get_nearest_neighbours:
+        get_nearest_neighbours()
 
 
 if __name__ == '__main__':
