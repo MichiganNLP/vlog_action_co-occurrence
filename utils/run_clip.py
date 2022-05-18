@@ -238,11 +238,11 @@ def _evaluate_nodes(nodes: pd.DataFrame) -> None:
 
 
 def test_clip() -> None:
-    _evaluate_nodes(pd.read_csv('data/graph/all_stsbrt_nodes.csv', index_col=0))
-    _evaluate_nodes(pd.read_csv('data/graph/all_txtclip_nodes.csv', index_col=0))
-    _evaluate_nodes(pd.read_csv('data/graph/all_visclip_nodes.csv', index_col=0))
-    _evaluate_nodes(pd.read_csv('data/graph/all_weighted_visclip_nodes.csv', index_col=0))
-    _evaluate_nodes(pd.read_csv('data/graph/all_avgclip_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/txt_action_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/vis_action_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/vis_video_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/graph_vis_video_nodes.csv', index_col=0))
+    _evaluate_nodes(pd.read_csv('data/graph/vis_action_video_nodes.csv', index_col=0))
 
 
 def evaluate_clip_embeddings(feature_dicts: Sequence[Mapping[str, Any]]) -> None:

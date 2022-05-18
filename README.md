@@ -10,6 +10,7 @@ This repository contains the dataset and code for our TODO_conference paper:
 
 ## Task Description
 ![img/graph_intro.jpg](img/graph_intro.jpg)
+
 Human action co-occurrence in lifestyle vlogs: two actions co-occur if they occur in the same
 interval of time (10 seconds) in a video. The actions are represented as nodes in a graph, 
 the co-occurrence relation between two actions is represented through a link between the actions, 
