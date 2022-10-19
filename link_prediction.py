@@ -329,6 +329,19 @@ def SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, fea
     accuracy = accuracy_score(labels_test, predicted) * 100
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f}", style="magenta")
 
+def analyse_test_data(g_test, nodes_test, labels_test):
+    nodes_pairs_test = [list(g_test.node_ids_to_ilocs([nodes_test[i][0], nodes_test[i][1]])) for i in
+                        range(len(nodes_test))]
+
+    all_test_nodes = g_test.nodes().tolist()
+    # print(all_test_nodes)
+    all_nodes_to_predict = []
+    for (node1, node2), label in zip(nodes_pairs_test, labels_test):
+        # print((all_test_nodes[node1], all_test_nodes[node2]), label)
+        all_nodes_to_predict.append(all_test_nodes[node1])
+        all_nodes_to_predict.append(all_test_nodes[node2])
+
+    print(Counter(all_nodes_to_predict).most_common())
 
 def heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val, labels_val):
     dict_method_threshold = finetune_threshold_on_validation(g_val, nodes_val, labels_val)
@@ -867,6 +880,8 @@ def main() -> None:
         g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
             test_val_train_split(g)
 
+        analyse_test_data(g_test, nodes_test, labels_test)
+
         if args.method == "heuristic":
             heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val, labels_val)
             weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
@@ -886,12 +901,12 @@ def main() -> None:
 
         elif args.method == "SVM":
             # ablation per input representation/ embedding type
-            for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
-                g = test_my_data(input_nodes=f'data/graph/{feat_nodes}_nodes.csv',
-                                 input_edges='data/graph/edges.csv')
-                g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
-                    test_val_train_split(g)
-                SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, feat_nodes)
+            # for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
+            #     g = test_my_data(input_nodes=f'data/graph/{feat_nodes}_nodes.csv',
+            #                      input_edges='data/graph/edges.csv')
+            #     g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
+            #         test_val_train_split(g)
+            #     SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, feat_nodes)
 
             SVM_all_features(all_txt_vis_embeddings + all_graph_embeddings, g_test, nodes_test, labels_test, g_train,
                              nodes_train, labels_train)

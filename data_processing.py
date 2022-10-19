@@ -607,22 +607,22 @@ def main():
     video_sample = "hK7yV276110"
 
     ''' Getting all action pairs'''
-    # verbs = get_action_verbs()
-    # get_actions(verbs, video_sample, try_per_video=False)  # saves the data
-    # filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
-    #
-    # get_action_pairs_by_time()  # get stats initial
-    #
-    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
-    # get_stats_actions(before_clustering=True)
-    #
-    # ''' Custering all actions '''
-    # cluster_actions()  # saves the data
-    # filtered_clusters = filter_clusters_by_size()
-    # filter_pairs_by_cluster(filtered_clusters)  # saves the data
-    #
-    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
-    # get_stats_actions(before_clustering=False)
+    verbs = get_action_verbs()
+    get_actions(verbs, video_sample, try_per_video=False)  # saves the data
+    filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
+
+    get_action_pairs_by_time()  # get stats initial
+
+    plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
+    get_stats_actions(before_clustering=True)
+
+    ''' Custering all actions '''
+    cluster_actions()  # saves the data
+    filtered_clusters = filter_clusters_by_size()
+    filter_pairs_by_cluster(filtered_clusters)  # saves the data
+
+    plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
+    get_stats_actions(before_clustering=False)
 
     ''' Combining the graph_plots for all videos '''
     action_pairs, transcripts_per_action = combine_graphs(video_sample, sample=False, filter_by_link=True)
