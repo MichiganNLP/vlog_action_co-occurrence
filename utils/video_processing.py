@@ -219,14 +219,16 @@ def sample_videos(input_file: str, output_file: str, max_videos_per_action: int)
 
 
 def main() -> None:
+
     pass
     # get_video_diff()
 
-    # get_all_clips_for_action(input_file="data/dict_video_action_pairs_filtered_by_link.json",
-    #                          output_file="data/dict_action_clips.json")
+    get_all_clips_for_action(input_file="data/dict_video_action_pairs_filtered_by_link.json",
+                             output_file="data/dict_action_clips.json")
     # sample_videos(input_file='data/dict_action_clips.json', output_file='data/dict_action_clips_sample.json',
     #               max_videos_per_action=10)
-    stats_videos()
+
+    # stats_videos()
 
     # TODO: Add 5 seconds before and after time to account for misalignment
     # subprocess.run(["./download_video_clips.sh", "data/dict_action_clips_sample.json", "data/video_clips_sample"])

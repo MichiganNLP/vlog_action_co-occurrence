@@ -2,18 +2,21 @@ import argparse
 import json
 import math
 import os
+
+from data_processing import map_actions_to_graph_actions
+from tqdm import tqdm
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from collections import defaultdict, Counter
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.neighbors import NearestNeighbors
 from sklearn import svm
 from sknetwork.linkpred import CommonNeighbors, JaccardIndex, SaltonIndex, HubPromotedIndex, AdamicAdar, \
-    ResourceAllocation, PreferentialAttachment, HubDepressedIndex, whitened_sigmoid
+    ResourceAllocation, PreferentialAttachment, HubDepressedIndex
 from sknetwork.path import shortest_path
 from stellargraph import StellarGraph
 from stellargraph.data import EdgeSplitter, BiasedRandomWalk, UnsupervisedSampler
@@ -46,7 +49,8 @@ def test_my_data(input_nodes, input_edges):
     square_weight_edges = pd.read_csv(input_edges)
     square_node_data = pd.read_csv(input_nodes, index_col=0)
     g = StellarGraph(
-        {"action": square_node_data}, {"co-occurs": square_weight_edges}
+        {"action": square_node_data}, {"co-occurs": square_weight_edges},
+        is_directed=False
     )
     print(g.info())
     return g
@@ -156,7 +160,7 @@ def weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels
         max_accuracy, max_threshold = 0, 0
         for threshold in np.linspace(0, 1, 10).tolist():
             # predicted = whitened_sigmoid(np.asarray(list_sim_predicted_val)) > threshold  # keep whitened sigmoid?
-            predicted = np.asarray(list_sim_predicted_val) > threshold
+            predicted = np.asarray(list_sim_predicted_val) >= threshold
             accuracy = accuracy_score(labels_val, predicted)
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
@@ -166,7 +170,8 @@ def weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels
             f"Method {method_name}, on validation max accuracy: {max_accuracy:.1f} with threshold: {max_threshold:.2f}",
             style="magenta")
 
-        predicted = whitened_sigmoid(np.asarray(list_sim_predicted_test)) > max_threshold
+        # predicted = whitened_sigmoid(np.asarray(list_sim_predicted_test)) > max_threshold
+        predicted = np.asarray(list_sim_predicted_test) >= max_threshold
         accuracy = accuracy_score(labels_test, predicted) * 100
         console.print(
             f"Method {method_name}, on test accuracy: {accuracy:.1f} with threshold: {max_threshold:.2f}",
@@ -205,7 +210,6 @@ def finetune_threshold_on_validation(g_val, nodes_val, labels_val):
 
         nodes_pairs_val = [list(g_val.node_ids_to_ilocs([nodes_val[i][0], nodes_val[i][1]])) for i in
                            range(len(nodes_val))]
-
         list_sim_predicted = []
         for (node1, node2) in nodes_pairs_val:
             if method_name != "ShortestPath":
@@ -217,15 +221,18 @@ def finetune_threshold_on_validation(g_val, nodes_val, labels_val):
                 else:
                     common_neighbour_similarity = 0
             list_sim_predicted.append(common_neighbour_similarity)
-
-        max_accuracy, max_threshold = 0, 0
+        # print(list_sim_predicted)
+        # print(f"val: {Counter(labels_val)}")
+        max_accuracy, max_threshold, predicted_final = 0, 0, []
         for threshold in np.linspace(0, 1, 10).tolist():
             # predicted = whitened_sigmoid(np.asarray(list_sim_predicted)) > threshold  # keep whitened sigmoid?
-            predicted = np.asarray(list_sim_predicted) > threshold
+            predicted = np.asarray(list_sim_predicted) >= threshold
             accuracy = accuracy_score(labels_val, predicted)
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
                 max_threshold = threshold
+                predicted_final = predicted
+        # print(f"pred: {Counter(predicted_final)}")
         dict_method_threshold[method_name] = max_threshold
         max_accuracy = max_accuracy * 100
         console.print(
@@ -394,9 +401,10 @@ def heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val
                     common_neighbour_similarity = 1 / len(list_shortest_path)
             list_sim_predicted.append(common_neighbour_similarity)
 
-        predicted = whitened_sigmoid(np.asarray(
-            list_sim_predicted)) > threshold
-
+        # predicted = whitened_sigmoid(np.asarray(list_sim_predicted)) >= threshold
+        predicted = np.asarray(list_sim_predicted) >= threshold
+        print(f"labels_test: {Counter(labels_test)}")
+        print(f"predicted: {Counter(predicted)}")
         accuracy = accuracy_score(labels_test, predicted) * 100
         console.print(
             f"Accuracy on test {accuracy:.1f} with method {method_name} and fine-tuned threshold {threshold:.2f}",
@@ -627,7 +635,7 @@ def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, la
     walk_length = 10  # 5  # Larger values can be set to them to achieve better performance
     batch_size = 50
     emb_size = 128
-    nb_epochs = 60  # 10
+    nb_epochs = 10  # 10
 
     # Create the biased random walker to generate random walks
     walker = create_biased_random_walker(g_train, walk_number, walk_length)
@@ -690,7 +698,8 @@ def node2vec_model(g_train, g_val, g_test, nodes_val, nodes_test, labels_val, la
 
 
 def GNN_methods(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test):
-    for model_name in ["GCN", "GraphSage", "Attri2vec", "Node2vec"]:
+    # for model_name in ["Node2vec", "GCN", "GraphSage", "Attri2vec"]:
+    for model_name in ["Node2vec"]:
         if model_name == "GCN":
             train_flow, val_flow, test_flow, model = GCN_model(g_train, g_val, g_test,
                                                                nodes_train, nodes_val,
@@ -715,40 +724,66 @@ def GNN_methods(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labe
         evaluate_GNN_model(model, model_name, train_flow, val_flow, test_flow)
 
 
-def get_nearest_neighbours():
+def get_nearest_neighbours(dataset):
+    print("Computing the kNNs ...")
+
+    # get validation data
+    if dataset:
+        with open(f'data/dict_action_location_nn_{dataset}.json') as json_file:
+            dict_action_location_nn = json.load(json_file)
+        val_node_names = dict_action_location_nn.keys()
+
     # SentenceBert embeddings
     txt_action_node_data = pd.read_csv('data/graph/txt_action_nodes.csv', index_col=0)
+    # txt_action_node_data = pd.read_csv(f'data/graph/txt_action_nodes_{dataset}.csv', index_col=0)
     txt_action_node_data_values = txt_action_node_data.values
     txt_action_node_data_names = txt_action_node_data.index.values.tolist()
 
-    # CLIP vis embeddings
-    vis_video_node_data = pd.read_csv('data/graph/vis_video_nodes.csv', index_col=0)
-    vis_video_node_data_values = vis_video_node_data.values
-    vis_video_node_data_names = vis_video_node_data.index.values.tolist()
+    # # CLIP vis embeddings
+    # # vis_video_node_data = pd.read_csv('data/graph/vis_video_nodes.csv', index_col=0)
+    # vis_video_node_data = pd.read_csv('data/graph/vis_action_video_nodes.csv', index_col=0)
+    # vis_video_node_data_values = vis_video_node_data.values
+    # vis_video_node_data_names = vis_video_node_data.index.values.tolist()
 
-    # AverageNeighbourWeight embeddings
+    # AverageNeighbourWeight Graph embeddings
     avg_node_data = pd.read_csv('data/graph/graph_txt_action_nodes.csv', index_col=0)
+    # avg_node_data = pd.read_csv(f'data/graph/graph_txt_action_nodes_{dataset}.csv', index_col=0)
+    # avg_node_data = pd.read_csv('data/graph/graph_vis_action_nodes.csv', index_col=0)
+    # avg_node_data = pd.read_csv('data/graph/graph_vis_action_video_nodes.csv', index_col=0)
     avg_node_data_values = avg_node_data.values
     avg_node_data_names = avg_node_data.index.values.tolist()
 
     list_check_actions = ["add tea", "build desk", "squeeze lemon juice", "rub stain", "chop potato"]
-    top_k = 10
+    top_k = 11#TODO: 4, 6, 11?
+    dict_nn = {}
+    count_miss = 0
     for check_action in list_check_actions:
+    # for check_action in tqdm(vis_video_node_data_names): #mix maracuja not included
+    # for check_action in tqdm(txt_action_node_data_names): #val/test data
+    # for check_action in tqdm(val_node_names): #val/test data
+    # for check_action in tqdm(actions_test2train.values()): #val/test data
+        if check_action not in txt_action_node_data_names:
+            count_miss += 1
+            continue
+
+        dict_nn[check_action] = {"txt": [], "vis": [], "graph": []}
         knn = NearestNeighbors(n_neighbors=top_k)
         knn.fit(txt_action_node_data_values)
         index_action = txt_action_node_data_names.index(check_action)
         check_action_features = txt_action_node_data_values[index_action].reshape(1, -1)
         list_indexes = knn.kneighbors(check_action_features, return_distance=False)
         neighbours = [txt_action_node_data_names[index] for index in list_indexes[0]]
-        console.print(f"SBert Neighbours for: {check_action}: {neighbours}", style="magenta")
+        # console.print(f"SBert Neighbours for: {check_action}: {neighbours}", style="magenta")
+        dict_nn[check_action]["txt"] = neighbours[1:]
 
-        knn = NearestNeighbors(n_neighbors=top_k)
-        knn.fit(vis_video_node_data_values)
-        index_action = vis_video_node_data_names.index(check_action)
-        check_action_features = vis_video_node_data_values[index_action].reshape(1, -1)
-        list_indexes = knn.kneighbors(check_action_features, return_distance=False)
-        neighbours = [vis_video_node_data_names[index] for index in list_indexes[0]]
-        console.print(f"VisCLIP Neighbours for: {check_action}: {neighbours}", style="magenta")
+        # knn = NearestNeighbors(n_neighbors=top_k)
+        # knn.fit(vis_video_node_data_values)
+        # index_action = vis_video_node_data_names.index(check_action)
+        # check_action_features = vis_video_node_data_values[index_action].reshape(1, -1)
+        # list_indexes = knn.kneighbors(check_action_features, return_distance=False)
+        # neighbours = [vis_video_node_data_names[index] for index in list_indexes[0]]
+        # # console.print(f"VisCLIP Neighbours for: {check_action}: {neighbours}", style="magenta")
+        # dict_nn[check_action]["vis"] = neighbours[1:]
 
         knn = NearestNeighbors(n_neighbors=top_k)
         knn.fit(avg_node_data_values)
@@ -757,7 +792,88 @@ def get_nearest_neighbours():
         list_indexes = knn.kneighbors(check_action_features, return_distance=False)
         neighbours = [avg_node_data_names[index] for index in list_indexes[0]]
         console.print(f"Graph Neighbours for: {check_action}: {neighbours}", style="magenta")
+        dict_nn[check_action]["graph"] = neighbours[1:]
 
+    # with open(f'data/dict_pred_nn_{dataset}.json', 'w+') as fp:
+    #     json.dump(dict_nn, fp)
+    print(count_miss, len(val_node_names))
+    return dict_nn
+
+def eval_nn_locations(dict_nn, dataset):
+    # with open(f'data/dict_pred_nn_{dataset}.json') as json_file: #train
+    #     dict_nn = json.load(json_file)
+    with open(f'data/dict_action_location_nn_{dataset}.json') as json_file:
+        dict_action_location_nn = json.load(json_file)
+
+    list_scores_per_action_txt = []
+    list_scores_per_action_graph = []
+    for check_action_val in dict_nn:
+        # check_action_train = actions_test2train[check_action_val] # map val to train
+        # location_actions = list(set(dict_action_location_nn[check_action_val])) #only unique actions
+        filter_most_common_location = [action for (action, count) in Counter(dict_action_location_nn[check_action_val]).most_common(3)]
+        # location_actions = [actions_test2train[action] for action in location_actions] #TODO: youcook2 convert from val to train
+        txt_actions = dict_nn[check_action_val]['txt']
+        graph_actions = dict_nn[check_action_val]['graph']
+        # print(check_action_val)
+        # print(filter_most_common_location)
+        # print(txt_actions)
+        # print(graph_actions)
+        # break
+        TP, FN = 0, 0
+        for action_gt in filter_most_common_location:
+            if action_gt in txt_actions:
+                TP += 1
+            else:
+                FN += 1
+        recall_txt = TP / (TP + FN)
+        TP, FN = 0, 0
+        for action_gt in filter_most_common_location:
+            if action_gt in graph_actions:
+                TP += 1
+            else:
+                FN += 1
+        recall_graph = TP / (TP + FN)
+        # print(recall_txt, recall_graph)
+        list_scores_per_action_txt.append(recall_txt)
+        list_scores_per_action_graph.append(recall_graph)
+
+    print(round(sum(list_scores_per_action_txt) / len(list_scores_per_action_txt), 2),
+          round(sum(list_scores_per_action_graph) / len(list_scores_per_action_graph), 2))
+
+def eval_nn_diversity(dict_nn):
+    eval_txt, eval_vis, eval_graph = [], [], []
+    for check_action in dict_nn:
+        txt_actions = dict_nn[check_action]['txt']
+        vis_actions = dict_nn[check_action]['vis']
+        graph_actions = dict_nn[check_action]['graph']
+        count_txt, count_vis, count_graph = 0, 0, 0
+        nb_txt_words, nb_vis_words, nb_graph_words = 0, 0, 0
+        txt_action_words = " ".join(txt_actions).split()
+        nb_txt_words += len(txt_action_words)
+        vis_action_words = " ".join(vis_actions).split()
+        nb_vis_words += len(vis_action_words)
+        graph_action_words = " ".join(graph_actions).split()
+        nb_graph_words += len(graph_action_words)
+
+        for word in check_action.split():
+            count_txt += txt_action_words.count(word)
+            count_vis += vis_action_words.count(word)
+            count_graph += graph_action_words.count(word)
+        eval_txt.append(count_txt / nb_txt_words)
+        eval_vis.append(count_vis / nb_vis_words)
+        eval_graph.append(count_graph / nb_graph_words)
+    #overlap scores
+    print(round(sum(eval_txt) / len(eval_txt), 2), round(sum(eval_vis) / len(eval_vis), 2),
+          round(sum(eval_graph) / len(eval_graph), 2))
+
+
+def evaluate_nn(dataset):
+    # actions_test2train = map_actions_to_graph_actions()
+    # dict_nn = get_nearest_neighbours(actions_test2train)
+    dict_nn = get_nearest_neighbours(dataset)
+    # eval_nn_diversity(dict_nn)
+    # eval_nn_locations(actions_test2train)
+    eval_nn_locations(dict_nn, dataset)
 
 def finetune_threshold_cosine_similarity(g_val, nodes_val, labels_val, method_name):
     nodes_feat_pairs = [g_val.node_features(nodes=[nodes_val[i][0], nodes_val[i][1]])
@@ -791,7 +907,7 @@ def similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_
 
     threshold = finetune_threshold_cosine_similarity(g_val, nodes_val, labels_val, method_name)
 
-    predicted = np.asarray(list_sim_predicted) > threshold
+    predicted = np.asarray(list_sim_predicted) >= threshold
     accuracy = accuracy_score(labels_test, predicted) * 100
 
     console.print(f"Method {method_name}, max accuracy on test: {accuracy:.1f} with threshold: {threshold:.2f}",
@@ -810,7 +926,7 @@ def save_graph_embeddings(feat_nodes):
         node_emb_weighted = g_train.node_features(nodes=[node]) * self_weight
         sum_weights = self_weight
         for node_neighbour, edge_weight in g_train.in_nodes(node, include_edge_weight=True):
-            edge_weight = 1
+            # edge_weight = 1 #TODO: replace with non-weighted?
             node_emb_weighted += g_train.node_features(nodes=[node_neighbour]) * edge_weight
             sum_weights += edge_weight
         list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
@@ -884,13 +1000,15 @@ def main() -> None:
 
         if args.method == "heuristic":
             heuristic_methods(g_test, nodes_test, labels_test, g_train, g_val, nodes_val, labels_val)
-            weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
+            # weighted_heuristic_methods(nodes_test, labels_test, g_val, nodes_val, labels_val)
 
         elif args.method == "GNN":
             GNN_methods(g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test)
 
         elif args.method == "cosine":
-            # ablation per input representation/ embedding type
+            '''
+                ablation per input representation/ embedding type
+            '''
             for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
                 g = test_my_data(input_nodes=f'data/graph/{feat_nodes}_nodes.csv',
                                  input_edges='data/graph/edges.csv')
@@ -900,7 +1018,9 @@ def main() -> None:
                 similarity_method(g_test, nodes_test, labels_test, g_val, nodes_val, labels_val, feat_nodes)
 
         elif args.method == "SVM":
-            # ablation per input representation/ embedding type
+            '''
+                ablation per input representation/ embedding type
+            '''
             # for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
             #     g = test_my_data(input_nodes=f'data/graph/{feat_nodes}_nodes.csv',
             #                      input_edges='data/graph/edges.csv')
@@ -914,7 +1034,9 @@ def main() -> None:
             raise ValueError(f"Unknown method: {args.method}")
 
     if args.get_nearest_neighbours:
-        get_nearest_neighbours()
+        dataset = "EpicKitchens" #"EpicKitchens" #"Breakfast" #"COIN"
+        # evaluate_nn(dataset)
+        get_nearest_neighbours("")
 
 
 if __name__ == '__main__':

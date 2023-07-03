@@ -297,11 +297,13 @@ def stats_clip(input_file: str) -> None:
 
 
 def main() -> None:
-    # feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
-    #                                       videos_dir="data/video_clips_sample")
-    # torch.save(feature_dicts, "data/clip_features.pt")
+    TIME_DIFF = 10
+    feature_dicts = extract_clip_features(metadata_path="data/dict_action_clips_sample.json",
+                                          videos_dir="data/video_clips_sample")
+    # torch.save(feature_dicts, f"data/clip_features_{TIME_DIFF}.pt")
+    torch.save(feature_dicts, f"data/clip_features.pt")
 
-    stats_clip("data/clip_features.pt")
+    # stats_clip("data/clip_features.pt")
     # evaluate_clip_embeddings(feature_dicts)
     # test_clip()
 

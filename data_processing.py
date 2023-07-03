@@ -2,6 +2,9 @@ import ast
 import datetime
 import json
 from collections import Counter
+
+from sklearn.metrics.pairwise import cosine_similarity
+
 import numpy as np
 import pandas as pd
 import spacy
@@ -148,6 +151,7 @@ def get_diff_time(clip_a1, clip_a2):
     time1 = datetime.datetime.strptime(clip_a1[1], '%H:%M:%S')
     time2 = datetime.datetime.strptime(clip_a2[0], '%H:%M:%S')
     difference = (time2 - time1).total_seconds()
+    print(time2, time1, difference)
     return difference
 
 
@@ -176,20 +180,20 @@ def show_graph_actions(clustered_action_pairs, video):
 
 def get_actions(verbs, video_sample, try_per_video):
     with open('data/coref_all_sentence_transcripts.json') as json_file:
-        sentence_transcripts_rachel = json.load(json_file)
+        sentence_transcripts = json.load(json_file)
 
     dict_verb_dobj_per_video = {}
     wordsToBeRemoved = ["your", "some", "few", "bit of", "slice", "pinch", "little", "lot", "much", "many", "more",
                         "about"]
 
-    for video in track(sentence_transcripts_rachel, description="Getting all actions..."):
+    for video in track(sentence_transcripts, description="Getting all actions..."):
         if try_per_video and video != video_sample:
             continue
         coref_sentences, time_start, time_end, sentences = [], [], [], []
-        for dict in sentence_transcripts_rachel[video]:
+        for dict in sentence_transcripts[video]:
             sentence, coref_sentence, time_s, time_e, list_mentions = dict["sentence"], dict["coref_sentence"], \
-                                                                      dict["time_s"], dict["time_e"], dict[
-                                                                          "list_mentions"]
+                dict["time_s"], dict["time_e"], dict[
+                "list_mentions"]
 
             for w in wordsToBeRemoved:
                 coref_sentence = coref_sentence.replace(" " + w + " ", " ")
@@ -212,8 +216,7 @@ def get_actions(verbs, video_sample, try_per_video):
         json.dump(dict_verb_dobj_per_video, fp)
 
 
-def get_action_pairs_by_time():
-    time_difference = 10  # seconds
+def get_action_pairs_by_time(time_difference):
     # with open('data/dict_video_actions.json') as json_file:
     with open('data/dict_renamed_actions.json') as json_file:
         dict_verb_dobj_per_video = json.load(json_file)
@@ -361,8 +364,8 @@ def get_key(my_dict, val):
     return next((k for k, v in my_dict.items() if val in v), None)
 
 
-def filter_pairs_by_cluster(filtered_clusters):
-    with open('data/dict_video_action_pairs.json') as json_file:
+def filter_pairs_by_cluster(filtered_clusters, TIME_DIFF):
+    with open(f'data/dict_video_action_pairs.json') as json_file:
         dict_video_action_pairs = json.load(json_file)
     dict_video_action_pairs_filtered = {}
     for video in track(dict_video_action_pairs, description="Filtering action pairs by clusters ..."):
@@ -389,23 +392,36 @@ def filter_pairs_by_cluster(filtered_clusters):
                     dict_video_action_pairs_filtered[video].append(
                         [(action_1_key, transcript_a1, clip_a1), (action_2_key, transcript_a2, clip_a2)])
 
-    with open('data/dict_video_action_pairs_filtered_by_cluster.json', 'w+') as fp:
+    # with open(f'data/dict_video_action_pairs_filtered_by_cluster_{TIME_DIFF}.json', 'w+') as fp:
+    with open(f'data/dict_video_action_pairs_filtered_by_cluster.json', 'w+') as fp:
         json.dump(dict_video_action_pairs_filtered, fp)
 
 
-def combine_graphs(video_sample, sample, filter_by_link):
-    with open('data/dict_video_action_pairs_filtered_by_cluster.json') as json_file:
+def combine_graphs(video_sample, TIME_DIFF, directed, sample, filter_by_link):
+    # with open(f'data/dict_video_action_pairs_filtered_by_cluster_{TIME_DIFF}.json') as json_file:
+    with open(f'data/dict_video_action_pairs_filtered_by_cluster.json') as json_file:
         dict_video_action_pairs_filtered = json.load(json_file)
     transcripts_per_action = {}
     if sample:
-        action_pairs = [str(sorted((action_1, action_2)))
-                        for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
-                        in dict_video_action_pairs_filtered[video_sample]]
+        if directed:
+            action_pairs = [str((action_1, action_2))
+                            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
+                            in dict_video_action_pairs_filtered[video_sample]]
+        else:
+            action_pairs = [str(sorted((action_1, action_2)))
+                            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
+                            in dict_video_action_pairs_filtered[video_sample]]
     else:
-        action_pairs = [str(sorted((action_1, action_2)))
-                        for video in dict_video_action_pairs_filtered
-                        for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
-                        in dict_video_action_pairs_filtered[video]]
+        if directed:
+            action_pairs = [str((action_1, action_2))
+                            for video in dict_video_action_pairs_filtered
+                            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
+                            in dict_video_action_pairs_filtered[video]]
+        else:
+            action_pairs = [str(sorted((action_1, action_2)))
+                            for video in dict_video_action_pairs_filtered
+                            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)
+                            in dict_video_action_pairs_filtered[video]]
 
     if filter_by_link:
         counter = Counter(action_pairs)
@@ -413,18 +429,33 @@ def combine_graphs(video_sample, sample, filter_by_link):
         action_pairs = [action_pair for action_pair in action_pairs if counter[action_pair] > 1]
         console.print(f"After edge filtering, {len(set(action_pairs))} unique action pairs", style="magenta")
         dict_video_action_pairs_filtered_by_link = {}
-        for video in dict_video_action_pairs_filtered:
-            for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in \
-                    dict_video_action_pairs_filtered[video]:
-                if str(sorted((action_1, action_2))) in action_pairs:
-                    if video not in dict_video_action_pairs_filtered_by_link:
-                        dict_video_action_pairs_filtered_by_link[video] = []
-                    dict_video_action_pairs_filtered_by_link[video].append(
-                        [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
-                    transcripts_per_action[action_1] = transcript_a1
-                    transcripts_per_action[action_2] = transcript_a2
 
-        with open('data/dict_video_action_pairs_filtered_by_link.json', 'w+') as fp:
+        if directed:
+            for video in dict_video_action_pairs_filtered:
+                for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in \
+                        dict_video_action_pairs_filtered[video]:
+                    if str((action_1, action_2)) in action_pairs:
+                        if video not in dict_video_action_pairs_filtered_by_link:
+                            dict_video_action_pairs_filtered_by_link[video] = []
+                        dict_video_action_pairs_filtered_by_link[video].append(
+                            [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
+                        transcripts_per_action[action_1] = transcript_a1
+                        transcripts_per_action[action_2] = transcript_a2
+
+        else:
+            for video in dict_video_action_pairs_filtered:
+                for (action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2) in \
+                        dict_video_action_pairs_filtered[video]:
+                    if str(sorted((action_1, action_2))) in action_pairs:
+                        if video not in dict_video_action_pairs_filtered_by_link:
+                            dict_video_action_pairs_filtered_by_link[video] = []
+                        dict_video_action_pairs_filtered_by_link[video].append(
+                            [(action_1, transcript_a1, clip_a1), (action_2, transcript_a2, clip_a2)])
+                        transcripts_per_action[action_1] = transcript_a1
+                        transcripts_per_action[action_2] = transcript_a2
+
+        # with open(f'data/dict_video_action_pairs_filtered_by_link_{TIME_DIFF}.json', 'w+') as fp:
+        with open(f'data/dict_video_action_pairs_filtered_by_link.json', 'w+') as fp:
             json.dump(dict_video_action_pairs_filtered_by_link, fp)
 
     action_pairs_converted = [ast.literal_eval(action_pair) for action_pair in action_pairs]
@@ -438,6 +469,53 @@ def combine_graphs(video_sample, sample, filter_by_link):
     console.print(f"After filtering, {len(set(verbs))} unique verbs", style="magenta")
 
     return action_pairs, transcripts_per_action
+
+def read_data_train_test(dataset):
+    data_train, data_test = set(), set()
+    with open(f'data/dict_video_action_pairs_{dataset}.json') as json_file:
+        dict_video_action_pairs_COIN = json.load(json_file)
+    action_pairs = [sorted((action_1, action_2))
+                    for video in dict_video_action_pairs_COIN
+                    for (action_1, clip_a1), (action_2, clip_a2)
+                    in dict_video_action_pairs_COIN[video]]
+
+    for action_pair in action_pairs:
+        data_train.add(action_pair[0])
+        data_train.add(action_pair[1])
+
+    with open("data/action_localization/youcookii_annotations_trainval.json") as f:
+        dict_coin = json.loads(f.read())
+
+    for video in dict_coin['database'].keys():
+        # annotations_video = dict_coin['database'][video]["annotation"]
+        annotations_video = dict_coin['database'][video]["annotations"]
+        data_type = dict_coin['database'][video]["subset"]
+        # if data_type == "testing":#coin
+        if data_type == "validation": #youcook
+            for annotation in annotations_video:
+                data_test.add(annotation['sentence']) #youcook
+        # elif data_type == "training":
+        #     for annotation in annotations_video:
+        #         data_train.add(annotation['sentence'])  # youcook
+    print(len(data_train), len(data_test))
+    return list(data_train), list(data_test)
+
+def map_actions_to_graph_actions(dataset):
+    print("Mapping actions from validation/test to actions from train graph ...")
+    actions_train, actions_test = read_data_train_test(dataset)
+    list_stsbrt_embeddings_train = get_sentence_embedding_features(actions_train)
+    list_stsbrt_embeddings_test = get_sentence_embedding_features(actions_test)
+    sim_matrix = cosine_similarity(list_stsbrt_embeddings_test.cpu(), list_stsbrt_embeddings_train.cpu())
+    most_sim_idx = np.argmax(sim_matrix, axis=1)
+    # print(len(most_sim_idx))
+    # print(len(actions_train), len(actions_test))
+    most_sim_actions_test = [actions_train[idx] for idx in most_sim_idx]
+    actions_test2train = {}
+    for action_test, most_sim_action_train in zip(actions_test, most_sim_actions_test):
+        actions_test2train[action_test] = most_sim_action_train
+    # for action_test, sim_action_test in zip(actions_test, most_sim_actions_test):
+    #     print(action_test, sim_action_test)
+    return actions_test2train
 
 
 def get_sentence_embedding_features(actions):
@@ -508,7 +586,7 @@ def save_nodes_null_df(action_pairs):
     df.to_csv('data/graph/null_nodes.csv')
 
 
-def save_nodes_edges_df(action_pairs, transcripts_per_action):
+def save_nodes_edges_df(action_pairs, transcripts_per_action, TIME_DIFF):
     action_pairs = [ast.literal_eval(action_pair) for action_pair in action_pairs]
     actions = set()
     for action_pair in action_pairs:
@@ -544,7 +622,8 @@ def save_nodes_edges_df(action_pairs, transcripts_per_action):
                            if action_pair[0] not in actions_not_found and action_pair[1] not in actions_not_found]
 
     df = pd.DataFrame(list_tuples_actions, columns=['source', 'target', 'weight'])
-    df.to_csv('data/graph/edges.csv', index=False)
+    # df.to_csv(f'data/graph/edges_{TIME_DIFF}.csv', index=False)
+    df.to_csv(f'data/graph/edges.csv', index=False)
 
 
 def convert_datetime_to_seconds(clip_a1):
@@ -605,31 +684,36 @@ def filter_actions():
 
 def main():
     video_sample = "hK7yV276110"
+    TIME_DIFF = 10  # 5, 10, 15
 
     ''' Getting all action pairs'''
-    verbs = get_action_verbs()
-    get_actions(verbs, video_sample, try_per_video=False)  # saves the data
-    filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
+    # verbs = get_action_verbs()
+    # get_actions(verbs, video_sample, try_per_video=False)  # saves the data
+    # filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
 
-    get_action_pairs_by_time()  # get stats initial
+    # get_action_pairs_by_time(TIME_DIFF)  # get stats initial
+    #
+    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
+    # get_stats_actions(before_clustering=True)
+    #
+    # ''' Custering all actions '''
+    # cluster_actions()  # saves the data
+    # filtered_clusters = filter_clusters_by_size()
+    # filter_pairs_by_cluster(filtered_clusters, TIME_DIFF)  # saves the data
 
-    plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
-    get_stats_actions(before_clustering=True)
-
-    ''' Custering all actions '''
-    cluster_actions()  # saves the data
-    filtered_clusters = filter_clusters_by_size()
-    filter_pairs_by_cluster(filtered_clusters)  # saves the data
-
-    plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
-    get_stats_actions(before_clustering=False)
+    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
+    # get_stats_actions(before_clustering=False)
 
     ''' Combining the graph_plots for all videos '''
-    action_pairs, transcripts_per_action = combine_graphs(video_sample, sample=False, filter_by_link=True)
-    # show_graph_actions(action_pairs, video="all_videos")
+    action_pairs, transcripts_per_action = combine_graphs(video_sample, TIME_DIFF, directed=False, sample=False,
+                                                          filter_by_link=True)
 
-    ''' Saving dataframes for all nodes and edges '''
-    save_nodes_edges_df(action_pairs, transcripts_per_action)
+    # # show_graph_actions(action_pairs, video="all_videos")
+    #
+    # #TODO: Run CLIP on new dict_video_action_pairs_filtered_by_link_{TIME_DIFF}
+    #
+    # ''' Saving dataframes for all nodes and edges '''
+    save_nodes_edges_df(action_pairs, transcripts_per_action, TIME_DIFF)
     # save_nodes_null_df(action_pairs)
 
 
