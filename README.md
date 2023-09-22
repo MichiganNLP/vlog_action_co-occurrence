@@ -25,7 +25,7 @@ and the action co-occurrence identification task as a link prediction task.
 where default_feat_nodes can be: "txt_action", "txt_transcript", "vis_action", "vis_video", "vis_action_video". 
 More details in [`link_prediction.py`](link_prediction.py).
 
--  Sample frames 4 frames per video and their action label are found in [`data/sample_frames`](data/sample_frames)
+-  Sample frames 4 frames per video and their action label are found in [`sample_frames`](sample_frames)
 
 
 ## Features
