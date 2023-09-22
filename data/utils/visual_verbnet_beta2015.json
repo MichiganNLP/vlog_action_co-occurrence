@@ -1,0 +1,1139 @@
+{
+  "info": {
+    "description": "This is the beta_0.9 version of the 2015 Visual VerbNet.",
+    "url": "http://www.vision.caltech.edu/~mronchi/projects/Cocoa/",
+    "version": "beta_0.9",
+    "year": 2015,
+    "contributor": "Matteo Ruggero Ronchi and Pietro Perona",
+    "date_created": "2015-09-30 16:59:28.765246"
+  },
+  "licenses": [
+    {
+      "url": "https://en.wikipedia.org/wiki/BSD_licenses",
+      "id": 1,
+      "name": "Berkeley Software Distribution (BSD) License"
+    }
+  ],
+  "visual_adverbs": [
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 1,
+      "name": "anger"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 2,
+      "name": "disgust"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 3,
+      "name": "fear"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 4,
+      "name": "happiness"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 5,
+      "name": "neutral"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 6,
+      "name": "sadness"
+    },
+    {
+      "category": "emotion",
+      "definition": "",
+      "id": 7,
+      "name": "surprise"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 8,
+      "name": "above"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 9,
+      "name": "behind"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 10,
+      "name": "below"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 11,
+      "name": "in_front"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 12,
+      "name": "left"
+    },
+    {
+      "category": "location",
+      "definition": "",
+      "id": 13,
+      "name": "right"
+    },
+    {
+      "category": "distance",
+      "definition": "",
+      "id": 14,
+      "name": "far"
+    },
+    {
+      "category": "distance",
+      "definition": "",
+      "id": 15,
+      "name": "full_contact"
+    },
+    {
+      "category": "distance",
+      "definition": "",
+      "id": 16,
+      "name": "light_contact"
+    },
+    {
+      "category": "distance",
+      "definition": "",
+      "id": 17,
+      "name": "near"
+    }
+  ],
+  "visual_actions": [
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 18,
+      "name": "call"
+    },
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 19,
+      "name": "shout"
+    },
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 20,
+      "name": "signal"
+    },
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 21,
+      "name": "talk"
+    },
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 22,
+      "name": "whistle"
+    },
+    {
+      "category": "communication",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 23,
+      "name": "wink"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 24,
+      "name": "avoid"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 25,
+      "name": "bite"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 26,
+      "name": "bump"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 27,
+      "name": "caress"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 28,
+      "name": "hit"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 29,
+      "name": "hold"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 30,
+      "name": "hug"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 31,
+      "name": "kick"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 32,
+      "name": "kiss"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 33,
+      "name": "lick"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 34,
+      "name": "lift"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 35,
+      "name": "massage"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 36,
+      "name": "pet"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 37,
+      "name": "pinch"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 38,
+      "name": "poke"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 39,
+      "name": "pull"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 40,
+      "name": "punch"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 41,
+      "name": "push"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 42,
+      "name": "reach"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 43,
+      "name": "slap"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 44,
+      "name": "squeeze"
+    },
+    {
+      "category": "contact",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 45,
+      "name": "tickle"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 46,
+      "name": "chew"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 47,
+      "name": "cook"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 48,
+      "name": "devour"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 49,
+      "name": "drink"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 50,
+      "name": "eat"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 51,
+      "name": "prepare"
+    },
+    {
+      "category": "nutrition",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 52,
+      "name": "spread"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 53,
+      "name": "bend_object"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 54,
+      "name": "break"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 55,
+      "name": "brush"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 56,
+      "name": "build"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 57,
+      "name": "carry"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 58,
+      "name": "catch"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 59,
+      "name": "clear"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 60,
+      "name": "cut"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 61,
+      "name": "disassemble"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 62,
+      "name": "drive"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 63,
+      "name": "drop"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 64,
+      "name": "exchange"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 65,
+      "name": "fill"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 66,
+      "name": "get"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 67,
+      "name": "lay"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 68,
+      "name": "light"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 69,
+      "name": "mix"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 70,
+      "name": "pour"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 71,
+      "name": "put"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 72,
+      "name": "read"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 73,
+      "name": "remove"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 74,
+      "name": "repair"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 75,
+      "name": "ride"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 76,
+      "name": "row"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 77,
+      "name": "sail"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 78,
+      "name": "separate"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 79,
+      "name": "show"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 80,
+      "name": "spill"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 81,
+      "name": "spray"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 82,
+      "name": "steal"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 83,
+      "name": "throw"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 84,
+      "name": "use"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 85,
+      "name": "wash"
+    },
+    {
+      "category": "objects",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 86,
+      "name": "wear"
+    },
+    {
+      "category": "perception",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 87,
+      "name": "listen"
+    },
+    {
+      "category": "perception",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 88,
+      "name": "look"
+    },
+    {
+      "category": "perception",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 89,
+      "name": "sniff"
+    },
+    {
+      "category": "perception",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 90,
+      "name": "taste"
+    },
+    {
+      "category": "perception",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 91,
+      "name": "touch"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 92,
+      "name": "balance"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 93,
+      "name": "bend"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 94,
+      "name": "bow"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 95,
+      "name": "climb"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 96,
+      "name": "crouch"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 97,
+      "name": "fall"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 98,
+      "name": "float"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 99,
+      "name": "fly"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 100,
+      "name": "hang"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 101,
+      "name": "jump"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 102,
+      "name": "kneel"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 103,
+      "name": "lean"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 104,
+      "name": "lie"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 105,
+      "name": "perch"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 106,
+      "name": "recline"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 107,
+      "name": "roll"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 108,
+      "name": "run"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 109,
+      "name": "sit"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 110,
+      "name": "squat"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 111,
+      "name": "stand"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 112,
+      "name": "straddle"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 113,
+      "name": "swim"
+    },
+    {
+      "category": "posture",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 114,
+      "name": "walk"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 115,
+      "name": "accompany"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 116,
+      "name": "be_with"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 117,
+      "name": "chase"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 118,
+      "name": "dance"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 119,
+      "name": "dine"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 120,
+      "name": "dress"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 121,
+      "name": "feed"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 122,
+      "name": "fight"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 123,
+      "name": "follow"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 124,
+      "name": "give"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 125,
+      "name": "groom"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 126,
+      "name": "help"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 127,
+      "name": "hunt"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 128,
+      "name": "kill"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 129,
+      "name": "meet"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 130,
+      "name": "pay"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 131,
+      "name": "play_baseball"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 132,
+      "name": "play_basketball"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 133,
+      "name": "play_frisbee"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 134,
+      "name": "play_soccer"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 135,
+      "name": "play_tennis"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 136,
+      "name": "precede"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 137,
+      "name": "shake_hands"
+    },
+    {
+      "category": "social",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 138,
+      "name": "teach"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 139,
+      "name": "blow"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 140,
+      "name": "clap"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 141,
+      "name": "cry"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 142,
+      "name": "draw"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 143,
+      "name": "groan"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 144,
+      "name": "laugh"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 145,
+      "name": "paint"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 146,
+      "name": "photograph"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 147,
+      "name": "play"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 148,
+      "name": "play_baseball_solo"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 149,
+      "name": "play_basketball_solo"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 150,
+      "name": "play_frisbee_solo"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 151,
+      "name": "play_instrument"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 152,
+      "name": "play_soccer_solo"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 153,
+      "name": "play_tennis_solo"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 154,
+      "name": "pose"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 155,
+      "name": "sing"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 156,
+      "name": "skate"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 157,
+      "name": "ski"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 158,
+      "name": "sleep"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 159,
+      "name": "smile"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 160,
+      "name": "snowboard"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 161,
+      "name": "surf"
+    },
+    {
+      "category": "solo",
+      "definition": "",
+      "verbnet_class": "",
+      "id": 162,
+      "name": "write"
+    }
+  ],
+  "type": "visual_verbnet"
+}

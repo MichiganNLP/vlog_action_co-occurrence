@@ -1,0 +1,131 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+<style type="text/css">
+
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            background-color: #222222;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+        #config {
+            float: left;
+            width: 400px;
+            height: 600px;
+        }
+        
+
+        
+</style>
+
+</head>
+
+<body>
+<div id = "mynetwork"></div>
+
+
+<div id = "config"></div>
+
+<script type="text/javascript">
+
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"font": {"color": "white"}, "id": "add to meal", "label": "add to meal", "shape": "dot", "title": "0", "value": 100}, {"font": {"color": "white"}, "id": "sit on side", "label": "sit on side", "shape": "dot", "title": "0", "value": 100}, {"font": {"color": "white"}, "id": "use bacon", "label": "use bacon", "shape": "dot", "title": "1", "value": 100}, {"font": {"color": "white"}, "id": "cook pasta", "label": "cook pasta", "shape": "dot", "title": "2", "value": 100}, {"font": {"color": "white"}, "id": "use paper towel", "label": "use paper towel", "shape": "dot", "title": "6", "value": 100}, {"font": {"color": "white"}, "id": "punch circle", "label": "punch circle", "shape": "dot", "title": "7", "value": 100}, {"font": {"color": "white"}, "id": "add oil", "label": "add oil", "shape": "dot", "title": "8", "value": 100}, {"font": {"color": "white"}, "id": "cook on side", "label": "cook on side", "shape": "dot", "title": "9", "value": 100}, {"font": {"color": "white"}, "id": "add third of cup", "label": "add third of cup", "shape": "dot", "title": "13", "value": 100}, {"font": {"color": "white"}, "id": "pile on top", "label": "pile on top", "shape": "dot", "title": "14", "value": 100}, {"font": {"color": "white"}, "id": "use color", "label": "use color", "shape": "dot", "title": "17", "value": 100}, {"font": {"color": "white"}, "id": "add yeast", "label": "add yeast", "shape": "dot", "title": "18", "value": 100}, {"font": {"color": "white"}, "id": "add mozzarella", "label": "add mozzarella", "shape": "dot", "title": "25", "value": 100}, {"font": {"color": "white"}, "id": "add arugula", "label": "add arugula", "shape": "dot", "title": "26", "value": 100}, {"font": {"color": "white"}, "id": "add green", "label": "add green", "shape": "dot", "title": "27", "value": 100}, {"font": {"color": "white"}, "id": "rub olive oil into kale", "label": "rub olive oil into kale", "shape": "dot", "title": "28", "value": 100}, {"font": {"color": "white"}, "id": "add teaspoon of baking powder", "label": "add teaspoon of baking powder", "shape": "dot", "title": "39", "value": 100}, {"font": {"color": "white"}, "id": "stir saucepan", "label": "stir saucepan", "shape": "dot", "title": "39", "value": 100}, {"font": {"color": "white"}, "id": "add water", "label": "add water", "shape": "dot", "title": "40", "value": 100}, {"font": {"color": "white"}, "id": "remove top", "label": "remove top", "shape": "dot", "title": "42", "value": 100}, {"font": {"color": "white"}, "id": "use mop", "label": "use mop", "shape": "dot", "title": "43", "value": 100}, {"font": {"color": "white"}, "id": "add sweetener", "label": "add sweetener", "shape": "dot", "title": "46", "value": 100}, {"font": {"color": "white"}, "id": "add teaspoon of maple syrup", "label": "add teaspoon of maple syrup", "shape": "dot", "title": "49", "value": 100}, {"font": {"color": "white"}, "id": "put in freezer", "label": "put in freezer", "shape": "dot", "title": "53", "value": 100}, {"font": {"color": "white"}, "id": "set sheet of parchment paper", "label": "set sheet of parchment paper", "shape": "dot", "title": "54", "value": 100}, {"font": {"color": "white"}, "id": "chop onion", "label": "chop onion", "shape": "dot", "title": "55", "value": 100}, {"font": {"color": "white"}, "id": "use egg", "label": "use egg", "shape": "dot", "title": "57", "value": 100}, {"font": {"color": "white"}, "id": "add to pan", "label": "add to pan", "shape": "dot", "title": "58", "value": 100}, {"font": {"color": "white"}, "id": "add vegetable", "label": "add vegetable", "shape": "dot", "title": "60", "value": 100}, {"font": {"color": "white"}, "id": "use avocado oil", "label": "use avocado oil", "shape": "dot", "title": "61", "value": 100}, {"font": {"color": "white"}, "id": "use type", "label": "use type", "shape": "dot", "title": "62", "value": 100}, {"font": {"color": "white"}, "id": "add veggie", "label": "add veggie", "shape": "dot", "title": "66", "value": 100}, {"font": {"color": "white"}, "id": "put cauliflower", "label": "put cauliflower", "shape": "dot", "title": "72", "value": 100}, {"font": {"color": "white"}, "id": "add garlic", "label": "add garlic", "shape": "dot", "title": "76", "value": 100}, {"font": {"color": "white"}, "id": "sit for minute", "label": "sit for minute", "shape": "dot", "title": "80", "value": 100}, {"font": {"color": "white"}, "id": "add teriyaki sauce", "label": "add teriyaki sauce", "shape": "dot", "title": "81", "value": 100}, {"font": {"color": "white"}, "id": "use recipe", "label": "use recipe", "shape": "dot", "title": "84", "value": 100}, {"font": {"color": "white"}, "id": "add frittata mix", "label": "add frittata mix", "shape": "dot", "title": "87", "value": 100}, {"font": {"color": "white"}, "id": "add egg", "label": "add egg", "shape": "dot", "title": "88", "value": 100}, {"font": {"color": "white"}, "id": "cook rice", "label": "cook rice", "shape": "dot", "title": "94", "value": 100}, {"font": {"color": "white"}, "id": "use chive", "label": "use chive", "shape": "dot", "title": "99", "value": 100}, {"font": {"color": "white"}, "id": "wear goggle", "label": "wear goggle", "shape": "dot", "title": "101", "value": 100}, {"font": {"color": "white"}, "id": "put on top", "label": "put on top", "shape": "dot", "title": "102", "value": 100}, {"font": {"color": "white"}, "id": "put in oven", "label": "put in oven", "shape": "dot", "title": "108", "value": 100}, {"font": {"color": "white"}, "id": "add chicken", "label": "add chicken", "shape": "dot", "title": "112", "value": 100}, {"font": {"color": "white"}, "id": "use in kitchen", "label": "use in kitchen", "shape": "dot", "title": "112", "value": 100}, {"font": {"color": "white"}, "id": "add barbecue", "label": "add barbecue", "shape": "dot", "title": "113", "value": 100}]);
+        edges = new vis.DataSet([{"from": "add to meal", "label": "0", "title": "0: add to meal , sit on side", "to": "sit on side", "value": 1}, {"from": "sit on side", "label": "1", "title": "1: sit on side , use bacon", "to": "use bacon", "value": 1}, {"from": "cook pasta", "label": "2", "title": "2: cook pasta , sit on side", "to": "sit on side", "value": 1}, {"from": "add to meal", "label": "3", "title": "3: add to meal , use bacon", "to": "use bacon", "value": 1}, {"from": "add to meal", "label": "4", "title": "4: add to meal , cook pasta", "to": "cook pasta", "value": 1}, {"from": "cook pasta", "label": "5", "title": "5: cook pasta , use bacon", "to": "use bacon", "value": 2}, {"from": "cook pasta", "label": "6", "title": "6: cook pasta , use paper towel", "to": "use paper towel", "value": 1}, {"from": "punch circle", "label": "7", "title": "7: punch circle , use bacon", "to": "use bacon", "value": 1}, {"from": "add oil", "label": "8", "title": "8: add oil , use bacon", "to": "use bacon", "value": 1}, {"from": "cook on side", "label": "9", "title": "9: cook on side , use bacon", "to": "use bacon", "value": 1}, {"from": "add oil", "label": "10", "title": "10: add oil , cook on side", "to": "cook on side", "value": 1}, {"from": "add oil", "label": "11", "title": "11: add oil , cook pasta", "to": "cook pasta", "value": 1}, {"from": "cook on side", "label": "12", "title": "12: cook on side , cook pasta", "to": "cook pasta", "value": 1}, {"from": "add third of cup", "label": "13", "title": "13: add third of cup , cook on side", "to": "cook on side", "value": 1}, {"from": "cook on side", "label": "14", "title": "14: cook on side , pile on top", "to": "pile on top", "value": 1}, {"from": "add third of cup", "label": "15", "title": "15: add third of cup , cook pasta", "to": "cook pasta", "value": 2}, {"from": "cook pasta", "label": "16", "title": "16: cook pasta , pile on top", "to": "pile on top", "value": 2}, {"from": "cook pasta", "label": "17", "title": "17: cook pasta , use color", "to": "use color", "value": 2}, {"from": "add yeast", "label": "18", "title": "18: add yeast , cook pasta", "to": "cook pasta", "value": 2}, {"from": "add third of cup", "label": "19", "title": "19: add third of cup , pile on top", "to": "pile on top", "value": 1}, {"from": "add third of cup", "label": "20", "title": "20: add third of cup , use color", "to": "use color", "value": 1}, {"from": "add third of cup", "label": "21", "title": "21: add third of cup , add yeast", "to": "add yeast", "value": 1}, {"from": "pile on top", "label": "22", "title": "22: pile on top , use color", "to": "use color", "value": 1}, {"from": "add yeast", "label": "23", "title": "23: add yeast , pile on top", "to": "pile on top", "value": 1}, {"from": "add yeast", "label": "24", "title": "24: add yeast , use color", "to": "use color", "value": 1}, {"from": "add mozzarella", "label": "25", "title": "25: add mozzarella , cook pasta", "to": "cook pasta", "value": 2}, {"from": "add arugula", "label": "26", "title": "26: add arugula , cook pasta", "to": "cook pasta", "value": 4}, {"from": "add green", "label": "27", "title": "27: add green , cook pasta", "to": "cook pasta", "value": 2}, {"from": "cook pasta", "label": "28", "title": "28: cook pasta , rub olive oil into kale", "to": "rub olive oil into kale", "value": 4}, {"from": "add arugula", "label": "29", "title": "29: add arugula , add mozzarella", "to": "add mozzarella", "value": 2}, {"from": "add green", "label": "30", "title": "30: add green , add mozzarella", "to": "add mozzarella", "value": 1}, {"from": "add mozzarella", "label": "31", "title": "31: add mozzarella , rub olive oil into kale", "to": "rub olive oil into kale", "value": 2}, {"from": "add mozzarella", "label": "32", "title": "32: add mozzarella , use bacon", "to": "use bacon", "value": 1}, {"from": "add arugula", "label": "33", "title": "33: add arugula , add green", "to": "add green", "value": 2}, {"from": "add arugula", "label": "34", "title": "34: add arugula , rub olive oil into kale", "to": "rub olive oil into kale", "value": 4}, {"from": "add arugula", "label": "35", "title": "35: add arugula , use bacon", "to": "use bacon", "value": 2}, {"from": "add green", "label": "36", "title": "36: add green , rub olive oil into kale", "to": "rub olive oil into kale", "value": 2}, {"from": "add green", "label": "37", "title": "37: add green , use bacon", "to": "use bacon", "value": 1}, {"from": "rub olive oil into kale", "label": "38", "title": "38: rub olive oil into kale , use bacon", "to": "use bacon", "value": 2}, {"from": "add teaspoon of baking powder", "label": "39", "title": "39: add teaspoon of baking powder , stir saucepan", "to": "stir saucepan", "value": 1}, {"from": "add water", "label": "40", "title": "40: add water , stir saucepan", "to": "stir saucepan", "value": 1}, {"from": "add teaspoon of baking powder", "label": "41", "title": "41: add teaspoon of baking powder , add water", "to": "add water", "value": 1}, {"from": "add teaspoon of baking powder", "label": "42", "title": "42: add teaspoon of baking powder , remove top", "to": "remove top", "value": 1}, {"from": "add teaspoon of baking powder", "label": "43", "title": "43: add teaspoon of baking powder , use mop", "to": "use mop", "value": 2}, {"from": "add water", "label": "44", "title": "44: add water , remove top", "to": "remove top", "value": 1}, {"from": "add water", "label": "45", "title": "45: add water , use mop", "to": "use mop", "value": 2}, {"from": "add sweetener", "label": "46", "title": "46: add sweetener , add water", "to": "add water", "value": 1}, {"from": "remove top", "label": "47", "title": "47: remove top , use mop", "to": "use mop", "value": 2}, {"from": "add sweetener", "label": "48", "title": "48: add sweetener , remove top", "to": "remove top", "value": 1}, {"from": "add teaspoon of maple syrup", "label": "49", "title": "49: add teaspoon of maple syrup , remove top", "to": "remove top", "value": 1}, {"from": "add sweetener", "label": "50", "title": "50: add sweetener , use mop", "to": "use mop", "value": 2}, {"from": "add teaspoon of maple syrup", "label": "51", "title": "51: add teaspoon of maple syrup , use mop", "to": "use mop", "value": 2}, {"from": "add sweetener", "label": "52", "title": "52: add sweetener , add teaspoon of maple syrup", "to": "add teaspoon of maple syrup", "value": 1}, {"from": "add teaspoon of maple syrup", "label": "53", "title": "53: add teaspoon of maple syrup , put in freezer", "to": "put in freezer", "value": 1}, {"from": "put in freezer", "label": "54", "title": "54: put in freezer , set sheet of parchment paper", "to": "set sheet of parchment paper", "value": 1}, {"from": "chop onion", "label": "55", "title": "55: chop onion , put in freezer", "to": "put in freezer", "value": 1}, {"from": "chop onion", "label": "56", "title": "56: chop onion , set sheet of parchment paper", "to": "set sheet of parchment paper", "value": 1}, {"from": "chop onion", "label": "57", "title": "57: chop onion , use egg", "to": "use egg", "value": 1}, {"from": "add to pan", "label": "58", "title": "58: add to pan , chop onion", "to": "chop onion", "value": 2}, {"from": "add to pan", "label": "59", "title": "59: add to pan , use egg", "to": "use egg", "value": 2}, {"from": "add vegetable", "label": "60", "title": "60: add vegetable , use egg", "to": "use egg", "value": 1}, {"from": "use avocado oil", "label": "61", "title": "61: use avocado oil , use egg", "to": "use egg", "value": 1}, {"from": "use egg", "label": "62", "title": "62: use egg , use type", "to": "use type", "value": 1}, {"from": "add to pan", "label": "63", "title": "63: add to pan , add vegetable", "to": "add vegetable", "value": 2}, {"from": "add to pan", "label": "64", "title": "64: add to pan , use avocado oil", "to": "use avocado oil", "value": 2}, {"from": "add to pan", "label": "65", "title": "65: add to pan , use type", "to": "use type", "value": 2}, {"from": "add to pan", "label": "66", "title": "66: add to pan , add veggie", "to": "add veggie", "value": 2}, {"from": "add vegetable", "label": "67", "title": "67: add vegetable , use avocado oil", "to": "use avocado oil", "value": 1}, {"from": "add vegetable", "label": "68", "title": "68: add vegetable , use type", "to": "use type", "value": 1}, {"from": "add vegetable", "label": "69", "title": "69: add vegetable , add veggie", "to": "add veggie", "value": 1}, {"from": "use avocado oil", "label": "70", "title": "70: use avocado oil , use type", "to": "use type", "value": 1}, {"from": "add veggie", "label": "71", "title": "71: add veggie , use avocado oil", "to": "use avocado oil", "value": 1}, {"from": "put cauliflower", "label": "72", "title": "72: put cauliflower , use avocado oil", "to": "use avocado oil", "value": 1}, {"from": "add veggie", "label": "73", "title": "73: add veggie , use type", "to": "use type", "value": 1}, {"from": "put cauliflower", "label": "74", "title": "74: put cauliflower , use type", "to": "use type", "value": 1}, {"from": "add veggie", "label": "75", "title": "75: add veggie , put cauliflower", "to": "put cauliflower", "value": 1}, {"from": "add garlic", "label": "76", "title": "76: add garlic , add veggie", "to": "add veggie", "value": 1}, {"from": "add garlic", "label": "77", "title": "77: add garlic , put cauliflower", "to": "put cauliflower", "value": 1}, {"from": "punch circle", "label": "78", "title": "78: punch circle , put cauliflower", "to": "put cauliflower", "value": 1}, {"from": "add garlic", "label": "79", "title": "79: add garlic , punch circle", "to": "punch circle", "value": 1}, {"from": "add garlic", "label": "80", "title": "80: add garlic , sit for minute", "to": "sit for minute", "value": 1}, {"from": "add garlic", "label": "81", "title": "81: add garlic , add teriyaki sauce", "to": "add teriyaki sauce", "value": 1}, {"from": "punch circle", "label": "82", "title": "82: punch circle , sit for minute", "to": "sit for minute", "value": 1}, {"from": "add teriyaki sauce", "label": "83", "title": "83: add teriyaki sauce , punch circle", "to": "punch circle", "value": 1}, {"from": "punch circle", "label": "84", "title": "84: punch circle , use recipe", "to": "use recipe", "value": 1}, {"from": "add teriyaki sauce", "label": "85", "title": "85: add teriyaki sauce , sit for minute", "to": "sit for minute", "value": 3}, {"from": "sit for minute", "label": "86", "title": "86: sit for minute , use recipe", "to": "use recipe", "value": 2}, {"from": "add frittata mix", "label": "87", "title": "87: add frittata mix , sit for minute", "to": "sit for minute", "value": 2}, {"from": "add egg", "label": "88", "title": "88: add egg , sit for minute", "to": "sit for minute", "value": 2}, {"from": "add teriyaki sauce", "label": "89", "title": "89: add teriyaki sauce , use recipe", "to": "use recipe", "value": 1}, {"from": "add frittata mix", "label": "90", "title": "90: add frittata mix , add teriyaki sauce", "to": "add teriyaki sauce", "value": 2}, {"from": "add egg", "label": "91", "title": "91: add egg , add teriyaki sauce", "to": "add teriyaki sauce", "value": 2}, {"from": "add frittata mix", "label": "92", "title": "92: add frittata mix , use recipe", "to": "use recipe", "value": 1}, {"from": "add egg", "label": "93", "title": "93: add egg , use recipe", "to": "use recipe", "value": 1}, {"from": "cook rice", "label": "94", "title": "94: cook rice , sit for minute", "to": "sit for minute", "value": 1}, {"from": "add egg", "label": "95", "title": "95: add egg , add frittata mix", "to": "add frittata mix", "value": 1}, {"from": "add frittata mix", "label": "96", "title": "96: add frittata mix , cook rice", "to": "cook rice", "value": 1}, {"from": "add egg", "label": "97", "title": "97: add egg , cook rice", "to": "cook rice", "value": 1}, {"from": "add teriyaki sauce", "label": "98", "title": "98: add teriyaki sauce , cook rice", "to": "cook rice", "value": 1}, {"from": "cook rice", "label": "99", "title": "99: cook rice , use chive", "to": "use chive", "value": 1}, {"from": "add teriyaki sauce", "label": "100", "title": "100: add teriyaki sauce , use chive", "to": "use chive", "value": 1}, {"from": "use chive", "label": "101", "title": "101: use chive , wear goggle", "to": "wear goggle", "value": 1}, {"from": "put on top", "label": "102", "title": "102: put on top , use chive", "to": "use chive", "value": 1}, {"from": "add to pan", "label": "103", "title": "103: add to pan , use chive", "to": "use chive", "value": 1}, {"from": "put on top", "label": "104", "title": "104: put on top , wear goggle", "to": "wear goggle", "value": 1}, {"from": "add to pan", "label": "105", "title": "105: add to pan , wear goggle", "to": "wear goggle", "value": 1}, {"from": "add to pan", "label": "106", "title": "106: add to pan , put on top", "to": "put on top", "value": 1}, {"from": "add oil", "label": "107", "title": "107: add oil , put on top", "to": "put on top", "value": 1}, {"from": "put in oven", "label": "108", "title": "108: put in oven , put on top", "to": "put on top", "value": 1}, {"from": "add oil", "label": "109", "title": "109: add oil , add to pan", "to": "add to pan", "value": 1}, {"from": "add to pan", "label": "110", "title": "110: add to pan , put in oven", "to": "put in oven", "value": 1}, {"from": "add oil", "label": "111", "title": "111: add oil , put in oven", "to": "put in oven", "value": 1}, {"from": "add chicken", "label": "112", "title": "112: add chicken , use in kitchen", "to": "use in kitchen", "value": 1}, {"from": "add barbecue", "label": "113", "title": "113: add barbecue , use in kitchen", "to": "use in kitchen", "value": 2}, {"from": "add barbecue", "label": "114", "title": "114: add barbecue , add chicken", "to": "add chicken", "value": 2}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "hierarchicalRepulsion": {
+            "centralGravity": 0.0,
+            "damping": 0.09,
+            "nodeDistance": 120,
+            "springConstant": 0.01,
+            "springLength": 100
+        },
+        "solver": "hierarchicalRepulsion",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+        // if this network requires displaying the configure window,
+        // put it in its div
+        options.configure["container"] = document.getElementById("config");
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+
+</script>
+</body>
+</html>

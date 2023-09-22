@@ -1,0 +1,4387 @@
+source,target,weight
+add potato,use knife,3
+add carrot,cook with steel,2
+add carrot,use color,3
+add vegetable,cut in half,7
+add vegetable,cook with steel,3
+add ingredient,add vegetable,5
+add ingredient,cook with steel,2
+add sausage,cook with steel,3
+add to pan,cook with steel,5
+add ingredient,add to pan,4
+add sausage,add to pan,2
+add garlic,add sausage,2
+add water,use bottle,8
+add water,use cleaner,3
+add water,clean kitchen,5
+add water,clean floor,10
+add water,clean house,2
+clean kitchen,use cleaner,2
+clean floor,use cleaner,6
+clean house,use cleaner,6
+clean floor,clean kitchen,11
+clean house,clean kitchen,6
+clean floor,clean house,12
+eat dinner,eat fish,2
+add oil,use leftover,4
+add oil,put trade,3
+add fat,add water,3
+add fat,add salt,2
+add fat,add protein,5
+add salt,add water,10
+add protein,add water,7
+add protein,add salt,5
+add oil,add veggie,7
+add yeast,use color,2
+add cheese,add oil,2
+add cheese,cook pasta,3
+add oil,use retinol,3
+add green,add oil,2
+add oil,cook pasta,14
+add sweetener,add water,3
+add egg,add onion,5
+add onion,add to pan,27
+add egg,add to pan,12
+add egg,add vegetable,7
+add egg,add oil,28
+add egg,use type,7
+add to pan,add vegetable,7
+add oil,add to pan,27
+add to pan,use type,6
+add salt,add to pan,8
+add oil,add vegetable,12
+add salt,add vegetable,9
+add oil,use type,27
+add oil,add salt,34
+add oil,use rice,11
+add salt,use type,8
+use rice,use type,3
+add salt,use rice,9
+add garlic,add salt,12
+add garlic,use rice,4
+add garlic,add sauce,6
+add sauce,use mortar,2
+add egg,add sauce,3
+use mortar,use rice,2
+add egg,use rice,19
+add sauce,use rice,11
+add sauce,use in kitchen,2
+add chicken,add sauce,13
+add broccoli,add vegetable,5
+add flavor,use mushroom,4
+add vegetable,use mushroom,4
+add flavor,add vegetable,4
+add broccoli,add oil,7
+add oil,use recipe,12
+add egg,add salt,15
+add egg,add pepper,8
+add pepper,add salt,12
+add cheese,add garlic,3
+add salt,use for while,2
+add salt,cook on side,6
+add green,add salt,3
+add green,cook on side,2
+add spinach,cook on side,2
+add green,add spinach,5
+add fat,add green,2
+add fat,add spinach,5
+add egg,add spinach,2
+add oil,add spinach,2
+add egg,add green,2
+add egg,add fat,5
+add fat,add oil,13
+add ice,add oil,2
+add oil,put lid,11
+add oil,boil water,4
+add egg,add ice,2
+add egg,put lid,8
+add egg,boil water,10
+add ice,put lid,3
+add ice,boil water,2
+add water,put lid,11
+add water,boil water,10
+add oil,add water,43
+add oil,lift torso,2
+add egg,add potato,17
+add egg,use ton,4
+add potato,use ton,2
+add water,use ton,4
+add egg,add water,22
+add water,use butter,11
+add egg,use butter,16
+cook on side,use butter,3
+add egg,cook on side,4
+add dressing,use bottle,2
+add onto baking dish,use bottle,2
+add chicken,put side,2
+add chicken,use rice,10
+add honey,cut in half,2
+add salt,add seasoning,2
+add bit,add salt,4
+add bit,cook pasta,6
+add salt,cook pasta,6
+add salt,drain water,2
+cook pasta,drain water,2
+cook pasta,use hummus,2
+add pepper,use hummus,4
+add chicken,chop lettuce,4
+add chicken,add cilantro,3
+add cilantro,spritz face,2
+use type,use yogurt,5
+use acid,use vitamin,2
+use vitamin,wear sunscreen,2
+use acid,wear sunscreen,2
+curl eyelash,use mascara,29
+curl eyelash,wash hair,2
+curl eyelash,use shampoo,2
+use shampoo,wash hair,25
+add stock,add tomato,7
+add stock,add veggie,2
+add tomato,add veggie,3
+add potato,add salt,15
+add oil,add potato,17
+add potato,boil water,2
+add potato,add veggie,9
+add dressing,add tomato,2
+add dressing,add oil,3
+add to pan,use bread,4
+add oil,use bread,6
+add oil,eat dairy,2
+add cheese,eat dairy,5
+add potato,put lid,3
+put lid,use butter,4
+add potato,use butter,3
+add salt,use butter,11
+add cheese,add yeast,6
+add to pan,add to plate,5
+add onion,use can,5
+add oil,add onion,30
+add oil,use can,5
+add salt,use can,3
+add salt,add tomato,11
+add spice,add tomato,4
+add tomato,toast slice,2
+add liquid,add spice,2
+add spice,toast slice,2
+add chili flake,add spice,2
+add chili flake,toast slice,2
+add dash,add spinach,2
+add water,work way,2
+add water,put phone,4
+add date,use milk,5
+use glass,use milk,4
+add date,use glass,2
+work from home,work way,3
+set for hour,work from home,2
+add water,use milk,16
+add oil,use milk,15
+add protein,eat amount,4
+add oil,add protein,9
+use mushroom,use type,2
+add oil,use mushroom,11
+add salt,use mushroom,3
+add salt,add sauce,8
+add bean,add flavor,7
+add flavor,add sausage,2
+add flavor,add sauce,5
+add water,cut in half,8
+add layer,add sauce,5
+add spinach,boil pasta,2
+add sauce,add spinach,2
+add sauce,use point,2
+add oil,use point,3
+use berry,use yogurt,2
+eat breakfast,eat dinner,3
+add water,burn hand,8
+add water,clean fridge,2
+add carrot,add vegetable,6
+add garlic,add yeast,2
+add cheese,add frittata mix,2
+add vegetable,put food,5
+add vegetable,cook on stove,5
+cook on stove,eat food,7
+add vegetable,eat food,12
+catch breath,drink coffee,2
+add fat,eat food,5
+add fat,add sugar,2
+add sugar,eat food,3
+add ingredient,use milk,8
+use baby,use milk,2
+add protein,use milk,4
+add egg,eat meat,4
+eat food,fill space,2
+clean floor,use can,2
+add bean,use can,11
+add onion,add sauce,7
+add onion,add topping,7
+add sauce,add topping,7
+add pepper,add sauce,2
+add onion,add pepper,21
+drink tea,use berry,2
+add salt,use retinol,5
+add pepper,use retinol,6
+boil water,set timer,3
+set timer,use chickpea,3
+put sheet,set timer,3
+add salt,set timer,2
+put sheet,use chickpea,3
+add salt,use chickpea,4
+add salt,put sheet,2
+add ingredient,use chickpea,3
+add veggie,add water,3
+add bit,add tempeh,3
+add sauce,add tempeh,4
+add bit,add sauce,5
+add sauce,cut in half,4
+add onion,cut in half,19
+add salt,add thyme,5
+add oil,use yogurt,2
+add oil,add sweetener,4
+eat dairy,use yogurt,7
+add sweetener,use yogurt,3
+add sweetener,drizzle on top,2
+add salt,add topping,2
+add salt,brush hair,2
+add drop,use mineral,2
+add drop,use moisturizer,2
+use mineral,use moisturizer,3
+eat food,use milk,2
+add salt,add veggie,8
+add ginger,add oil,2
+add oil,cut in half,15
+add water,eat at home,2
+add carrot,add spinach,3
+add spinach,chop cucumber,2
+add carrot,chop cucumber,4
+add salt,put side,2
+add onion,eat dinner,3
+add bit,add chicken,3
+eat food,put food,8
+add oil,cook for minute,15
+add stock,cook for minute,8
+add flavor,add tomato,9
+add date,add sweetener,5
+add popcorn goody,use whisk,2
+add date,use whisk,2
+add onto baking dish,use butter,2
+add cinnamon,put lid,3
+add cinnamon,use butter,17
+use butter,wear makeup,2
+add bit,add protein,2
+add protein,add spinach,3
+add bit,add water,14
+add spinach,add water,9
+add bit,add spinach,3
+eat carb,eat food,7
+add onion,add vegetable,8
+add oil,add vinegar,5
+add salt,add vinegar,2
+add flavor,boil water,2
+add water,cook pasta,12
+add flavor,cook pasta,3
+add flavor,add water,12
+add tempeh,add water,2
+add flavor,add tempeh,2
+add oil,add seasoning,3
+add tempeh,add to pan,2
+add sauce,use type,2
+add spinach,use baby,3
+add protein,eat food,2
+add bean,add protein,3
+add bean,add sauce,8
+add pepper,add vegetable,6
+add tomato,stuff in eggplant,2
+add pepper,add tomato,7
+add salt,use recipe,2
+add salt,use bronzer,2
+add vegetable,use blender,2
+add fat,use blender,2
+add fat,cut in half,2
+add to sandwich,cut in half,2
+add oil,add to sandwich,3
+add onion,add to sandwich,2
+cut in half,use mushroom,2
+add garlic,cut in half,3
+add salt,cut in half,6
+add garlic,add oil,15
+add onion,use mushroom,16
+add garlic,add onion,10
+add onion,add salt,11
+add fat,cook pasta,2
+add chicken,roast squash,2
+add depth,add green,3
+add potato,add sauce,4
+add chili flake,add sage,2
+add onion,add rosemary,5
+add onion,add water,21
+add garlic,add water,5
+add onion,put clove,3
+add garlic,put clove,4
+add garlic,add spice,4
+add garlic,add pepper,4
+add spice,put clove,2
+add pepper,put clove,2
+add pepper,add spice,3
+add salt,add spice,5
+add ice,drink on way,2
+cook on stove,put dish,2
+put dish,use towel,4
+use tofu,use towel,2
+add pepper,chop cucumber,2
+add potato,add water,4
+add water,use hand,2
+add flavor,add veggie,2
+add veggie,use color,2
+add sauce,use tofu,4
+add egg,use vitamin,3
+eat food,use vitamin,3
+eat food,use fruit,5
+add bean,use fruit,2
+add bean,add to pan,4
+add bean,cook for minute,9
+add to pan,cook for minute,9
+eat breakfast,eat lunch,2
+eat breakfast,pack snack,2
+eat lunch,pack snack,8
+add to plate,add water,2
+add sauce,eat dinner,7
+add sauce,put sheet,2
+add sauce,add yeast,4
+add broccoli,cook for minute,3
+add sauce,cook for minute,24
+add broccoli,add sauce,5
+add dash,add vegetable,2
+add salt,use bread,7
+add salt,use hummus,3
+use bread,use hummus,5
+add flavor,add pepper,6
+add sauce,use blender,2
+add sauce,add tomato,6
+add tomato,cut in half,4
+use milk,use rice,4
+add scoop,use milk,5
+pack snack,use milk,2
+add vegetable,read book,2
+add egg,eat dairy,3
+eat amount,eat food,9
+cook on side,eat food,3
+add chicken,use mushroom,7
+add to pan,use mushroom,4
+add chicken,add to pan,11
+use calendar,use planner,2
+read review,write plan,3
+add flavor,add potato,5
+add sauce,use chickpea,5
+cook on stove,use berry,2
+cook on stove,use rice,17
+add bean,use tortilla,2
+eat calorie,use microbead,2
+add bean,add seasoning,2
+add bit,add oil,8
+add salt,add sugar,4
+add sugar,add touch,2
+add tomato,add water,6
+add pepper,add water,6
+add cheese,use tofu,2
+add protein,build muscle,2
+add dash,use butter,3
+add oil,add tomato,5
+add oil,add spice,9
+add oil,use spoon,2
+add ingredient,add yeast,2
+add scoop,put lid,2
+add sweetener,put lid,2
+add water,shake bag,2
+add seasoning,add vegetable,2
+add egg,use tofu,6
+add oil,add sauce,10
+add cheese,add topping,5
+cut in half,use brand,2
+use blender,use tofu,2
+add salt,use blender,3
+use butter,use parsley,2
+add egg,use parsley,2
+add potato,add spinach,3
+add broccoli,add to pan,3
+add to pan,use milk,3
+use knife,use retinol,2
+add ginger,remove skin,2
+eat food,use iron,2
+put hair,use mask,7
+add potato,put in middle,2
+add cumin,add potato,2
+put side,use hummus,2
+add seasoning,use tofu,2
+add onion,add potato,13
+add oil,clean kitchen,6
+use type,work way,3
+drink coffee,drink on way,3
+drink on way,use milk,2
+drink coffee,use milk,12
+use hummus,use milk,2
+add onion,add sugar,2
+add sugar,remove skin,2
+add salt,remove skin,3
+add potato,add thyme,3
+add salt,use milk,3
+add onion,use milk,2
+add broccoli,cook on side,3
+add sauce,cook on side,3
+cut in half,eat breakfast,2
+eat amount,eat breakfast,2
+eat amount,use fruit,7
+eat breakfast,use fruit,5
+add tomato,add vinegar,4
+add ingredient,cook pasta,3
+add potato,remove from oven,2
+add dash,use blender,2
+add chicken,add seasoning,7
+add bean,add chicken,12
+add potato,cut in half,2
+add yeast,cut in half,2
+add cumin,use jalapeno,2
+add onion,put lid,7
+add onion,use parsley,2
+add chili flake,add onion,5
+add bean,add water,13
+add flavor,use milk,5
+put list,write list,4
+add water,drink alcohol,11
+add ingredient,use recipe,4
+add vegetable,use recipe,3
+add ginger,put food,2
+eat lunch,put food,5
+clean area,clean kitchen,6
+add water,use brand,2
+add water,use glass,9
+scrape side,use butter,5
+add veggie,use butter,2
+add pepper,add to soup,4
+add pepper,add plum,2
+add to soup,put matcha,2
+add plum,put matcha,2
+drink alcohol,put matcha,2
+add potato,add spice,6
+cut in half,put side,3
+add spice,put granola,2
+add spice,use butter,2
+add oil,use butter,19
+add bay leaf,add vegetable,2
+put on stove,use rice,2
+add egg,sprinkle on top,2
+eat food,pack with antioxidant,2
+add bean,use hummus,2
+add water,wash dish,9
+use blender,use whisk,2
+add bean,add yeast,2
+use mushroom,use towel,2
+add sauce,use mushroom,3
+sprinkle on top,use mushroom,2
+add oil,sprinkle on top,3
+put sheet,sprinkle on top,2
+add oil,remove from oven,2
+add oil,put sheet,13
+cook for minute,remove from oven,5
+cook for minute,put sheet,3
+drink alcohol,drink coffee,6
+drink coffee,use glass,2
+add potato,put on stove,4
+add garlic,add potato,4
+add salt,put on stove,4
+add oil,cook grain,2
+add flavor,add salt,5
+add flavor,use rice,5
+set vibe,use rice,2
+cut in half,use rice,6
+add garlic,roast squash,3
+add garlic,cook pasta,4
+add salt,roast squash,2
+add ingredient,cook for minute,3
+add ingredient,add spinach,2
+add spinach,cook for minute,3
+add garlic,use milk,2
+use butter,use milk,12
+add bit,use butter,3
+add bean,cut in half,4
+cut in half,use butter,4
+add protein,use butter,6
+add bean,use butter,2
+add sauce,cook pasta,3
+add sauce,use can,3
+pack snack,shake bag,2
+add chicken,add onion,32
+add bean,cook on side,3
+add bean,add pepper,7
+cook on side,cut in half,2
+add ingredient,cook on side,2
+add tomato,eat lunch,3
+cut in half,use leftover,2
+add to pan,put lid,6
+put lid,use bread,3
+add green,use baby,2
+cook on stove,use bread,2
+add water,cook on stove,16
+add bean,add ingredient,5
+add ingredient,add sauce,3
+add ingredient,add sweetener,2
+add chicken,add dressing,4
+add of favorite,chop lettuce,2
+add of cabbage,chop lettuce,2
+add garlic,add vinegar,4
+add oil,use whisk,2
+add oil,use tofu,4
+add potato,use chickpea,3
+add veggie,use chickpea,2
+add sauce,add veggie,2
+add ginger,drink alcohol,2
+put tan,use bottle,2
+put tan,shave leg,3
+add oil,put tan,2
+add oil,use product,10
+add water,use fruit,13
+use fruit,use glass,3
+eat dairy,use milk,3
+use brush,use cleaner,2
+add oil,use brush,8
+add oil,use cleaner,14
+add drop,use serum,3
+add drop,rub finger,3
+add drop,add oil,41
+add oil,use serum,6
+add oil,rub finger,4
+add oil,use bottle,7
+put sheet,use applesauce,2
+hold shape,put sheet,3
+put sheet,use spray,2
+use hand,use spoon,3
+add chicken,use ton,2
+add shell,use towel,2
+add cheese,eat meat,3
+add ice,use butter,5
+add ingredient,use lg styler,2
+add ingredient,put item,2
+add water,chop cucumber,5
+add vinegar,clean floor,6
+clean floor,use glass,7
+add vinegar,use glass,2
+use brush,use glass,2
+add onion,add veggie,7
+add green,use rice,2
+add green,add sauce,2
+add green,use point,2
+add sauce,set timer,2
+add tomato,use rice,3
+add date,cook on stove,2
+add bit,cook on stove,2
+add bit,add sweetener,3
+add bit,add date,3
+add date,use rice,2
+add bit,use rice,6
+add bit,add topping,3
+add topping,use rice,3
+cut in half,use fruit,2
+cut in half,put lid,4
+put lid,use fruit,3
+add topping,use fruit,5
+add topping,put lid,5
+add egg,add topping,2
+add egg,use retinol,3
+drink coffee,eat breakfast,4
+eat breakfast,use milk,7
+add ingredient,add onion,2
+add onion,add yeast,2
+add bit,use color,2
+add sauce,add shell,3
+add cheese,add sauce,5
+use recipe,use rice,3
+cook on stove,use recipe,5
+add dressing,add thyme,2
+add to routine,drink tea,3
+drain water,use chickpea,2
+put bit,remove makeup,2
+add oil,remove makeup,7
+add oil,wash hair,13
+put hand,rub finger,2
+add potato,use paper,4
+add potato,add vegetable,5
+add vegetable,put on stove,2
+add spice,add water,5
+add vegetable,put lid,4
+put lid,remove stem,2
+put lid,use knife,2
+add vegetable,remove stem,2
+cut stem,remove stem,3
+remove stem,use knife,2
+add dressing,add salt,2
+put granola,use recipe,3
+put granola,use berry,2
+add cinnamon,eat breakfast,3
+add cilantro,add salt,5
+chop cucumber,eat lunch,2
+add ginger,drink tea,4
+add carrot,add oil,3
+add oil,use palm,2
+add salt,use hand,2
+pay attention,set goal,3
+add broccoli,add veggie,2
+add oil,use chickpea,5
+use chickpea,use parsley,2
+add oil,scrape side,2
+curl eyelash,use color,9
+curl eyelash,use finger,5
+add spice,drink coffee,2
+add layer,work way,2
+add drop,use can,2
+open pore,wrap gift,3
+wear legging,wear top,6
+wear jacket,wear top,4
+wear jacket,wear legging,2
+clean car,put effort,2
+clean car,clean desk,2
+clean car,clean floor,2
+pack snack,use fruit,2
+use primer,wear makeup,5
+put hand,wear makeup,3
+use foundation,wear turtleneck,2
+use foundation,use product,3
+open pore,use mascara,3
+put foot,put remote,2
+put shelf,use type,4
+use toner,wear makeup,2
+use calendar,use type,6
+add date,write note,3
+wear jean,wear outfit,3
+use brush,use light,2
+use brush,wear jean,3
+open pore,use app,2
+use mask,wear top,2
+use blanket,use color,2
+use color,use light,2
+light candle,use color,3
+light candle,use light,6
+brush tooth,put hair,7
+brush tooth,put contact,5
+cry for hour,put contact,2
+brush hair,put hair,47
+use bronzer,use brush,7
+use brush,use cosmetic,6
+curl eyelash,use brush,12
+use brush,use mascara,4
+curl eyelash,use bronzer,2
+use bronzer,use mascara,3
+eat food,eat lunch,3
+clean sink,use cleaner,4
+use mask,use toner,2
+put clothe,wear jean,4
+wear bra,wear top,6
+pull thread,wear jean,3
+wear jean,wear top,13
+wear jean,wear legging,7
+cut hole,poke hole,2
+cut hole,put side,2
+wear top,work eraser on deodorant stain,2
+put clothe,wear outfit,3
+pull thread,put clothe,2
+add bean,add potato,4
+add bean,add cheese,5
+add cheese,add to taste,2
+wash body,wash hair,5
+add oil,put hair,21
+add oil,brush hair,9
+clean area,set timer,9
+put hair,use spray,5
+add oil,work eraser on deodorant stain,4
+clean mirror,put shoe,5
+build muscle,eat calorie,2
+add cheese,add egg,2
+add cheese,add salt,4
+put hair,wear dress,2
+wear bra,wrap gift,2
+open door,pull hair,2
+add length,wear top,3
+add honey,place order,2
+put earring,wear outfit,2
+use product,work eraser on deodorant stain,2
+use product,use tip,3
+set goal,use laptop,2
+drive traffic to people,put story,2
+drive traffic to people,put hashtag,3
+put hashtag,put story,3
+put story,use type,2
+use color,wear top,3
+add oil,put side,6
+add oil,put phone,2
+cut bottom,put hand,2
+add bean,add veggie,7
+add bean,ride bike,2
+use cream,use yogurt,6
+put music,write schedule,2
+wear skirt,wear top,2
+put clothe,wear short,3
+put hand,use straw,2
+use product,use toner,4
+clean sink,use product,8
+put side,put story,2
+add water,wear to gym,2
+add water,clean mirror,14
+add water,put shoe,3
+add vinegar,brush tooth,3
+clean area,clean mirror,2
+clean area,put shoe,2
+read book,set for hour,2
+read book,use type,5
+add sweetener,cut in half,3
+add sweetener,use butter,3
+add cinnamon,cut in half,4
+add fat,use butter,9
+add cinnamon,add fat,6
+add water,use mascara,2
+put stuff,use rice,2
+put under eye,use cream,2
+use cream,use serum,4
+add water,wash hair,7
+use butter,wash hair,3
+add fat,wash hair,3
+put music,work way,2
+cut denim,wear jacket,2
+put hand,use finger,2
+add spring sing,use code,2
+put shoe,use platform,2
+add accessory,wear bra,3
+add accessory,wear top,2
+eat food,use rice,2
+add text,use app,2
+pull dress on weekend,wear dress,2
+add sugar,use finger,3
+clean area,wear makeup,5
+add water,wear makeup,6
+add water,clean area,5
+add oil,use mascara,5
+add oil,clean area,7
+add oil,break cellulite,2
+open pore,use mask,4
+remove skin,use mask,3
+add water,use mask,10
+clean car,use mask,2
+add water,open pore,2
+add water,remove skin,2
+add water,clean car,3
+use finger,use type,2
+remove skin,use type,3
+add oil,add sugar,14
+add oil,remove skin,2
+use on basis,write note,2
+use electricity,use laptop,2
+put phone,use electricity,2
+put phone,use laptop,4
+use tip,use type,3
+use paper,use planner,4
+put side,use product,2
+use notebook,use planner,3
+wear makeup,wear outfit,4
+drive to school,wear dress,2
+wear dress,wear heel,2
+spread message,use platform,2
+add water,read instruction,2
+add water,brush tooth,22
+put energy,put food,2
+put energy,work way,2
+open window,work way,6
+use code,work way,2
+clean house,wear jean,2
+clean house,work from home,8
+use filter,use for while,2
+add drop,add text,2
+put side,wear top,3
+put shoe,wear jean,4
+wear dress,wear top,5
+wear dress,wear hoodie,3
+wear hoodie,wear short,4
+wear dress,wear short,2
+put shoe,wear hoodie,2
+add water,use rice,22
+brush hair,use shampoo,6
+put hair,use shampoo,21
+drive traffic to people,wear jean,2
+use notebook,write note,10
+use notebook,use paper,2
+use paper,write note,3
+chop cucumber,use toner,2
+use laptop,write note,3
+clean area,clean house,28
+brush hair,use conditioner,9
+brush hair,use brush,15
+use toner,wash face,7
+put hand,wash face,2
+wear hat,wear to school,2
+wear pant,wear short,2
+use filter,wear makeup,2
+put tan,wear makeup,2
+remove skin,use toner,2
+remove skin,wash face,2
+use moisturizer,use toner,5
+use moisturizer,wash face,10
+add oil,wash face,16
+add oil,put music,4
+use legume,wear makeup,2
+add oil,wear makeup,6
+use mask,wear makeup,2
+add oil,use chemical,3
+add oil,use legume,2
+add oil,use mask,10
+curl eyelash,wear makeup,4
+use mascara,wear makeup,6
+brush tooth,use scrub,3
+use scrub,wear makeup,2
+brush tooth,wear makeup,7
+pull dress on weekend,put shoe,2
+add spinach,use milk,4
+mix blood,use milk,3
+add spinach,use razor,2
+cut in half,use type,6
+add topping,cut in half,2
+brush hair,dye hair,3
+put hair,use tool,2
+put hair,wash hair,23
+add oil,use shampoo,5
+brush brow,brush hair,7
+brush hair,use detangler,2
+dye hair,put hair,4
+put hair,use conditioner,4
+place order,use straw,2
+put side,use finger,2
+use finger,use mascara,4
+curl eyelash,put side,4
+put side,use mascara,2
+meet people,wear makeup,3
+curl piece,put hair,5
+add fat,eat amount,2
+eat amount,eat carb,5
+use calendar,write note,3
+set goal,use color,2
+use notebook,write list,2
+use planner,write list,2
+use baby,write list,2
+add water,wear top,2
+use foundation,use primer,2
+add oil,roll dough,3
+add oil,use at night,4
+roll dough,wear makeup,2
+use at night,wear makeup,7
+use at night,use product,2
+use product,wear makeup,9
+use concealer,use product,5
+put bit,use bronzer,2
+put side,use bronzer,2
+use brush,use color,32
+shave leg,use dr,2
+add oil,use airfryer,2
+add potato,use airfryer,3
+add date,use recipe,2
+add date,add oil,3
+eat dinner,put food,2
+eat dinner,eat lunch,3
+add green,eat food,2
+add sriracha,cook for minute,2
+add sauce,add sriracha,2
+add fat,eat carb,9
+put shoe,wear to school,2
+put phone,put stuff,3
+put stuff,use tip,2
+put phone,use tip,2
+put on cheekbone,use finger,3
+add oil,paint coat,11
+add oil,put hand,3
+use shampoo,wash face,2
+drink tea,wash face,2
+put music,write song,4
+use color,use filter,5
+wear in winter,wear top,2
+put hair,use concealer,2
+use concealer,use scrunchie,2
+brush brow,use color,6
+add liquid,use color,2
+wash face,wash hair,8
+use glove,wash hair,7
+use hand,wash face,2
+use glove,use hand,2
+wash hair,wear makeup,3
+add oil,clean mirror,4
+add oil,brush brow,2
+put contact,use glass,6
+use glass,wear to school,2
+wear outfit,wear top,6
+use conditioner,wash hair,2
+use conditioner,use shampoo,5
+use shampoo,wash body,2
+add oil,wash body,5
+add oil,use scrub,3
+use hand,wash body,2
+add volume,use filter,4
+add volume,use color,2
+put hair,use primer,2
+brush brow,use brush,7
+add water,put on speakerphone,2
+add oil,use hand,6
+kill bird with stone,use app,2
+put clothe,wear top,8
+cut through loop,wear top,2
+wear top,wear turtleneck,4
+use cardstock,wear top,2
+wear jean,wear turtleneck,2
+use cardstock,wear jean,2
+put headband,wear jean,2
+put headband,wear top,2
+put bit,put hair,3
+use concealer,wear makeup,9
+cut in half,rub finger,2
+open drawer,use product,3
+open drawer,use bike lock,2
+use bike lock,use plier,2
+put dot,use glue,8
+put on cheekbone,use brush,6
+put side,use brush,5
+put side,use light,2
+brush brow,use mascara,2
+clean floor,use towel,3
+put dot,put hashtag,2
+add water,fill space,6
+add stevia,add water,2
+add water,set timer,4
+add water,use mug,4
+set goal,write list,3
+put phone,put side,2
+brush hair,eat lunch,2
+eat carb,use bread,2
+use bread,use fruit,3
+eat carb,use fruit,3
+add sugar,use fruit,5
+add sugar,eat carb,5
+eat food,put over body,2
+add oil,use guy,7
+add oil,use foundation,2
+use cleaner,wash face,10
+use foundation,wash face,2
+use finger,use mask,2
+add water,drink on way,4
+curl eyelash,use method,4
+add volume,curl eyelash,3
+use mascara,use method,2
+add volume,use mascara,2
+use color,use type,4
+put lid,use brush,8
+put lid,use foundation,2
+use brush,use foundation,4
+read book,read review,5
+read book,write star,5
+write list,write star,2
+read book,write list,5
+use color,use shade,6
+use bronzer,use color,5
+curl eyelash,open pore,4
+open pore,use palette,2
+put side,use palette,3
+use brush,use palette,6
+fill eyebrow,use brush,3
+curl eyelash,use palette,4
+use color,use palette,9
+use brown,use brush,2
+use brown,use color,8
+use color,use foundation,2
+put bit,use mascara,4
+put bit,put on blemish,2
+put bit,use brush,6
+put on blemish,use brush,4
+use brown,use palette,2
+put bit,use palette,2
+put bit,use color,3
+put hair,use iron,10
+curl piece,use iron,2
+brush brow,put hair,4
+put shoe,wear to event,3
+clean mirror,put clothe,6
+use light,use type,2
+put clothe,use color,4
+put phone,write message,2
+blow mind,write message,2
+add egg,add ingredient,11
+paint gold,use paper,2
+put side,use sticker,2
+cut hole,put cover,3
+drink coffee,use butter,5
+use butter,use knife,2
+put cover,use clay,2
+use milk,use mug,2
+drink coffee,use paper,4
+add drop,put popsicle stick,3
+add drop,cut in half,2
+cook for minute,stick orange into muffin tin,3
+add veggie,stick orange into muffin tin,2
+add veggie,cook for minute,3
+add onto baking dish,add potato,4
+add cheese,add potato,2
+paint coat,use tape,4
+rinse with water,use color,2
+dye hair,rinse with water,2
+use bleach,use type,2
+put item,use type,6
+use tape,use towel,2
+use towel,wash dish,4
+use color,use glue,4
+add water,use paint,4
+use sponge,use tape,2
+blow balloon,use sponge,3
+blow balloon,use felt,3
+blow balloon,set timer,3
+blow balloon,cut bottom,3
+add glitter,paint gold,2
+put in middle,use spoon,2
+cut rectangle,put in middle,2
+cut rectangle,put sheet,2
+add carrot,add veggie,5
+add protein,add sugar,3
+cut hole,put lid,3
+cut hole,put card,3
+open pore,put card,2
+cut triangle,open pore,2
+draw line,use glue,3
+cut in half,cut rectangle,2
+cut in half,use tape,3
+open pore,use tape,4
+open pore,put cover,2
+open pore,pull string,2
+cut rectangle,use tape,4
+cut rectangle,pull string,2
+put cover,use tape,4
+pull string,use tape,7
+use sharpie,use tape,3
+pull string,put cover,2
+pull string,use sharpie,3
+add touch,use milk,2
+add bean,add oil,6
+add bit,add potato,3
+add ice,add water,29
+clean kitchen,wash dish,12
+add sugar,use butter,14
+add egg,wash hair,3
+add sugar,scrape side,2
+add egg,add sugar,6
+add egg,scrape side,3
+add ice,roll dough,2
+roll dough,use hand,3
+use butter,use finger,5
+open pore,open window,3
+open window,use knife,2
+use knife,use paint,4
+add water,poke hole,2
+add gelatin,add water,4
+add sugar,cut in half,3
+add drop,use spoon,2
+add oil,melt wax,5
+add drop,add glitter,2
+use milk,use spoon,2
+burn hand,use fruit,2
+use butter,use fruit,4
+add salt,use fruit,2
+add salt,use spoon,3
+add date,add egg,3
+add date,use butter,3
+add egg,use spatula,5
+put dish,wash dish,97
+put basket,wash dish,5
+clean sink,wash dish,21
+use ton,use towel,2
+clean sink,use towel,11
+add oil,clean mess,3
+add cheese,burn hand,2
+put side,use paper,3
+add to pan,use butter,2
+add to pan,cook on side,3
+add sugar,use hack,2
+add sugar,use cream,2
+add sauce,eat lunch,2
+clean dish,eat food,5
+use paint,use paper,7
+add cinnamon,add sugar,7
+add egg,use milk,5
+add bit,add to pan,5
+add to pan,use pin,2
+put side,use pin,2
+add to pan,put side,2
+pack snack,paint coat,2
+paint coat,use pencil,2
+pack snack,use sticker,2
+pack snack,use pin,2
+pack snack,use marker,2
+pack snack,use pencil,2
+add vinegar,use milk,2
+add vinegar,set for hour,2
+add veggie,cook on stove,3
+cut strand,pull string,2
+use paper,use skewer,3
+use wire,wear top,3
+add cinnamon,add protein,5
+add protein,use chickpea,2
+drain water,rinse with water,3
+add chicken,use chickpea,2
+add chicken,add salt,7
+add chicken,add protein,2
+add water,roll dough,2
+add bean,use rice,6
+add oil,use fruit,2
+put bit,wash hair,2
+use towel,wash hair,3
+put for second,wash hair,2
+put for second,use towel,2
+add cheese,put for second,2
+add sugar,use whisk,2
+use color,write note,7
+light candle,open window,3
+light candle,use paper,2
+open window,use paper,5
+cut hole,open window,3
+use paper,use pencil,2
+use cardstock,use color,2
+use cream,use fruit,2
+add sugar,add texture,2
+cut in half,put for second,2
+read instruction,teach kid,2
+add chicken,add to soup,2
+add egg,steal of kid,2
+add chicken,add egg,7
+add chicken,eat dinner,5
+add egg,eat dinner,4
+add water,lift weight,3
+add liquid,add water,9
+add liquid,build credit,2
+add sweetener,use cacao,2
+add garlic,boil pasta,2
+put bit,wear makeup,3
+add oil,use paper,4
+add egg,put disclaimer,2
+add egg,cut in half,5
+put hair,roll dough,2
+sweep floor,vacuum floor,8
+add scoop,put pine cone,4
+draw line,put dot,3
+draw picture,put dot,2
+use milk,wash hair,4
+add egg,use whisk,5
+add sugar,use guy,2
+add oil,use peppermint,3
+add beeswax,add oil,5
+add oil,eat meat,2
+add oil,drink tea,18
+add ginger,stick orange into muffin tin,2
+add ginger,use glue,2
+cut hole,use glue,3
+use felt,use glue,2
+cook pasta,use spoon,3
+put hand,use spoon,2
+add chicken,put hand,2
+put hand,use knife,2
+use fruit,use milk,5
+add sugar,use milk,11
+cook on stove,read book,2
+add embellishment,use paper,2
+add embellishment,wear skirt,2
+use paint,wear skirt,2
+add velcro,wear skirt,2
+add ice,pull string,2
+add ice,use sharpie,2
+add ice,add touch,4
+cut bottom,use twine,2
+meet strap,use twine,2
+add drop,cut hole,2
+cut hole,squeeze muscle,2
+put granola,use yogurt,4
+put hair,use butter,2
+put hair,rub finger,3
+put for second,use glue,2
+put side,use glue,2
+blow balloon,blow mind,2
+use recipe,use straw,2
+use paper,use straw,2
+use skewer,use straw,2
+pull string,use straw,2
+use straw,use wand,2
+pull string,use wand,2
+brush hair,put effort,3
+put effort,put hair,3
+use cream,use milk,4
+add dash,add oil,2
+use brush,use sponge,12
+add salt,use glue,2
+pack snack,wash hair,2
+put shoe,use paper,3
+put shoe,use stencil,2
+use brush,wear makeup,5
+add liquid,add oil,5
+add glitter,add oil,2
+add glitter,add liquid,2
+put dot,read book,3
+add water,fight bloat,3
+add ice,use fruit,5
+add flavor,add ice,3
+add honey,use agave,5
+add drop,add water,6
+add water,use spoon,9
+add water,use spatula,3
+add water,use googan,2
+use bottle,use glass,2
+pull hair,put hair,24
+cut strand,put hair,3
+place artwork,use clothing,2
+place artwork,wear jean,2
+place artwork,put cover,2
+add honey,use butter,5
+use finger,use paint,4
+use color,use finger,4
+use color,use paint,11
+use cream,use type,6
+add velcro,cut rectangle,2
+use mascara,use shade,2
+use mascara,use wand,4
+cut excess,cut rectangle,2
+cut excess,wear dress,2
+cut excess,put sheet,2
+add velcro,cut excess,3
+cut excess,meet strap,2
+brush tooth,rinse face,5
+add oil,remove stem,2
+add oil,cut stem,2
+add oil,use baby,2
+add oil,add pepper,14
+add cheese,add pepper,4
+brush hair,open pore,2
+open pore,use color,2
+add water,use baby,6
+add egg,put hand,2
+add egg,break bank,3
+add egg,use tool,2
+add water,break bank,2
+add water,use tool,2
+add drop,drink coffee,2
+add oil,drink coffee,10
+drink coffee,use bottle,2
+add sugar,roll dough,2
+cut hole,use tape,3
+add feather,work way,2
+add feather,open pore,3
+cook on stove,use butter,4
+add ingredient,cook on stove,4
+add ingredient,use butter,6
+add scoop,cut in half,4
+drink wine,use glass,3
+add glitter,use glue,3
+add glitter,use glass,2
+use glass,use glue,2
+add seashell,add water,3
+add potato,use paint,2
+add potato,use brush,2
+add potato,use color,4
+use knife,use paper,2
+use brush,use knife,2
+use color,use knife,3
+use brush,use paper,4
+use color,use paper,6
+use brush,use paint,16
+add flavor,use butter,4
+add cinnamon,add honey,3
+cut hole,use hand,2
+draw picture,paint coat,4
+hold watercolor paint,paint coat,2
+use tape,wrap gift,2
+cut excess,use color,2
+add chicken,cook for minute,17
+add chicken,add water,21
+add chicken,add garlic,5
+add water,cook for minute,10
+add garlic,cook for minute,7
+add vinegar,cook for minute,6
+add honey,cook for minute,6
+add vinegar,add water,11
+add honey,add water,9
+add sauce,add water,7
+add honey,add vinegar,3
+add sauce,add vinegar,6
+add honey,add sauce,3
+add drop,use glue,2
+paint gold,use glue,2
+add drop,use color,2
+paint gold,use color,4
+cut hole,use twine,2
+cut hole,use knife,2
+use knife,use tape,2
+drizzle on top,use butter,2
+add to plate,use butter,2
+cut excess,put bow,2
+use bronzer,use cream,2
+add water,use in kitchen,2
+put shoe,use type,2
+use hook,use type,2
+add detail,cut fabric,2
+lay around house,use type,2
+pour marble,use type,2
+use glue,use stick,6
+cut in half,use glue,3
+cut in half,use stick,2
+add water,use glue,2
+add glitter,add water,4
+add oil,use tool,3
+add water,use blender,7
+add vegetable,boil water,2
+boil water,cook for minute,3
+add vegetable,cook for minute,2
+add vegetable,use milk,2
+cook for minute,use milk,4
+add shell,cook on side,2
+add sauce,use milk,2
+use blender,use strawberry,2
+use blender,use yogurt,5
+use strawberry,use yogurt,6
+add fat,use yogurt,3
+use clay,use pin,2
+put popsicle stick,use blender,2
+add ingredient,use blender,3
+add ingredient,put popsicle stick,2
+use paper,use towel,3
+put in middle,use finger,2
+add water,cut diaper,2
+add water,pull flap,2
+add water,squish in hand,2
+add water,blow balloon,2
+blow balloon,cut diaper,2
+blow balloon,pull flap,2
+blow balloon,squish in hand,2
+add layer,blow balloon,3
+rinse with water,use blender,2
+add water,rinse with water,9
+add gelatin,rinse with water,2
+add gelatin,add to pan,4
+add to pan,add water,16
+add water,put on stove,4
+put item,put shelf,3
+add oil,put for second,2
+put for second,use clay,2
+use clay,wear hat,2
+add filling,cook for minute,4
+cook for minute,use skewer,3
+add sugar,use skewer,2
+put on stove,use cleaner,2
+light candle,put shoe,2
+put shoe,use can,2
+clean floor,put shoe,2
+cut pool noodle around container,put toy,2
+add ice,put toy,2
+put toy,use can,2
+use can,use paper,2
+clean floor,put toy,4
+put toy,use paper,2
+put toy,use hack,2
+clean floor,use paper,2
+add ingredient,add water,8
+add water,use knife,2
+add ingredient,use knife,2
+add oil,use mug,2
+add oil,use cream,3
+use on basis,use stick,2
+use glue,use on basis,2
+fill space,use paint,2
+fill space,use paper,2
+add cheese,use yogurt,2
+put dish,rinse with water,2
+add oil,use skewer,2
+use dr,use sticker,3
+use sticker,use type,3
+use paper,use sticker,3
+use paper,use type,3
+light candle,use type,3
+add velcro,use glove,2
+use towel,use type,4
+draw line,use type,6
+freeze in baggie,use color,2
+freeze in baggie,open drawer,2
+paint coat,use scissor,3
+add oil,place paint inside gallon size ziploc bag tape,2
+add oil,use app,2
+use color,use cream,3
+add glitter,blow balloon,4
+add glitter,paint coat,5
+blow balloon,paint coat,2
+add oil,use macadamia,2
+add oil,use clamp,2
+add oil,use color,5
+add oil,use squeegee,4
+paint coat,use paint,11
+add glitter,use paint,5
+use mascara,wear top,3
+add coloring,use color,5
+fill tray,use paint,2
+cut hole,fill with soil,4
+cut hole,use crop,3
+cut hole,use can,6
+cut hole,use wire,2
+brush hair,brush tooth,16
+put hand,write list,2
+add honey,add sweetener,2
+add honey,add salt,3
+add salt,add sweetener,4
+add water,use strawberry,3
+add liquid,pull string,3
+blow balloon,pull string,4
+use knife,use scissor,2
+put item,put sheet,4
+put dot,use sharpie,3
+add touch,use paper,2
+use milk,use recipe,3
+use recipe,use yogurt,2
+use milk,use yogurt,4
+use butter,use strawberry,2
+add honey,use strawberry,2
+cut hole,set tone,2
+cut hole,read book,2
+add shell,cut hole,2
+add ice,use yogurt,3
+pack snack,use yogurt,2
+add ice,pack snack,3
+use paint,use type,4
+use paint,use tape,4
+use paper,write zero,2
+add drop,put dish,2
+put bow,wrap gift,3
+use stencil,use sticker,2
+use stencil,wear goggle,2
+draw picture,write message,4
+paint coat,write message,2
+use baby,write message,2
+write message,write plan,2
+wash hair,write message,2
+draw picture,use baby,2
+draw picture,write plan,2
+draw picture,wash hair,2
+cut hole,put hair,3
+use fruit,use strawberry,3
+set for hour,use as puree,2
+catch firefly in jar,put side,2
+add glitter,cut in half,2
+add glitter,put lid,2
+put animal,put lid,2
+put lid,use glue,2
+add drop,put lid,2
+put foot,put lid,2
+add drop,put foot,2
+brush tooth,put pillow,2
+put cover,stick paper onto cutout,2
+use tape,write list,2
+add embellishment,paint coat,2
+use product,use type,7
+add cranberry,add egg,2
+add egg,use hummus,4
+add egg,use guacamole,3
+add egg,add mayonnaise,4
+light candle,use paint,2
+paint gold,use paint,2
+brush hair,wash hair,9
+sleep in bed,wear makeup,3
+brush hair,sleep in bed,2
+brush hair,wear makeup,5
+put hair,use light,3
+put in bathroom,use jaw,2
+put hair,wear top,2
+add liquid,drink on way,2
+add liquid,use fruit,2
+lift weight,use baby,2
+add oil,put bit,10
+blow mind,put sheet,2
+cut into three,put cover,3
+fix bed,put cover,3
+put pillow,stack on top,6
+add height,put pillow,2
+brush tooth,wash hair,5
+add liquid,cut diaper,2
+add liquid,use paper,4
+add vinegar,clean mess,3
+add vinegar,use house,6
+add oil,cook on stove,10
+add oil,put dish,11
+light candle,use house,4
+put shoe,use house,7
+put clothe,put shoe,2
+use sponge,use type,3
+put item,put side,2
+fill space,use pencil,3
+build credit,put stuff,3
+clean area,use cleaner,5
+clean area,put lid,3
+put lid,put side,2
+clean area,put side,2
+clean area,clean sink,19
+clean area,use glove,3
+clean sink,put side,3
+clean sink,use glove,16
+put dish,use glove,2
+use bleach,use glove,3
+clean sink,put dish,25
+clean sink,use bleach,2
+add vinegar,clean sink,9
+add vinegar,put dish,5
+put in bathroom,put rug,2
+clean sink,put in bathroom,16
+clean house,put in bathroom,3
+clean sink,put rug,3
+clean house,put rug,2
+clean house,clean sink,17
+use cloth,use paper,6
+use fruit,use technique,3
+add salt,use brush,3
+clean floor,mop floor,11
+add vinegar,mop floor,2
+add vinegar,draw orbit on foam board,2
+add water,clean baseboard,2
+add water,use sponge,5
+add water,put sheet,2
+add water,remove makeup,7
+remove makeup,use sponge,2
+put sheet,use hand,2
+clean mess,remove stain,2
+add vinegar,clean area,3
+put bit,spray in hair,3
+brush hair,put bit,4
+add oil,spray in hair,2
+use bike lock,use mask,2
+use bike lock,use foundation,2
+use foundation,wear makeup,7
+use foundation,use serum,2
+wear jean,wear pant,5
+wear legging,wear pant,2
+add veggie,cut in half,5
+put bit,use glue,5
+use glue,use wand,3
+use wand,use wire,2
+fill tray,read manual,2
+fill space,put phone,2
+clean desk,clean sink,2
+use foundation,use type,5
+put foot,shave leg,4
+hold shape,wear bra,2
+open bag,open drawer,3
+clean mirror,kill bacteria,2
+clean mirror,use glue,2
+add oil,kill bacteria,3
+brush tooth,use hydrogen peroxide,5
+brush tooth,clean mirror,5
+brush tooth,use technique,3
+put in bathroom,use blanket,3
+brush tooth,put in bathroom,5
+put in bathroom,shower at night,2
+put in bathroom,put tan,2
+brush tooth,shower at night,3
+shower at night,wash face,2
+brush hair,wash face,4
+use serum,wash face,4
+brush hair,use serum,4
+use cream,wear makeup,9
+wear dress,wear outfit,2
+eat breakfast,wear outfit,2
+add seasoning,eat breakfast,2
+cut in half,use milk,5
+light candle,melt wax,9
+melt wax,use cloth,3
+light candle,use cloth,3
+put shoe,use tip,2
+use paper,use tool,2
+use in kitchen,use paper,4
+use in kitchen,use tool,2
+use paper,use rag,3
+cut hole,use hook,9
+cook pasta,use type,2
+cut hole,use type,2
+blow mind,use tape,2
+add oil,open pore,2
+add oil,use bike lock,4
+clean mirror,use color,2
+use bleach,wash hair,2
+use product,wash hair,4
+use glove,use product,2
+clean area,put item,7
+clean sink,wash hair,5
+use cleaner,use cloth,5
+clean mirror,use type,3
+clean mirror,use cleaner,7
+use cleaner,use type,3
+use type,wash clothe,3
+read book,write message,2
+add water,use rubbing alcohol,3
+add water,catch guy,3
+catch guy,put hair,4
+add drop,use point,2
+open drawer,use scissor,2
+open bag,use scissor,2
+clean sink,use brush,23
+clean area,vacuum floor,5
+kill bacteria,use hydrogen peroxide,4
+brush tooth,remove stain,3
+remove clothing,use hydrogen peroxide,2
+kill bacteria,use type,2
+use bleach,use hydrogen peroxide,3
+remove stain,use hydrogen peroxide,4
+clean floor,use hydrogen peroxide,2
+clean floor,kill bacteria,2
+use brush,use hydrogen peroxide,2
+kill bacteria,use brush,7
+kill bacteria,use spray,2
+add chicken,add vinegar,5
+add vinegar,use spray,2
+add vinegar,put for second,2
+add vinegar,use hydrogen peroxide,3
+drink soda,open pore,2
+use susan,wear pant,2
+add spice,use susan,3
+use product,use susan,3
+add spice,use product,4
+add spice,open drawer,2
+write list,write schedule,4
+read book,write schedule,2
+clean house,set timer,2
+clean mirror,use steam,3
+clean mirror,wash hair,4
+wash hair,wear legging,2
+cook on side,eat breakfast,2
+use cream,use foundation,2
+add water,drink coffee,14
+add oil,use house,6
+add oil,put bow,2
+put in bathroom,use type,2
+clean baseboard,use marker,2
+use glue,wash hair,3
+put hand,use glue,2
+put hand,wash hair,4
+brush hair,use razor,3
+put tan,use brush,3
+brush hair,pull hair,3
+clean area,use tip,2
+clean house,use type,3
+use lg styler,use type,2
+put pillow,use steam,2
+kill bacteria,put pillow,2
+kill bacteria,use steam,2
+brush tooth,remove skin,2
+brush tooth,use cleaner,2
+add oil,brush tooth,5
+brush tooth,vacuum floor,2
+add oil,dab stain,4
+use cleaner,vacuum floor,3
+add oil,vacuum floor,5
+collect dust,dust surface,10
+dust surface,use cleaner,5
+clean mirror,dust surface,2
+clean floor,clean mirror,8
+mop floor,use mop,15
+clean house,use mop,4
+add chicken,eat meat,4
+add chicken,use blender,3
+add oil,put shoe,3
+add kick,put phone,2
+kill bacteria,wear bra,2
+remove stain,use file holder,2
+remove stain,wash clothe,5
+remove stain,wash washer,2
+clean area,remove stain,2
+clean area,wash clothe,2
+collect dust,use steam,2
+put remote,put side,2
+clean baseboard,clean house,2
+catch eye,drink tea,3
+put shoe,use hook,3
+catch eye,use type,4
+put in bathroom,wear makeup,2
+use bottle,wear pant,2
+brush brow,brush tooth,2
+brush tooth,use guy,3
+put dish,use knife,2
+add to plate,wash dish,3
+clean dish,wash dish,20
+clean dish,clean sink,24
+put dish,use marker,2
+add oil,use sponge,5
+use brush,wash hair,7
+clean mess,clean sink,8
+clean sink,use type,5
+clean dish,clean mess,2
+clean dish,use type,4
+add vinegar,use type,4
+use blender,use type,2
+clean dish,put dish,7
+catch eye,use in kitchen,2
+catch eye,clear space,2
+clear space,put mail,3
+add sauce,burn hand,2
+boil pasta,use recipe,3
+put clothe,put shelf,2
+add dressing,put shoe,3
+drink coffee,pay attention,2
+brush tooth,drink coffee,4
+brush tooth,wash face,22
+brush tooth,use at night,2
+clean car,use cleaner,6
+clean area,clean car,3
+clean car,collect dust,3
+collect dust,use cleaner,3
+vacuum floor,work way,2
+clean area,use technique,2
+add water,remove stain,3
+clean mirror,use brush,2
+clean area,use brush,5
+add oil,use air,4
+collect dust,put clothe,2
+clean area,put clothe,5
+clean sink,put clothe,5
+clean area,clear counter,8
+clean sink,clear counter,10
+clean area,use iron,2
+clean sink,use iron,2
+clean area,collect dust,2
+clean sink,collect dust,2
+collect dust,use towel,2
+clean area,use towel,2
+clear counter,use towel,2
+clear counter,use brush,3
+use brush,use type,10
+rinse with water,use brush,3
+clean floor,rinse with water,5
+put clothe,vacuum floor,2
+clean kitchen,vacuum crumb,2
+mop floor,use cloth,3
+clean toy,dust surface,3
+clean toy,vacuum floor,3
+dust surface,vacuum floor,5
+clean mirror,mop floor,2
+clean house,mop floor,6
+clean house,clean mirror,4
+clean mirror,vacuum floor,7
+clean dish,clean mirror,3
+clean house,put toy,8
+clean house,vacuum floor,9
+clean dish,clean house,2
+put toy,use type,2
+use type,vacuum floor,3
+put toy,vacuum floor,11
+clean sink,use sponge,11
+use cloth,use pad,4
+use cloth,use house,2
+clean mirror,use cloth,38
+use house,use pad,2
+mop floor,use house,3
+clean mirror,use house,2
+clean floor,use house,5
+clean floor,put dish,3
+clean mirror,put dish,2
+clean car,put dish,2
+clean car,clean mirror,4
+add oil,clean car,8
+pull hair,use cleaner,2
+use cleaner,use product,3
+clean house,use product,3
+clean floor,dust surface,3
+dust surface,mop floor,3
+clean baseboard,mop floor,4
+add water,mop floor,3
+clean floor,use cloth,37
+clean area,clean floor,12
+use baby,use type,2
+put side,use type,3
+wear pant,wear top,7
+set for success,write list,2
+use app,write list,2
+put shoe,write list,3
+put shoe,use product,5
+put shoe,use towel,2
+clean sink,put shoe,2
+clean sink,use house,2
+clean house,collect dust,3
+clean house,dust surface,4
+scrape side,scratch counter,2
+put perfume,use point,3
+add oil,use kit,2
+add oil,put perfume,17
+add oil,put information,2
+add oil,use blend,4
+add to routine,put dish,4
+add to routine,wash dish,3
+add to routine,clean area,2
+put sheet,use towel,3
+put pillow,put sheet,5
+put pillow,use towel,2
+use house,use on property,3
+put in bathroom,use product,2
+eat dinner,read book,2
+add vegetable,eat lunch,4
+brush tooth,use product,4
+use product,wash face,5
+add oil,read book,3
+put phone,read book,6
+add chicken,cook on side,4
+add ingredient,add salt,2
+add onion,eat lunch,2
+add onion,add tomato,18
+add onion,wash hair,2
+add chicken,add oil,24
+add tomato,boil water,2
+add to plate,boil water,2
+add to plate,set timer,2
+add to plate,add tomato,2
+add oil,spray toilet,5
+put item,put toy,2
+read book,rip page,2
+eat food,read book,3
+use brush,use recipe,2
+clean area,put toy,2
+clean area,rinse with water,2
+clean sink,put toy,2
+clean sink,rinse with water,8
+mop floor,rinse with water,2
+mop floor,read book,2
+clean area,put in bathroom,3
+mop floor,put in bathroom,5
+clean area,mop floor,3
+clean desk,dust surface,2
+dust surface,put pillow,2
+clean desk,vacuum floor,3
+put pillow,vacuum floor,8
+mop floor,vacuum floor,12
+clean kitchen,kill bird with stone,2
+clean kitchen,use type,10
+clean car,clean kitchen,3
+clean car,use type,4
+add oil,clean floor,13
+add oil,clean house,2
+wash dish,wash hair,17
+mop floor,wash hair,2
+sprinkle on top,use straw,2
+put cover,put item,2
+add oil,use word,2
+drink tea,light candle,7
+use brush,wash dish,5
+clean sink,use spray,6
+clear counter,use spray,9
+use help,use paint,2
+pour marble,use paint,2
+put in center,put shoe,2
+put shelf,put shoe,2
+put stuff,write list,6
+add water,use towel,4
+cook on side,use towel,2
+add water,cook on side,2
+add vegetable,add water,10
+cook on side,put lid,2
+add vegetable,cook on side,3
+add vegetable,use fruit,2
+add egg,add to plate,5
+kill bacteria,use sponge,2
+add water,kill bacteria,2
+add water,spray toilet,3
+add water,clean sink,13
+clean sink,spray toilet,7
+brush tooth,use brush,3
+clean dish,use brush,7
+clean dish,use tablet,2
+use hand,use loofah,2
+clean area,dust surface,3
+clean mess,collect dust,3
+clean mess,use cloth,2
+mop floor,sweep floor,7
+open door,use hook,2
+add to pan,use spoon,3
+use susan,use type,2
+eat food,use spoon,2
+add oil,put foot,9
+clean mess,put dish,3
+clear counter,put dish,11
+clean area,put dish,4
+clean area,clean dish,7
+clean dish,put item,2
+clean dish,use cleaner,2
+add drop,put item,2
+put pillow,put toy,5
+clean mirror,put pillow,3
+use vacuum,vacuum floor,10
+clean kitchen,clear counter,10
+clean kitchen,use brush,4
+clean dish,clean kitchen,9
+put hair,use pad,4
+use cloth,use type,3
+use cloth,use guy,2
+use guy,use type,3
+place order,put saliva sample,2
+open drawer,put dish,2
+put thought,write note,2
+put quote,write note,2
+open pore,put quote,2
+put flower,write note,2
+read instruction,write note,2
+open pore,write note,4
+put flower,read instruction,2
+open pore,put flower,2
+open pore,read instruction,2
+add length,put hair,4
+put hair,put side,6
+catch breath,kill bacteria,2
+use at night,work eraser on deodorant stain,2
+clean kitchen,put item,2
+clean kitchen,put dish,4
+read book,use code,3
+catch eye,use product,2
+add potato,use type,4
+put sheet,roll dough,3
+put dish,use sponge,3
+use sponge,wash dish,3
+add vinegar,wash dish,3
+add water,put pillow,5
+add vinegar,put pillow,2
+add water,build credit,2
+use file holder,use product,2
+put fingerprint,use cloth,3
+put toy,vacuum crumb,2
+dust surface,put item,2
+dust surface,read book,2
+put item,read book,3
+use brush,use rag,2
+use rag,wash dish,2
+use house,wash dish,8
+clean area,clean toy,9
+dust surface,use rag,2
+clear counter,wash dish,25
+clear counter,use cleaner,3
+clear counter,vacuum floor,3
+clean sink,mop floor,5
+clean sink,use scrub,4
+use brush,use scrub,2
+add spinach,cut in half,2
+add filling,cut in half,2
+add filling,add spinach,2
+add cheese,use rice,5
+add cheese,add chicken,2
+add vegetable,use turkey,2
+add spice,put lid,2
+put bit,put lid,2
+clean area,use product,2
+brush tooth,put shelf,2
+cut in half,use technique,2
+add egg,add flavor,3
+add sugar,drink coffee,6
+remove makeup,use pad,9
+put hair,remove makeup,5
+use glass,use spoon,3
+use glass,wash hair,2
+clean floor,use rag,5
+rinse with water,wash dish,3
+add oil,rinse with water,6
+paint wall,use paint,4
+drink tea,use recipe,2
+drink coffee,use filter,2
+use method,use paper,3
+add velcro,use rice,2
+add velcro,use iron,2
+add velcro,put on cuff,2
+put hair,rinse with water,2
+put phone,use bike lock,2
+put phone,rip page,2
+put phone,use glove,3
+put phone,wear hoodie,2
+drink wine,put hair,2
+put hair,use wire,2
+cut in half,use felt,2
+put in bathroom,use in kitchen,2
+use light,use tile,3
+add oil,put over body,2
+eat breakfast,put music,2
+eat breakfast,put in mood,4
+add oil,eat breakfast,3
+eat breakfast,light candle,2
+put in mood,put music,2
+light candle,put music,4
+light candle,put in mood,6
+add oil,light candle,8
+add broccoli,put sheet,2
+put list,read book,2
+put hair,use tape,2
+use tape,wear top,3
+use pin,use tape,2
+use pin,wear top,2
+remove stain,use baby,2
+wear boot,wear pant,4
+wear bra,wear outfit,3
+read book,use technique,2
+write list,write plan,5
+use foundation,use sponge,4
+use bronzer,use sponge,3
+use brush,use product,3
+kiss in moonlight,use brush,2
+use foundation,use palette,4
+use type,wear makeup,4
+use sponge,wear makeup,3
+use pencil,use type,3
+pull thread,put shoe,3
+use foundation,use word,2
+add pepper,read book,2
+pay attention,put phone,2
+put lid,use can,4
+open pore,put lid,2
+add sugar,drink soda,4
+add water,brush hair,3
+add water,use serum,2
+add vegetable,add veggie,3
+add veggie,put lid,5
+put hair,put lipstick,5
+add ice,use product,2
+add coloring,clean car,2
+brush brow,use product,4
+dab stain,put perfume,3
+put perfume,use bike lock,2
+use attachment,vacuum floor,2
+use cleaner,use in kitchen,2
+clean toy,put toy,6
+mop floor,put clothe,2
+put stuff,vacuum floor,2
+clean area,put stuff,7
+put in garage,put stuff,3
+drink tea,use milk,9
+clean area,use type,3
+use tool,use towel,2
+paint wall,use in kitchen,2
+cook on side,use in kitchen,2
+use recipe,use turkey,2
+drink tea,use tape,2
+use type,wear slipper,2
+add water,use xylitol,2
+add water,put hair,11
+wear makeup,wear top,4
+put side,wear makeup,2
+eat lunch,read book,4
+clean kitchen,eat food,3
+drink tea,use type,5
+draw line,drink tea,2
+add oil,use glass,18
+add oil,wear slipper,3
+wear sunglass,wear top,2
+put disclaimer,wear top,3
+set face,wear makeup,3
+add sugar,use rice,5
+set timer,use rice,2
+add egg,use bread,11
+add liquid,add scoop,3
+add egg,add veggie,7
+add egg,stick orange into muffin tin,4
+add pepper,stick orange into muffin tin,2
+clean car,remove stain,5
+clean kitchen,remove stain,2
+clean desk,clean kitchen,2
+clean car,use hand,2
+clean area,put effort,2
+brush hair,use tape,3
+clean floor,use brush,3
+use brush,use towel,2
+clean house,use air,2
+clean house,use mask,2
+clean house,clean mess,4
+clean car,clean house,5
+clean kitchen,use sponge,6
+clean area,clear space,2
+put basket,use paper,4
+add oil,put item,5
+wash clothe,wash washer,3
+pull string,use clothing,2
+pull string,wash clothe,2
+cut hole,use scissor,2
+cut hole,open bag,2
+cut bottom,cut hole,2
+cut bottom,open bag,2
+use glue,use tape,2
+add oil,add rosemary,3
+add flavor,add rosemary,5
+pay attention,put over body,2
+clean area,set goal,2
+clean area,put phone,2
+put phone,set timer,5
+put underwear,use type,2
+put earring,put underwear,2
+put item,use tape,2
+add velcro,use hand,2
+add velcro,light candle,2
+add velcro,use glass,2
+light candle,use glass,2
+light candle,put dish,2
+put item,use for while,3
+clean mess,put item,3
+clean sink,clean toy,3
+clean area,use rag,2
+put item,use cleaner,2
+add vinegar,rinse with water,2
+brush tooth,rinse with water,5
+brush tooth,clean floor,2
+clean floor,clean sink,14
+clean sink,use tile,4
+clean sink,use method,10
+use brush,use method,2
+brush hair,clean area,2
+put rug,use rag,2
+kill bird with stone,use mask,2
+use mask,use type,5
+use conditioner,use type,2
+add oil,use wand,2
+put hair,use wand,9
+use paper,use tape,3
+add water,drink tea,22
+drink tea,use glue,2
+drink tea,put dot,2
+use glue,use googan,2
+use glue,use knife,4
+cut hole,use help,2
+eat dinner,eat food,8
+drink tea,use teabag,2
+rinse face,wash face,5
+use mask,wash face,10
+add water,wash face,12
+brush tooth,use mask,4
+add water,read book,4
+use house,use in kitchen,2
+stock cutting board,use house,4
+stock cutting board,use in kitchen,2
+stick eye in kitchen,stock cutting board,2
+add honey,use website,2
+put energy,wash clothe,3
+fix cable,use website,3
+put item,use can,2
+clean area,use cloth,2
+open window,use cloth,3
+clean car,use cloth,2
+add oil,use cloth,8
+remove stain,use cloth,5
+add oil,remove stain,2
+add oil,break bank,9
+remove stain,spray with hairspray,4
+add ingredient,eat food,3
+use foundation,wear top,2
+set for hour,use foundation,2
+use concealer,use foundation,11
+use concealer,use type,6
+put under eye,wear makeup,2
+put under eye,use concealer,3
+put contact,use sticker,2
+open door,use paper,2
+add stock,use paper,2
+put contact,use paper,2
+drink tea,put foot,3
+drink tea,use cream,3
+use cream,use pad,2
+add water,put side,9
+put side,use spray,2
+add water,use spray,13
+put into saving,use leftover,2
+clean mess,put hair,2
+wash clothe,wash hair,2
+add water,put item,4
+put item,read instruction,2
+add oil,put clothe,3
+put pillow,use blanket,2
+spray toilet,use spray,2
+dust surface,use vacuum,2
+put basket,put item,2
+kill bacteria,use cleaner,3
+kill bacteria,use paper,2
+use cleaner,use paper,2
+use cleaner,use rag,2
+clean area,pay attention,5
+clean sink,pay attention,3
+clean house,pay attention,3
+pay attention,use house,2
+clean area,use house,3
+clean house,use house,3
+clean area,wash face,3
+use cleaner,use method,5
+kill bacteria,use tip,3
+use knife,use on basis,2
+curl eyelash,use on basis,2
+add oil,wear sunscreen,2
+use point,use type,3
+put perfume,use type,2
+brush tooth,clean area,2
+clean area,use serum,3
+fill space,use on basis,2
+add touch,put item,2
+break bank,put item,3
+use paper,work as mousepad,2
+light candle,put flower,5
+spritz face,use spray,2
+add drop,use foundation,2
+add cube,add water,4
+add vegetable,put for second,3
+use butter,use rice,3
+hold to ribbon,use planner,2
+use pad,wash face,2
+remove makeup,wash face,10
+use paper,wrap gift,2
+put quote,use sticker,2
+light candle,put bow,2
+open window,use type,2
+use spray,use type,3
+use glass,use type,2
+place order,vacuum floor,2
+cut bottom,eat amount,2
+add ice,use milk,4
+add cinnamon,add ingredient,2
+light candle,use fireplace,2
+clean area,put sheet,2
+clean house,put sheet,5
+chop cucumber,use butter,2
+chop lettuce,use butter,2
+add dressing,add vinegar,2
+add veggie,eat lunch,2
+add veggie,use rice,3
+add onion,use rice,11
+add egg,drizzle on top,3
+use hummus,use turkey,3
+add water,use type,10
+add water,use foundation,3
+put contact,use type,2
+put foot,use type,5
+shave leg,use type,2
+light candle,read book,5
+put side,read book,2
+put foot,read book,4
+stick paper onto cutout,work as mousepad,2
+use knife,work as mousepad,2
+stick paper onto cutout,use knife,2
+cut hole,put hand,2
+add chicken,cut in half,4
+add chicken,drizzle on top,3
+cook pasta,use recipe,2
+add garlic,use recipe,3
+boil pasta,cook pasta,3
+cook pasta,use can,7
+add garlic,use can,3
+add bean,add garlic,8
+add bean,add kick,3
+add bean,add salt,5
+add bean,cook pasta,10
+add pepper,use mushroom,5
+add pepper,cook for minute,7
+add onion,cut into quarter,5
+add chicken,cut into quarter,3
+stock cutting board,use file holder,2
+kill bacteria,use file holder,2
+use glue,use towel,3
+cut through tinfoil,put robe,2
+add oil,cut through tinfoil,2
+add salt,use cheesecloth,2
+use finger,wear makeup,3
+use finger,use foundation,3
+put side,use mug,2
+use fireplace,use glass,3
+drink wine,light candle,2
+add green,add scoop,2
+add ingredient,add liquid,2
+add liquid,use strawberry,2
+add salt,add shrimp,2
+add shrimp,add water,2
+add vegetable,use website,2
+add cube,add ice,2
+add onion,use jalapeno,2
+add pepper,add sugar,2
+add layer,use turkey,2
+add onion,use turkey,4
+add layer,add onion,2
+add onion,use hummus,2
+add water,use teabag,2
+drink tea,put music,2
+drink tea,eat breakfast,5
+drink tea,put in mood,3
+use serum,wear makeup,2
+wear makeup,work from home,2
+use moisturizer,wear makeup,14
+use concealer,use moisturizer,3
+use concealer,use mascara,6
+add to plate,use paint,2
+paint coat,use brush,5
+set face,use finger,3
+put side,use color,2
+put lipstick,wear top,2
+put lipstick,use wand,2
+put hair,spray in hair,7
+add cinnamon,drink tea,4
+add oil,use rose,2
+add bean,add fat,2
+put flower,use paint,2
+use recipe,use type,2
+add vinegar,use recipe,2
+put dish,use type,2
+add vinegar,clean car,2
+add oil,clean toy,2
+add oil,spread to people,2
+add oil,use blender,4
+clean floor,clean toy,2
+kill bacteria,use pad,2
+put list,use planner,2
+splash face,wash face,2
+splash face,use cleaner,2
+remove makeup,use cleaner,5
+add oil,splash face,2
+add oil,put on stove,4
+add oil,use towel,7
+open pore,use towel,2
+drink tea,open pore,3
+add oil,use for massage,3
+add egg,add filling,3
+add cinnamon,cook for minute,7
+add topping,cook for minute,6
+add cinnamon,add topping,4
+add egg,add sriracha,3
+put energy,use strawberry,2
+add drop,wash hair,2
+use chemical,use product,3
+use chemical,use cleaner,2
+splash face,use chemical,2
+wash face,wear makeup,20
+use cleaner,wash hair,2
+add oil,use primer,2
+add barrier,add oil,5
+use glue,use scissor,3
+add chicken,mix shallot,2
+add chicken,add cranberry,2
+add chicken,use type,6
+add cranberry,add salt,2
+add chicken,add to sandwich,5
+add to sandwich,add veggie,3
+add chicken,add veggie,6
+use palette,use shade,2
+use concealer,use palette,6
+use concealer,use shade,4
+curl piece,use wand,3
+add ingredient,add oil,25
+add bit,use finger,2
+add to plate,cut in half,5
+add honey,drink tea,14
+add honey,add ice,3
+use spoon,use toner,2
+use pad,use spoon,3
+kill bacteria,use spoon,3
+clean area,use mask,2
+use concealer,use mask,2
+clean area,use concealer,2
+add water,put bow,2
+add water,light candle,4
+use cardstock,use paper,2
+roll dough,use paper,2
+roll dough,use glue,2
+use finger,use tip,2
+clean area,open pore,3
+remove makeup,use cosmetic,2
+drink tea,read book,4
+use product,use serum,7
+use serum,use toner,4
+use cream,wear sunscreen,3
+use product,wear sunscreen,2
+use brush,use cream,5
+use color,use mascara,4
+use color,use concealer,2
+dab stain,use color,3
+add sugar,add water,4
+use alternative,use milk,2
+add packet,add water,2
+add packet,drink tea,2
+put hair,wash face,14
+remove makeup,wear makeup,14
+add oil,use finger,4
+add oil,pay attention,2
+add oil,use tip,2
+use cream,use finger,4
+brush tooth,use steamer,2
+brush tooth,use method,2
+brush tooth,use microbead,2
+add egg,use can,6
+add cinnamon,use can,2
+add cinnamon,add egg,4
+add vegetable,cook pasta,4
+add water,use can,3
+add broccoli,use can,4
+cook on stove,use can,2
+add bean,add broccoli,4
+add bean,cook on stove,7
+add bean,put lid,8
+add broccoli,cook pasta,4
+cook on stove,cook pasta,8
+cook pasta,put lid,3
+add broccoli,cook on stove,3
+add broccoli,put lid,3
+add broccoli,add topping,2
+cook on stove,put lid,9
+cook on side,cook on stove,7
+cook on stove,cut in half,3
+add egg,cook on stove,4
+boil water,cook on stove,2
+add vegetable,use rice,9
+add fat,add ingredient,2
+add ice,use baby,2
+add tomato,use bread,9
+chop lettuce,use bread,2
+add oil,cook on side,2
+add green,chop cucumber,3
+add to plate,chop cucumber,2
+add green,add to plate,2
+add green,add vegetable,2
+add to plate,add vegetable,5
+add water,drink soda,3
+drink alcohol,drink soda,3
+use milk,use type,3
+eat food,use type,2
+put lid,use rice,12
+cook pasta,use rice,8
+add egg,cook pasta,2
+cook for minute,cook pasta,4
+cook pasta,rinse with water,5
+cook for minute,use rice,13
+rinse with water,use rice,2
+add bean,add egg,10
+add egg,cook for minute,6
+add egg,rinse with water,3
+add flavor,add onion,11
+add flavor,cut in half,2
+add to pan,cut in half,4
+add flavor,add to pan,5
+add pepper,cut in half,6
+add pepper,add to pan,12
+add pepper,put lid,7
+add salt,put lid,7
+add egg,use blender,3
+add bean,add onion,11
+put lid,use strawberry,2
+add tomato,put food,2
+add green,add tomato,6
+add green,put food,2
+use rice,use serving,5
+add vegetable,use serving,3
+add topping,use butter,3
+add green,use lacinato,2
+add dressing,use blender,2
+use blender,use glass,2
+add to soup,eat amount,2
+add protein,add to soup,2
+add onion,cook on stove,11
+add flavor,cook on stove,7
+add pepper,cook on stove,9
+add to pan,cook on stove,18
+cook on stove,use mushroom,2
+cook pasta,cook with steel,2
+drink coffee,put food,2
+add oil,use pad,4
+add oil,use cosmetic,5
+put music,work from home,2
+wash face,wear sunscreen,5
+add water,squeeze muscle,2
+eat calorie,use point,7
+eat calorie,use type,4
+eat amount,put food,2
+eat amount,eat calorie,7
+add water,use whisk,2
+add sweetener,use milk,4
+add spinach,add to pan,3
+add broccoli,add spinach,2
+add spinach,eat calorie,2
+eat calorie,use butter,2
+add tomato,use serving,2
+add salt,eat calorie,5
+add scoop,add water,2
+add bit,use milk,3
+add water,eat food,6
+add water,set vibe,2
+eat calorie,set goal,2
+use moisturizer,use serum,4
+brush brow,shave leg,2
+add water,eat breakfast,6
+wear makeup,wear sunscreen,5
+wear jacket,wear sunscreen,2
+wear jacket,wear makeup,5
+drink wine,use strawberry,3
+put hair,use brand,2
+put hair,use type,5
+brush brow,wash hair,2
+put hair,use brush,16
+put hair,use finger,2
+use brush,use finger,6
+add cinnamon,use yogurt,3
+add cinnamon,put side,2
+eat breakfast,remove from oven,2
+add tomato,put lid,5
+add tomato,cook on stove,12
+add spinach,use rice,2
+put energy,use notebook,2
+eat breakfast,use straw,3
+eat breakfast,use glass,3
+use glass,use straw,4
+boil pasta,use bread,2
+add salt,use yogurt,3
+add spinach,use hummus,2
+drink coffee,drink tea,14
+cut in half,use berry,2
+add green,cut in half,2
+add scoop,add spinach,2
+add ice,add spinach,3
+chop cucumber,use rice,5
+brush tooth,put watch,2
+brush tooth,drink tea,4
+read book,use app,3
+wash face,wash in morning,2
+use recipe,use strawberry,4
+read instruction,use strawberry,2
+add water,sprinkle on top,2
+sprinkle on top,use milk,3
+use retinol,wash face,2
+use retinol,wear sunscreen,5
+use at night,wash face,3
+use type,wear sunscreen,2
+drink coffee,wear sunscreen,3
+eat breakfast,work from home,2
+cut in half,eat dinner,2
+eat breakfast,eat food,8
+cut in half,use bread,2
+add tomato,cook for minute,3
+add spinach,add tomato,2
+add bean,add tomato,4
+add to pan,add tomato,6
+add to soup,use rice,2
+add to soup,add water,2
+use baby,use rice,3
+put stuff,use baby,3
+add sugar,add sweetener,4
+cook for minute,use recipe,2
+use butter,use recipe,6
+cook for minute,use butter,3
+use rice,use tortilla,5
+add onto baking dish,use tortilla,3
+add chicken,add onto baking dish,3
+add chicken,use tortilla,8
+cut bottom,eat calorie,3
+eat calorie,pack snack,5
+add shrimp,use rice,2
+add pepper,use rice,10
+add to pan,use rice,7
+add pepper,add shrimp,3
+add pepper,use serving,2
+add to pan,use serving,2
+add carrot,add pepper,3
+add carrot,add to pan,3
+add carrot,use rice,3
+add carrot,add water,4
+add to pan,use tofu,3
+use bread,use type,9
+add honey,use milk,8
+add honey,add sugar,4
+add bean,eat meat,6
+cut bottom,drink alcohol,2
+add ingredient,use type,4
+add spinach,eat dairy,3
+add date,put lid,2
+eat breakfast,put lid,2
+add vegetable,eat dinner,2
+add bean,eat dinner,4
+add water,use mushroom,5
+add onion,add to plate,2
+use app,use recipe,12
+add to pan,put bit,2
+add oil,use spatula,3
+put lid,use spatula,3
+add water,use yogurt,6
+eat carb,use app,2
+add vegetable,use app,5
+add vegetable,eat carb,2
+add fat,add vegetable,2
+add onion,cook on side,2
+add honey,add spinach,2
+add vegetable,write in diary,2
+add shrimp,drink tea,2
+add oil,add shrimp,2
+add bit,add shrimp,2
+add bit,add pepper,2
+add pepper,use yogurt,4
+add cinnamon,use milk,12
+add cinnamon,use cream,4
+add honey,use cream,6
+add egg,put on stove,2
+add onion,use recipe,7
+use app,use color,2
+add to pan,use color,2
+put lid,use color,4
+add water,use color,3
+add chicken,put lid,6
+add chicken,add flavor,8
+add onion,cook for minute,15
+add flavor,cook for minute,3
+add flavor,add garlic,4
+add chicken,use app,3
+add onion,brush hair,2
+brush hair,use type,2
+cook on stove,drink tea,2
+add flavor,drink tea,3
+add tomato,cut into quarter,7
+add flavor,cut into quarter,2
+cook pasta,use mushroom,4
+add tomato,cook pasta,8
+add ingredient,add tomato,2
+add flavor,add ingredient,3
+add bit,add flavor,3
+add salt,add spinach,2
+add flavor,add oil,5
+add chicken,add potato,20
+add carrot,add potato,5
+add bean,add carrot,6
+add bean,add vegetable,2
+add garlic,add ginger,9
+add garlic,add to soup,2
+add protein,eat carb,7
+cut in half,drink coffee,2
+add bean,add spice,2
+put thought,sleep in bed,3
+fill with sand,wear sneaker,2
+add accessory,wear outfit,2
+put bit,use tip,3
+use berry,use cream,2
+eat dairy,use type,3
+add ice,use type,4
+add egg,eat calorie,3
+eat food,use point,4
+eat calorie,eat food,12
+add salt,use air,3
+add cinnamon,add salt,4
+drink tea,eat calorie,2
+add chicken,use bread,3
+add potato,cook on side,3
+add onion,add spinach,2
+add potato,use in game,2
+add chicken,add ingredient,4
+add chicken,add green,3
+add tomato,cook on side,2
+drink alcohol,drink wine,2
+drink wine,use fruit,2
+add water,drink wine,2
+build muscle,burn hand,5
+burn hand,use laptop,2
+build muscle,use laptop,2
+burn hand,put phone,3
+burn hand,eat calorie,5
+use cleaner,use moisturizer,3
+use moisturizer,wear sunscreen,6
+add onion,chop lettuce,2
+add onion,add vinegar,2
+add garlic,cook on stove,2
+add vinegar,cook on stove,2
+add chicken,cook on stove,5
+eat food,use recipe,2
+drink alcohol,eat food,2
+build muscle,lift torso,3
+lift torso,lift weight,2
+lift weight,use arm,4
+lift weight,put hand,3
+put hand,use arm,2
+hold shape,lift hip,3
+add drop,bend in front,2
+bend in front,lift torso,2
+add drop,lift torso,2
+add water,use berry,4
+chop cucumber,use berry,3
+add ice,drink tea,2
+add onion,eat tuna,5
+cut in half,eat tuna,6
+add to plate,eat tuna,6
+use mushroom,use recipe,2
+add ingredient,use mushroom,2
+add chicken,pull marinade over skewer stick,3
+use rose,wash face,2
+use mineral,wash face,3
+use moisturizer,use rose,3
+use mineral,use rose,2
+add oil,use moisturizer,3
+add ice,use recipe,3
+add oil,add onto baking dish,6
+add filling,add oil,2
+add filling,add onion,2
+use fruit,use type,2
+add cilantro,cut in half,2
+use milk,wash face,4
+pay attention,put energy,3
+put effort,work way,2
+put effort,use mascara,2
+add oil,add scoop,2
+add garlic,use chickpea,3
+add cinnamon,add water,13
+add topping,add water,3
+add cinnamon,sprinkle on top,2
+add water,pack snack,4
+add potato,add to pan,3
+add tomato,use baby,4
+add onion,use baby,2
+add onion,use chickpea,3
+add tomato,use chickpea,3
+add water,use chickpea,4
+cook on side,use rice,6
+add vegetable,eat calorie,2
+add stevia,add sweetener,3
+add ice,add sweetener,2
+eat dairy,use blender,2
+drink coffee,use blender,2
+drink coffee,eat dairy,2
+add date,add water,4
+add water,eat carb,3
+add cinnamon,add ice,4
+burn hand,eat carb,3
+add onion,use bread,2
+add to sandwich,use bread,6
+add carrot,eat calorie,2
+add potato,eat calorie,3
+add potato,add tomato,4
+add length,add water,2
+add honey,use yogurt,5
+add topping,use yogurt,5
+use fruit,use yogurt,2
+use butter,use yogurt,3
+add protein,use type,2
+add ice,add protein,3
+put phone,write note,2
+burn hand,eat food,3
+add fat,use fruit,2
+add water,eat calorie,13
+eat food,pay attention,3
+eat amount,pay attention,3
+remove makeup,use brush,3
+add protein,use yogurt,2
+add protein,use cream,2
+add water,use cream,4
+add cube,add spinach,2
+add bit,add cube,2
+add flavor,cook on side,2
+add egg,add tomato,2
+add egg,add shell,5
+add fat,add sweetener,4
+add to pan,use chickpea,6
+cook on stove,use chickpea,2
+add to pan,cook pasta,2
+add flavor,use baby,2
+add water,use bread,2
+add pepper,use bread,5
+add green,use bread,2
+add green,add pepper,2
+add onion,cook pasta,4
+add spinach,cook pasta,2
+add egg,use walnut,2
+add ice,use glass,2
+add ice,add sauce,3
+add sauce,use glass,3
+add sauce,toast slice,3
+add oil,toast slice,3
+add water,use moisturizer,5
+put hair,use legume,2
+add potato,use mushroom,2
+add oil,add thyme,2
+add thyme,use mushroom,4
+add potato,add rosemary,4
+add vegetable,use macadamia,2
+use macadamia,use recipe,2
+add sauce,add vegetable,3
+add date,add ingredient,3
+use microphone,use point,2
+catch seed between finger,eat dinner,2
+brush tooth,use moisturizer,3
+toast slice,use bread,4
+toast slice,use type,2
+add salt,toast slice,3
+add honey,use brand,3
+add flavor,add honey,2
+add sugar,drink tea,5
+add carrot,add onion,3
+add carrot,add salt,2
+eat dinner,use rice,5
+cook on side,eat dinner,2
+pack snack,use air,2
+brush tooth,drink alcohol,2
+use cream,wash face,2
+use cream,use moisturizer,6
+use berry,use fruit,3
+cook on stove,use milk,6
+add cinnamon,add oil,6
+add cinnamon,add flavor,9
+add cinnamon,add sweetener,8
+add flavor,add sweetener,6
+eat tuna,use bread,6
+eat fish,use bread,2
+eat fish,eat tuna,2
+add onion,eat fish,3
+add to sandwich,add tomato,5
+use baby,use chickpea,2
+add flavor,use chickpea,3
+use concealer,use finger,4
+use finger,use mineral,4
+put under eye,use finger,2
+use brush,use concealer,4
+use brush,use shade,5
+draw line,fill space,6
+fill space,read direction,2
+fill space,use product,4
+fill space,put hair,3
+fill space,use shade,2
+brush brow,fill space,6
+read direction,use product,2
+put hair,read direction,2
+put hair,use product,8
+use product,use shade,3
+brush brow,use shade,4
+use color,use product,3
+rub finger,use color,2
+put on cheekbone,use color,5
+put on cheekbone,rub finger,2
+put on cheekbone,use type,2
+put hair,put on cheekbone,2
+put on cheekbone,use product,2
+add oil,burn hand,7
+add bit,cook for minute,4
+use bread,use ton,4
+add salt,eat lunch,2
+add cilantro,add onion,5
+add bit,cut in half,2
+cut in half,use serving,2
+add pepper,add to sandwich,4
+cook grain,use hummus,2
+add to sandwich,use hummus,3
+add tomato,use hummus,3
+add carrot,add to sandwich,2
+add vegetable,use cream,2
+add touch,use shade,2
+brush brow,use type,2
+brush brow,fill eyebrow,2
+fill browser bed,use type,2
+draw line,fill eyebrow,2
+draw line,fill browser bed,2
+fill browser bed,fill space,2
+dab stain,use shade,2
+clean area,put hair,8
+put hair,wear makeup,12
+use at night,use moisturizer,3
+add ice,use moisturizer,2
+use moisturizer,use product,4
+brush tooth,use finger,2
+brush tooth,use cream,3
+brush hair,use cream,4
+eat at home,eat food,2
+cut in half,use baby,2
+add vegetable,roast squash,3
+cook grain,use rice,4
+burn hand,use rice,2
+add bit,burn hand,2
+add chicken,use tofu,5
+add broccoli,eat dinner,4
+add broccoli,set timer,2
+add carrot,use chickpea,2
+eat dinner,use serving,4
+add broccoli,use serving,2
+brush tooth,eat food,3
+brush tooth,eat breakfast,5
+brush tooth,put thought,2
+add to routine,wash face,2
+add to routine,use moisturizer,2
+add green,add water,4
+add water,use legume,4
+add water,drain water,4
+add to pan,eat food,3
+add ingredient,use fruit,2
+use berry,use milk,3
+add cinnamon,use berry,4
+add protein,use berry,2
+use cacao,use yogurt,2
+break habit,eat calorie,2
+burn hand,use planner,2
+burn hand,wear pedometer,3
+burn hand,set for hour,3
+burn hand,set timer,2
+add salt,eat food,2
+add sugar,eat breakfast,2
+add cinnamon,put on stove,2
+put on stove,use type,2
+drink coffee,use for afternoon,2
+add water,use paper,3
+add rosemary,add water,5
+put dish,wash hair,6
+add to pan,put dish,2
+add to pan,wash hair,2
+add mint,eat calorie,3
+eat calorie,eat carb,2
+add oil,use board,3
+clean area,remove skin,2
+add sugar,use recipe,3
+add pepper,add protein,2
+add sugar,cook pasta,2
+clean area,drink tea,2
+add veggie,cook pasta,3
+brush hair,use bottle,2
+burn hand,wash face,3
+eat breakfast,wash face,4
+add cinnamon,add stevia,4
+brush tooth,use recipe,2
+brush tooth,put lipstick,3
+brush tooth,put perfume,3
+brush tooth,put shoe,2
+put lipstick,put perfume,2
+put lipstick,put shoe,2
+put perfume,put shoe,3
+put shoe,use bottle,2
+add fat,add flavor,5
+use bread,use chickpea,6
+add pepper,use chickpea,3
+add ingredient,add pepper,3
+use fruit,use recipe,4
+eat breakfast,set for success,2
+add bit,add ice,2
+add ice,add liquid,2
+add ice,add topping,2
+add topping,use recipe,2
+build muscle,squeeze muscle,2
+lift hip,squeeze muscle,2
+lift torso,squeeze muscle,2
+lift hip,lift torso,2
+add topping,eat breakfast,2
+add bean,use milk,2
+add chicken,use milk,4
+add chicken,add tomato,8
+add shell,add water,2
+add pepper,add potato,3
+add bit,use chickpea,3
+add ingredient,add sugar,2
+fill tray,place of treat,2
+add to plate,place of treat,2
+place of treat,set for hour,2
+add to plate,set for hour,2
+add to plate,use serving,2
+pull hair,wash face,4
+add water,rinse face,2
+use mineral,use shade,2
+fill eyebrow,use shade,3
+put food,use fruit,4
+add ice,drink coffee,4
+add dressing,add ingredient,3
+chop lettuce,put lid,2
+add to plate,cook pasta,2
+wear skirt,wear to event,4
+eat food,wash hair,2
+drain water,eat food,2
+add spinach,eat carb,2
+add text,use hummus,2
+add ingredient,use hummus,2
+eat dinner,use recipe,3
+eat calorie,eat dinner,2
+eat calorie,use recipe,7
+add flavor,add protein,2
+add green,eat dairy,2
+add ice,add ingredient,2
+add ingredient,burn hand,2
+clear counter,wash hair,4
+add onto baking dish,roll dough,2
+add oil,use cacao,5
+use cacao,use type,2
+add salt,use cacao,3
+cut in half,roll dough,2
+add cinnamon,eat carb,2
+add fat,use berry,2
+add carrot,wash hair,2
+add salt,cut into quarter,2
+add salt,add to plate,2
+cook on stove,put food,2
+add date,drain water,2
+add date,use blender,4
+add egg,toast slice,2
+add garlic,add tomato,4
+cook for minute,cook on stove,8
+add sauce,cook on stove,3
+add sauce,add to pan,5
+put hand,use can,3
+put hand,stick chest,2
+catch breath,lift weight,5
+catch breath,put hand,4
+add water,put hand,2
+catch breath,lift hip,3
+lift hip,lift weight,2
+add height,lift weight,2
+add to taste,eat carb,2
+drink coffee,eat carb,2
+add to taste,add water,2
+cut in half,toast slice,2
+add egg,add protein,2
+roll dough,use butter,2
+eat dairy,use cream,5
+add salt,add to taste,2
+add sweetener,add to taste,3
+lift torso,put hand,2
+add fat,add honey,2
+squeeze muscle,use hand,2
+catch guy,lift torso,2
+add honey,add oil,4
+use mask,use vacuum,2
+eat lunch,use mask,2
+use code,use wire,8
+fill space,use planner,2
+add date,fill space,5
+drink alcohol,use milk,2
+ride on back,use type,2
+put hair,ride on back,2
+add sugar,use strawberry,4
+use type,write note,2
+put shoe,vacuum floor,2
+eat amount,eat tuna,3
+clean kitchen,use glass,4
+light candle,work for while,2
+brush tooth,write list,6
+drink tea,use code,2
+put list,use brush,2
+put list,wash hair,5
+put hair,put list,2
+clean kitchen,wash hair,3
+clean kitchen,put hair,3
+clean kitchen,put list,4
+put plant,put stuff,2
+light candle,use at night,2
+clean house,use code,2
+build credit,fight bloat,3
+use paper,write list,2
+drink tea,write list,2
+use mug,write list,2
+put clothe,wash dish,3
+drink coffee,put phone,2
+put shelf,squish in hand,2
+use code,use website,6
+use in kitchen,wash hair,2
+rip page,write list,4
+draw line,set goal,2
+open drawer,put stuff,2
+add to soup,wash dish,2
+use milk,use strawberry,3
+sleep in bed,wear sweatshirt,2
+wear makeup,wear sweatshirt,2
+put clothe,wash hair,2
+clean sink,vacuum floor,2
+remove makeup,wash hair,2
+clear counter,put stuff,2
+sleep in bed,work from home,2
+add onion,use cream,3
+put energy,put on path,2
+put lipstick,use color,2
+put hair,write list,2
+put energy,set goal,4
+put music,set goal,3
+add to routine,break habit,3
+draw card,use planner,2
+clean floor,put side,2
+add barrier,fight radical,3
+fight radical,put life in danger,3
+rip page,use notebook,3
+put effort,spread to people,2
+clean house,wash dish,4
+put shoe,wear jacket,2
+put stuff,wash dish,4
+put clothe,put effort,4
+wash dish,work way,2
+break throughout week,clean during weekend,2
+break throughout week,vacuum floor,2
+read book,use website,2
+set for hour,use paint,2
+use paint,write plan,3
+read book,spread air tornado,3
+add water,pay attention,5
+catch guy,write list,2
+drink tea,use color,2
+clean dish,put pillow,2
+wear to event,wear top,2
+put side,wear in winter,2
+read encyclopedia,set goal,2
+clean sink,work way,2
+pay attention,put food,3
+use calendar,write list,3
+put dish,put stuff,2
+remove clothing,use pin,2
+put shelf,put stuff,4
+put flower,use rubbing alcohol,2
+pay attention,put bit,2
+put bit,put effort,2
+use in kitchen,use type,2
+put effort,put energy,2
+put effort,put shoe,2
+clean house,put shoe,2
+put shoe,put stuff,4
+clean house,put stuff,3
+brush hair,use spray,3
+use cream,use razor,3
+set for hour,use cream,2
+add to routine,chop for time,2
+chop for time,pay attention,2
+put dish,put energy,2
+work way,write plan,2
+put dish,use milk,3
+set goal,work way,2
+fight radical,set goal,2
+clean fridge,clean house,2
+clean car,put list,4
+shave leg,wash hair,3
+shave leg,use razor,3
+put side,work on zip,2
+wear skirt,work on zip,2
+add to plate,use mug,2
+add water,write zero,3
+write in diary,write note,2
+put tan,use color,2
+use color,wear makeup,3
+put hair,use attachment,3
+use attachment,wash hair,2
+put energy,put foot,2
+cut in half,open window,2
+pull flap,use as puree,2
+clean house,put foot,5
+clean house,put clothe,3
+clean floor,put foot,2
+wear dress,wear skirt,2
+clean fridge,put shoe,2
+clean fridge,put stuff,2
+clean fridge,wear pant,2
+clean fridge,wear jean,2
+wash body,wash face,3
+put hair,wash body,3
+brush hair,use product,2
+use tape,wash clothe,3
+use cardstock,wash clothe,3
+light candle,put plant,5
+clean dish,wash hair,3
+clean floor,put in bathroom,3
+put clothe,wash clothe,3
+drink coffee,pack with antioxidant,2
+add water,pack with antioxidant,2
+drink tea,pack with antioxidant,2
+drink tea,put energy,2
+add sage,add salt,3
+lift weight,put quote,2
+use cosmetic,use type,2
+cut fabric,wear hat,2
+put underwear,wear hat,2
+clean dish,clean floor,3
+clean mess,use notebook,2
+add sugar,put food,2
+drink tea,pay attention,2
+read book,set challenge,2
+read book,read encyclopedia,4
+put information,read book,2
+add potato,put food,2
+add curl,put hair,7
+use finger,use shampoo,2
+add curl,wear makeup,2
+add ingredient,eat breakfast,2
+eat breakfast,write list,3
+add ingredient,write list,2
+wash face,write list,2
+put flower,use fruit,3
+clean house,put in mood,4
+add water,use pad,3
+eat carb,wear makeup,2
+eat at home,eat carb,2
+use felt,use product,2
+use pad,use product,2
+remove makeup,use product,2
+remove makeup,use type,4
+remove makeup,use method,3
+use method,use type,2
+shave leg,wash face,4
+add tomato,eat breakfast,2
+add curl,spray with hairspray,2
+put hair,spray with hairspray,3
+hold to ribbon,use hand,2
+put hair,use pin,6
+put hair,use color,6
+use color,wear bra,3
+put hair,use towel,4
+put tan,use towel,3
+put basket,put clothe,4
+use mask,wash hair,3
+use on occasion,wear dress,2
+put cover,write list,2
+clean kitchen,light candle,3
+clean house,light candle,8
+use chapstick,write list,2
+add to routine,put over body,2
+add to routine,put animal,2
+use bottle,use cleaner,9
+use brush,use tool,2
+open bag,put shoe,2
+put under eye,use sponge,4
+put bit,use sponge,2
+bend in front,use brush,2
+brush hair,pull flap,2
+brush hair,put stuff,2
+clean area,wash dish,3
+put effort,put side,2
+wash dish,write list,2
+hold watercolor paint,use brush,2
+squeeze muscle,write list,2
+sprinkle on top,use bread,2
+wear in winter,wear skirt,3
+put hanger,wear skirt,2
+add to routine,use brush,2
+add to routine,put hair,2
+add to routine,brush hair,2
+rinse face,use product,2
+add water,use product,7
+use electricity,use method,2
+use concealer,use sponge,2
+put under eye,use palette,2
+use palette,use sponge,2
+put lid,use sponge,2
+put side,use sponge,2
+put lid,use palette,3
+use bronzer,use palette,2
+put clothe,put dish,4
+use glue,use pin,2
+use board,write zero,2
+set goal,write plan,3
+lift weight,meet people,2
+add water,use brush,5
+add water,use finger,2
+use spray,use towel,4
+put thought,wrap gift,3
+put shoe,wrap gift,3
+use paint,work in section,2
+add glitter,work in section,2
+cut fabric,put cushion,2
+cut fabric,use paper,2
+cut fabric,use scissor,4
+put cushion,use glue,2
+put cover,put cushion,2
+wear sneaker,wear top,3
+add bead,add height,2
+add height,put shelf,2
+put shoe,wash dish,2
+add to plate,put stuff,2
+cover redness,use sponge,2
+add bit,use sponge,4
+use cosmetic,use sponge,3
+add bit,cover redness,2
+cover redness,use cosmetic,2
+add bit,use cosmetic,2
+brush brow,use benefit,2
+put cushion,use iron,2
+wear jean,wear sneaker,2
+put clothe,put cover,2
+put clothe,work from home,3
+dye hair,wear makeup,2
+use rice,use spoon,2
+put lid,rinse face,2
+rinse face,wash hair,4
+put hair,put in root,5
+use type,wash face,4
+use color,use point,3
+wear hat,write list,2
+use hand,use product,2
+add salt,put hair,2
+brush hair,write list,3
+place order,write list,2
+add tomato,use fruit,3
+add ingredient,use cream,3
+eat food,put stuff,2
+use foam,use paint,2
+put dish,use paper,2
+use foam,use hairdryer,2
+paint coat,use hairdryer,2
+use hairdryer,use paper,2
+use hairdryer,use pencil,3
+use brush,use hairdryer,2
+put sheet,use hairdryer,3
+use brush,use pencil,4
+put sheet,use pencil,2
+put bit,put headband,2
+use foundation,use kit,3
+use bronzer,use type,4
+put plant,wear top,2
+use scissor,use sticker,2
+cut flag,put cover,2
+add barbecue,add onion,2
+add spice,use chickpea,2
+use mushroom,use serving,2
+put lid,use milk,2
+remove skin,use fruit,2
+add potato,stuff in eggplant,2
+add blue,use color,3
+use color,write in diary,2
+use color,use pencil,2
+put effort,wear legging,2
+put effort,wear top,4
+use marker,wear top,2
+use marker,write schedule,2
+add onion,use hand,2
+add carrot,add sauce,2
+add carrot,use spoon,2
+add sauce,use spoon,2
+add liquid,use spoon,2
+mix shallot,use spoon,2
+brush hair,work way,2
+put for second,work way,2
+add honey,use type,2
+cut hole,pull thread,2
+cut denim,pull thread,2
+draw line,pull thread,3
+pull thread,sew stitch,4
+add length,sew stitch,2
+sew stitch,use twine,2
+clear counter,use cloth,10
+add water,use cloth,48
+clean area,use mop,2
+vacuum floor,write schedule,2
+use mop,vacuum floor,6
+clean house,put cushion,5
+add cube,put clothe,2
+put sheet,use blanket,2
+draw picture,write list,2
+cut hole,meet strap,2
+break bank,clean kitchen,2
+break bank,use cloth,3
+break bank,clean floor,2
+clean kitchen,use cloth,11
+fill space,light candle,3
+clear dresser,put show,2
+add dressing,clear dresser,4
+clear dresser,dust surface,2
+cook for minute,use cloth,2
+add chicken,cook with steel,8
+add onion,cook with steel,7
+add oil,cook with steel,3
+cook for minute,cook with steel,2
+add water,cook with steel,6
+add chicken,add cinnamon,2
+add cinnamon,add to pan,2
+add cinnamon,add onion,2
+add cinnamon,add potato,2
+add potato,cook for minute,5
+add bit,add cinnamon,3
+add bean,drain water,3
+add sauce,drain water,2
+add cheese,drain water,2
+cook on stove,eat meat,2
+add cilantro,add topping,3
+add topping,use cream,2
+add cilantro,use cream,3
+add ingredient,add seasoning,2
+add ingredient,add onto baking dish,2
+add onto baking dish,add seasoning,2
+add onto baking dish,put granola,2
+add oil,put granola,3
+add packet,put lid,2
+add packet,cook for minute,2
+add packet,add texture,2
+cook for minute,put lid,10
+add texture,put lid,2
+add texture,cook for minute,2
+use bon ami,wash dish,4
+clean kitchen,use bon ami,4
+clean kitchen,clean sink,13
+draw picture,eat amount,2
+draw picture,use in kitchen,2
+eat amount,use in kitchen,2
+eat amount,put cover,2
+put cover,use in kitchen,2
+add ingredient,use rice,8
+add stock,use rice,11
+add stock,cook on stove,3
+add ingredient,add stock,3
+add ingredient,put lid,2
+add stock,put lid,5
+add pepper,add stock,4
+break throughout week,put grocery,2
+pull into driveway,put grocery,2
+pull into driveway,wear dress,2
+eat amount,use ton,2
+chop lettuce,lift weight,2
+chop lettuce,eat amount,2
+add veggie,cut into quarter,4
+add bean,cut into quarter,2
+add potato,use blender,2
+add potato,use milk,3
+use blender,use milk,2
+clean dish,clean fridge,2
+put food,put grocery,3
+clean fridge,put grocery,2
+clean fridge,put food,2
+add mess,clean fridge,2
+use in future,use recipe,2
+chop lettuce,use cloth,2
+chop lettuce,use paper,11
+sleep in bed,use paper,3
+put sheet,use silicone mat,2
+use for while,use vitamin,2
+add ingredient,use vitamin,3
+clean desk,use sponge,2
+use bon ami,use sponge,2
+use scrub,use sponge,3
+cook on stove,wash dish,2
+add chicken,add ginger,4
+add ginger,cook for minute,2
+add ginger,add sauce,8
+add ginger,add vinegar,2
+stick orange into muffin tin,use finger,2
+add garlic,add to pan,2
+add ginger,add to pan,6
+add flavor,add ginger,5
+add ginger,use rice,4
+drain water,eat dinner,5
+drain water,set tent,2
+eat dinner,set tent,4
+add water,clear counter,4
+add of cabbage,add onion,3
+add of cabbage,cook for minute,4
+eat meat,use butter,2
+add barbecue,use butter,2
+add barbecue,cook on side,2
+add sauce,eat food,2
+put lid,shake bag,2
+add chicken,shake bag,2
+shake bag,use rice,2
+light candle,use in kitchen,3
+light candle,use towel,3
+use in kitchen,use towel,3
+put foot,put music,5
+cook for minute,cook on side,3
+cook on side,use code,2
+open window,use steam,2
+clean floor,open window,7
+clean floor,use steam,6
+add cube,build furniture,2
+build furniture,build tv stand,2
+use anchor,use hook,2
+cut hole,use anchor,6
+brush tooth,cut hole,3
+add ginger,add onion,2
+clean house,work way,2
+break throughout week,clean mess,2
+clean mess,use method,2
+spray toilet,use method,2
+use cloth,use method,5
+clean mirror,use method,3
+spray toilet,use cloth,2
+clean mirror,spray toilet,5
+set timer,teach kid,2
+set timer,wash dish,2
+clean area,teach kid,2
+teach kid,wash dish,2
+clear counter,use glass,4
+clean house,work on basement,4
+clean house,clean toy,10
+clean toy,work on basement,2
+put cover,wash hair,2
+use razor,use spray,2
+draw card,work on basement,2
+pull cousin,put shelf,2
+pump lash,put shelf,2
+use butter,use twine,2
+clean kitchen,place order,2
+drop son at school,use glass,2
+drink on way,fill tray,2
+add sugar,cook on stove,2
+clean house,fill space,2
+clean house,use spray,3
+use cloth,use glass,13
+brush tooth,use hook,2
+brush tooth,use house,3
+use hook,use house,2
+cut hole,use house,2
+add spring sing,cut hole,2
+clean floor,use glove,6
+drain water,use broom,4
+clean sink,drain water,2
+clean sink,use broom,13
+rinse with water,use broom,4
+chop cucumber,put in slot,2
+put popsicle stick,use grape,2
+eat at home,use grape,2
+eat at home,put popsicle stick,2
+eat at home,use berry,2
+add bit,add seasoning,2
+add bit,add packet,2
+add packet,add seasoning,2
+add seasoning,use rice,5
+add packet,use rice,2
+add onion,add packet,2
+clear space,sweep floor,2
+cut hole,sweep floor,2
+ride bike,use ton,2
+clean sink,put thought,3
+clean mirror,clean sink,13
+brush tooth,clean sink,4
+break throughout week,put in garage,2
+put contact,put cover,2
+kill bacteria,wash face,2
+use brush,wash face,3
+clean dish,drive nut,2
+clean sink,drive nut,3
+add of favorite,add spring sing,2
+add spring sing,dust surface,2
+add of favorite,dust surface,2
+add of favorite,clean house,2
+clean house,draw card,2
+use brush,use scissor,3
+put rug,wash washer,2
+add water,wash washer,2
+splash face,wash washer,2
+add water,splash face,3
+clean dice,use vacuum,2
+clean area,fill surface spray with concentrate,2
+add oil,clean sink,14
+clean baseboard,use light,2
+use light,vacuum floor,2
+clean area,put pillow,2
+clean house,use vacuum,2
+put rug,vacuum floor,4
+use leftover,wash dish,2
+put dish,use leftover,2
+use in future,use leftover,2
+put beam,use light,2
+put beam,use tile,2
+use broom,use cleaner,2
+break throughout week,clean area,2
+add to pan,work on steel,2
+add egg,put dish,2
+put dish,stick orange into muffin tin,2
+add sausage,cook for minute,3
+add cheese,cook for minute,3
+add cheese,add sausage,2
+add green,cut to chase,2
+add bean,put food,2
+add of cabbage,add water,2
+clean floor,clear space,2
+clean area,use spray,4
+add ice,eat lunch,3
+eat lunch,wash dish,2
+add oil,clean dish,2
+use cloth,use product,4
+use cloth,use scrub,2
+use product,use scrub,2
+clean floor,use vacuum,4
+clean floor,vacuum floor,5
+add oil,use vacuum,6
+put cushion,vacuum floor,2
+clean dish,clear counter,7
+clean kitchen,use guy,3
+clean area,put on stove,2
+pay attention,use spray,2
+clean sink,wear slipper,4
+use broom,wear slipper,2
+put clothe,set for hour,2
+add veggie,put sheet,2
+use fireplace,wear in winter,2
+open bag,use googan,2
+use googan,use turkey,2
+use butter,use googan,4
+add oil,use googan,2
+open bag,use turkey,2
+open bag,use butter,3
+use butter,use turkey,6
+add oil,use turkey,3
+add rosemary,use butter,3
+add rosemary,use turkey,3
+cook for minute,use turkey,2
+add potato,cook with steel,2
+add bean,put cover,2
+add to pan,use turkey,2
+clean mirror,clear counter,3
+use cloth,use spray,7
+set timer,wear in winter,2
+clean kitchen,cook on stove,4
+clean kitchen,put on stove,4
+put in mood,write song,2
+clean house,write song,2
+clear counter,sleep in bed,2
+set for success,wash dish,8
+clean during weekend,clean house,4
+clean area,clean during weekend,2
+clean during weekend,clean toy,2
+clean mirror,use code,2
+use cloth,use code,5
+draw foreigner,use code,2
+clean floor,sweep floor,2
+sweep floor,use vacuum,2
+clean house,clear counter,5
+eat lunch,put popsicle stick,2
+put hair,use fruit,2
+pull thread,use towel,2
+pull thread,put wreath,2
+put wreath,use towel,3
+clean kitchen,clean mess,2
+cook on stove,use in kitchen,2
+use bottle,use hand,3
+add onion,put food,3
+clean sink,use guy,2
+fill space,put plant,2
+paint wall,put shelf,2
+paint coat,put shelf,2
+paint coat,paint wall,3
+chop cucumber,put ranch,2
+chop cucumber,cook pasta,5
+add egg,add honey,2
+add egg,use fruit,6
+put clothe,use towel,4
+use mop,use steam,5
+put hand,put pillow,4
+clean desk,paint opinion,2
+paint opinion,put cover,4
+clean kitchen,put cover,2
+clean kitchen,use spray,5
+clean kitchen,use product,2
+use product,use spray,2
+clean mirror,use glass,4
+clean mess,work from home,2
+pay attention,use method,2
+blow mind,use method,2
+pay attention,use cleaner,2
+blow mind,use cleaner,2
+blow mind,pay attention,2
+mop floor,use vacuum,2
+clean dish,use walnut,2
+use at night,use vacuum,2
+eat lunch,use leftover,4
+fill surface spray with concentrate,use cleaner,2
+fill with sand,put rug,2
+clean floor,use mop,8
+kiss in moonlight,use mop,2
+add height,light candle,2
+use cloth,work on steel,6
+break throughout week,put clothe,3
+clean house,use cloth,7
+fill surface spray with concentrate,use bottle,2
+put in bathroom,spray toilet,2
+clean sink,use cloth,16
+brush tooth,teach kid,2
+clean baseboard,use spray,2
+put in bathroom,wash hair,3
+light candle,put in bathroom,6
+paint wall,use leftover,2
+put item,use paper,2
+add mint,use peppermint,3
+sleep in bed,wash washer,2
+use at night,vacuum floor,2
+use at night,use mop,2
+clean house,use dyson,2
+put toy,use dyson,2
+drink tea,stick eye in kitchen,2
+add spring sing,drink tea,2
+catch eye,stick eye in kitchen,2
+add spring sing,catch eye,2
+add spring sing,stick eye in kitchen,2
+clean during weekend,clear counter,2
+spray toilet,vacuum floor,2
+put fingerprint,spray toilet,2
+clean toy,spray toilet,2
+clean mirror,put fingerprint,4
+clean mirror,clean toy,2
+clean toy,put fingerprint,2
+use baby,use cloth,4
+clean mirror,put hair,3
+put hair,use cloth,4
+use sponge,use spray,6
+rinse with water,use sponge,2
+put toy,use blanket,2
+sleep in bed,vacuum floor,4
+clean sink,put fingerprint,2
+put flower,use house,3
+put flower,use sponge,2
+catch breath,use cloth,2
+rinse with water,use cloth,3
+add water,use mop,4
+put hair,work sweat,2
+put hair,vacuum floor,4
+clean mirror,pay attention,5
+pay attention,use cloth,2
+clear counter,put hair,4
+clear space,put hair,2
+clear counter,clear space,2
+clean kitchen,clear space,2
+clean floor,use spray,3
+clean kitchen,work from home,2
+put tee,use type,2
+put tee,use cream,2
+drink tea,put tee,2
+use code,use recipe,3
+clean floor,use peppermint,2
+pack for boy,put clothe,2
+open door,open drawer,2
+eat food,use in kitchen,3
+use vacuum,vacuum crumb,4
+use attachment,vacuum crumb,2
+clean sink,put stuff,2
+clean fridge,clean kitchen,2
+add oil,use berry,2
+use berry,use scissor,2
+stick orange into muffin tin,use berry,2
+add oil,use scissor,4
+add oil,stick orange into muffin tin,2
+stick orange into muffin tin,use scissor,4
+cook on side,use scissor,2
+add ingredient,clean area,3
+add ingredient,clear counter,2
+clean mirror,work on steel,2
+clean floor,work on steel,5
+fold cling cat,put in playroom,2
+mop floor,use steam,3
+break throughout week,clear counter,3
+dust surface,use bleach,2
+use dr,vacuum floor,2
+clear counter,use dr,2
+clean dish,use dr,5
+eat dinner,use kit,2
+clean mirror,light candle,2
+place order,use sponge,2
+clean sink,place order,2
+put toy,use clamp,2
+break throughout week,work from home,2
+use broom,use vacuum,3
+use broom,work on basement,2
+use vacuum,work on basement,2
+vacuum crumb,work on basement,2
+brush hair,use iron,2
+brush hair,put foot,2
+put foot,use towel,3
+add to sandwich,eat lunch,3
+hold stuff,use product,2
+clean kitchen,stick eye in kitchen,2
+clear counter,use method,3
+put clove,use type,2
+put jingle bell,put pine cone,2
+put pine cone,use light,2
+put card,put pine cone,2
+light candle,put jingle bell,2
+add potato,use code,2
+add green,use guy,2
+add chili flake,chop cucumber,3
+add potato,chop cucumber,3
+chop cucumber,remove from oven,3
+chop cucumber,use turkey,3
+add potato,use turkey,2
+use brand,wash dish,2
+put dish,use product,3
+break from life,put dish,2
+add water,work on steel,4
+clean kitchen,open window,2
+clean sink,open window,2
+eat breakfast,wash dish,8
+use glass,wash dish,8
+add oil,use spray,3
+open drawer,wash dish,2
+use peppermint,use spray,3
+use peppermint,use towel,2
+use cloth,use towel,2
+clean kitchen,clean toy,2
+add cranberry,put on stove,2
+put hanger,wash clothe,2
+use paper,wash dish,3
+use spray,wash hair,2
+clean kitchen,paint opinion,2
+put on stove,use scrub,2
+remove stain,use cleaner,2
+remove stain,use method,2
+use method,work from home,4
+use cloth,work from home,2
+remove stain,work from home,2
+remove stain,work way,2
+add oil,mop floor,6
+mop floor,use chemical,2
+put sheet,put toy,2
+dust surface,fix bed,4
+cut in half,put dish,2
+use cloth,use in kitchen,2
+put basket,put toy,2
+put rug,put toy,2
+put basket,vacuum floor,2
+put basket,put rug,2
+use brush,use cloth,3
+add of cabbage,add oil,3
+add carrot,add stock,2
+put sheet,sleep in bed,3
+add potato,rub finger,2
+pay attention,write note,5
+clean house,hold stuff,2
+clean kitchen,put in bathroom,3
+add onion,put dish,2
+add oil,work way,2
+cook with steel,put lid,2
+use cleaner,use spray,2
+clean toy,use mop,2
+use at night,use ton,2
+add spinach,use type,3
+add water,open window,4
+use cloth,vacuum floor,2
+eat lunch,use hummus,2
+add veggie,use hummus,2
+add water,sweep floor,2
+clean sink,use cream,2
+read book,use on basis,2
+break bank,use lacinato,2
+break bank,use mop,2
+cook with steel,use tofu,2
+add onion,use tofu,2
+clean house,use method,2
+build credit,use type,2
+break bank,wash dish,2
+use sticker,write list,2
+use glass,vacuum floor,2
+use rag,vacuum floor,2
+use glass,use rag,2
+use cleaner,use glass,3
+add rosemary,add stock,3
+add rosemary,add veggie,2
+use agave,use blender,3
+add layer,add oil,2
+add broccoli,add garlic,2
+add broccoli,add layer,2
+clean mirror,rinse with water,2
+add oil,use steam,3
+add topping,chop lettuce,2
+clean mirror,collect dust,2
+add chicken,clean dice,2
+add chicken,burn hand,2
+add sauce,use tortilla,3
+add oil,build credit,4
+use bread,use recipe,2
+add depth,shake bag,2
+add oil,clear counter,5
+add water,put stuff,4
+eat dinner,eat meat,2
+add cilantro,use rice,4
+clean sink,put on stove,2
+clean toy,sleep in bed,3
+put toy,sleep in bed,3
+use moisturizer,use type,2
+break bank,build credit,2
+put hair,put shoe,3
+add chicken,use turkey,3
+add to pan,vacuum floor,2
+sweep floor,use mop,2
+add stock,use butter,2
+cook for minute,use blender,2
+put item,put stuff,2
+put item,use jalapeno,3
+add bean,use jalapeno,3
+add oil,use jalapeno,6
+add oil,use help,2
+add cilantro,cook for minute,4
+add cilantro,put lid,3
+add garlic,add of cabbage,2
+add of cabbage,add tomato,2
+add of cabbage,add stock,2
+add of cabbage,put lid,2
+add of cabbage,add pepper,2
+use applesauce,use recipe,4
+add sugar,use applesauce,2
+use applesauce,use butter,2
+put hanger,use clothing,2
+rub finger,shave leg,2
+add salt,shave leg,2
+add oil,shave leg,3
+use mask,use moisturizer,4
+add sugar,use mask,3
+add sugar,use scrub,2
+use scrub,use spoon,2
+add stock,add vegetable,2
+cook with steel,use rice,2
+add potato,add to sandwich,2
+add to sandwich,use turkey,3
+add rosemary,add spice,2
+add bean,use turkey,3
+add chicken,poke hole,2
+add veggie,use alternative,2
+add carrot,cook for minute,2
+put under eye,use color,5
+curl eyelash,fill eyebrow,4
+add to soup,put cover,2
+add to soup,use parsley,6
+put cover,use parsley,3
+add pepper,use parsley,3
+put in bathroom,use cleaner,2
+add honey,add pepper,2
+add bean,use bleach,2
+use planner,use website,2
+spray toilet,use glass,2
+put food,use mushroom,3
+add ginger,use mushroom,2
+add cheese,use guy,2
+add onion,add spice,2
+chop for time,chop lettuce,3
+cook on stove,put cover,2
+cook pasta,use blender,2
+add bit,add onion,2
+add sausage,use rice,2
+put toy,wash dish,2
+put dish,put toy,2
+use butter,use walnut,2
+add spice,use walnut,3
+add cinnamon,add spice,3
+add honey,put granola,2
+add honey,add yeast,2
+build into powerpoint,use guy,2
+build into powerpoint,use color,2
+sketch saying with pencil,write list,3
+use hook,use point,2
+light candle,set for hour,5
+light candle,use twine,4
+melt wax,use twine,2
+melt wax,set for hour,2
+boil water,melt wax,4
+melt wax,use pencil,7
+wear jacket,wear turtleneck,2
+add spider,pull thread,2
+put disclaimer,wash hair,2
+spray in hair,wash hair,2
+use iron,wash hair,2
+set timer,sleep in bed,3
+put foot,use blanket,2
+cut in half,write note,2
+drink coffee,eat calorie,2
+break throughout week,write schedule,2
+roll dough,use sticker,2
+use laptop,use sticker,2
+use crop,use sticker,2
+put effort,wear outfit,4
+wear outfit,wear to school,3
+wear to school,wear top,2
+cut fabric,sew stitch,3
+add water,stick in bed,2
+pack snack,use variety,2
+pack snack,put in slot,2
+pack snack,use laptop,2
+drive to school,work from home,3
+use color,use hem,2
+use on basis,wear makeup,2
+use house,use type,2
+paint wall,use type,2
+cut hole,use finger,2
+use in kitchen,work in tick tock,2
+add onto baking dish,work in tick tock,2
+set challenge,set for success,2
+place artwork,read book,2
+light candle,wear outfit,3
+fill with sand,light candle,2
+cut to chase,dye hair,2
+dye hair,use point,5
+dye hair,pack for trip,2
+cut hole,read direction,2
+cut hole,put in bathroom,3
+cut hole,use towel,3
+draw foreigner,dye hair,2
+fill eyebrow,use mascara,3
+cut flannel,wear sweatshirt,2
+cut flannel,put cover,2
+add drop,cut flannel,2
+cut flannel,use glue,2
+fill eyebrow,wear top,2
+clean house,roll dough,2
+read review,use milk,5
+add oil,use paint,6
+add touch,use color,2
+add blue,add touch,2
+add blue,use brush,2
+put for second,use brush,2
+use brown,use knife,2
+sew patch,use crop,2
+put pillow,sew patch,2
+put pillow,wear sweatshirt,2
+put pillow,use crop,2
+put watch,wear top,2
+pay attention,study note,3
+study note,write note,3
+use code,use color,2
+use code,write note,3
+brush tooth,use glass,2
+add water,put contact,2
+add water,shower at night,2
+add water,use bike lock,2
+put bit,wear outfit,2
+wear outfit,write zero,2
+use color,work way,2
+add layer,use color,2
+add bit,wear jacket,2
+wear jacket,wear to school,2
+lift torso,write list,2
+clean house,put music,3
+put on blemish,use finger,2
+wear jacket,wear sweatshirt,2
+paint coat,wear jean,2
+add honey,drink coffee,2
+meet in class,meet people,2
+hold stuff,use paint,2
+pull hair,use pin,5
+fill eyebrow,use concealer,3
+put food,wear makeup,2
+eat food,study note,2
+put under eye,use brush,5
+add liquid,use yogurt,4
+add sage,remove inside,2
+add salt,remove inside,2
+add honey,add sage,2
+add sage,roast squash,2
+add honey,roast squash,2
+add stock,put clove,2
+use serum,use towel,3
+use mask,use serum,5
+add rosemary,wash hair,5
+remove stem,wash hair,2
+add ice,add vinegar,2
+add vinegar,use mop,2
+use house,use mop,3
+add water,fill with soil,2
+put stuff,use type,2
+add hill,put stuff,2
+put cover,use straw,2
+read book,use horse,2
+put hair,use serum,4
+add oil,pull hair,2
+add oil,put toy,2
+cut stem,use mortar,2
+cut stem,use finger,2
+use vitamin,wash face,5
+fix bed,put clothe,3
+clean mess,clean mirror,2
+add mint,add rosemary,2
+shave leg,use cream,3
+put bit,use cream,4
+fill with soil,mow lawn,2
+clear counter,put music,3
+cook on side,sweep floor,2
+cook on side,light candle,3
+light candle,sweep floor,4
+clean toy,sweep floor,2
+clean toy,use cacao,2
+fix bed,vacuum floor,2
+put in bathroom,use mop,4
+clean sink,use mop,3
+put clothe,sweep floor,3
+clean sink,sweep floor,11
+clean area,sweep floor,3
+clean house,sweep floor,4
+clean sink,light candle,3
+clean kitchen,put in mood,2
+add egg,use leftover,2
+add egg,use tortilla,2
+add oil,use dr,4
+pack for trip,put clothe,2
+use clay,use mask,5
+shave leg,use conditioner,3
+drink coffee,use mushroom,3
+clean house,fix bed,2
+light candle,wash face,3
+drink tea,use glass,2
+mow lawn,put plant,2
+brush hair,use attachment,2
+add bit,roll dough,3
+open pore,use serum,2
+clean sink,put flower,2
+fix bed,put sheet,4
+use concealer,use primer,2
+put under eye,use mascara,2
+paint gold,use mascara,3
+drive nut,read book,4
+add oil,put pine cone,2
+add cinnamon,put pine cone,2
+put in center,put pine cone,2
+put flower,put pine cone,2
+add oil,put flower,4
+add egg,put ranch,3
+add egg,fill with soil,2
+clean mirror,put ranch,2
+add trim,mow lawn,2
+mow lawn,use on property,2
+clean area,wear boot,2
+use concealer,use cream,4
+use bronzer,use concealer,3
+use cream,use mascara,2
+remove makeup,use mascara,4
+use cream,use mask,3
+add salt,put foot,6
+add honey,put food,2
+add oil,build muscle,2
+add ingredient,drink tea,4
+add oil,set for hour,2
+cut stem,drink tea,2
+drink tea,rub finger,2
+add curl,clean mirror,2
+wear heel,wear makeup,2
+put food,use mask,2
+use calendula,use glass,2
+add oil,use calendula,3
+add salt,use rose,3
+add liquid,add packet,2
+put in bathroom,use glass,2
+pay attention,use mask,2
+brush brow,use mask,3
+use dr,use moisturizer,2
+put over body,put robe,2
+pay attention,put hand,2
+put hand,put robe,2
+clean kitchen,cook on side,2
+light candle,set vibe,3
+connect with nature,light candle,2
+add oil,read magazine,3
+add oil,put animal,2
+add touch,use towel,2
+brush tooth,drive to school,2
+use mortar,use scrub,2
+use applesauce,use mortar,2
+use applesauce,use scrub,4
+add drop,spray toilet,2
+drink tea,put in bathroom,4
+use air,use glove,2
+put in bathroom,use fireplace,2
+put wreath,use color,2
+add water,put food,3
+add stevia,use milk,3
+clean floor,collect dust,2
+drop son at school,wear makeup,2
+add garlic,use mortar,2
+add salt,use serving,3
+fix bed,light candle,3
+remove ink from fingertip,use spatula,4
+add drop,drink tea,5
+add cheese,add onion,2
+use mask,wash body,2
+open pore,wash hair,2
+clean car,use paint,4
+clean car,dust surface,4
+dust surface,use paint,4
+add mint,add water,2
+brush tooth,put bit,2
+remove inside,use tofu,2
+add water,use turkey,2
+use mask,use product,3
+use mask,use pad,4
+use on occasion,wash face,2
+use on occasion,use vitamin,2
+use retinol,use vitamin,6
+use on occasion,use retinol,2
+add oil,put on abdomen,2
+put on abdomen,use rice,2
+add oil,use vitamin,4
+add rosemary,drink coffee,2
+add water,put flower,3
+use color,use moisturizer,2
+use brush,use moisturizer,6
+curl eyelash,paint gold,2
+light fire,use word,2
+drink tea,use for while,2
+paint wall,use guy,3
+add drop,use vitamin,2
+add ingredient,add spice,2
+add to pan,put sheet,2
+cut into three,roll dough,3
+put flower,set vibe,2
+spray toilet,use mask,3
+drink tea,use mask,3
+use moisturizer,use scrub,2
+put side,use anchor,2
+add tomato,use recipe,2
+add spinach,use bread,2
+fix bed,sleep in bed,2
+dust surface,use mop,2
+clean sink,use squeegee,2
+clean house,use squeegee,2
+add drop,use glass,2
+boil water,connect to breast shield,2
+connect to breast shield,read manual,2
+boil water,read manual,4
+clean area,read manual,2
+add cheese,use cream,2
+add to pan,drink tea,2
+add sugar,put side,2
+drink tea,put hair,2
+put sheet,use mask,2
+add witch hazel,drink tea,2
+add drop,add witch hazel,2
+add oil,put into boiler,5
+use blender,use hand,2
+add to sandwich,use fruit,2
+add ice,add to sandwich,2
+pack for trip,use shampoo,2
+put hair,put headband,2
+drink tea,use agave,5
+drink tea,put popsicle stick,3
+add honey,put popsicle stick,2
+add sugar,put foot,2
+add drop,fill with sand,2
+add drop,use type,3
+put foot,use glove,2
+use glove,use type,2
+fill with sand,put foot,2
+fill with sand,use type,2
+use serum,use type,2
+add water,use steam,2
+add oil,use steamer,3
+add water,use steamer,2
+clean floor,use mask,2
+use type,work on steel,2
+use product,work on steel,2
+use mask,work on steel,4
+open window,work on steel,2
+open window,use mask,3
+add water,use glove,2
+add ice,clean sink,2
+use concealer,use tip,2
+put bit,use concealer,2
+add honey,eat breakfast,2
+use cheesecloth,use twine,2
+add onion,use cheesecloth,3
+add onion,add stock,2
+add sage,pump lash,2
+add sage,use twine,2
+burn incense,pump lash,2
+add sage,burn incense,3
+burn incense,use twine,2
+add vinegar,clean kitchen,2
+add water,use exfoliant,2
+add ingredient,wash body,2
+add egg,use twine,3
+use foam,use skewer,2
+add ingredient,drink coffee,2
+add drop,add ingredient,2
+brush tooth,spray toilet,2
+brush tooth,put side,2
+add water,set for hour,2
+use cleaner,wear makeup,2
+put hair,use moisturizer,3
+add water,use rose,2
+add oil,read instruction,2
+use bottle,use type,2
+put plant,use bottle,2
+add beeswax,use butter,2
+add barrier,use butter,2
+pull thread,set goal,2
+add water,melt wax,3
+add jasmine,melt wax,2
+add jasmine,add water,2
+add gelatin,drink tea,2
+add gelatin,add packet,7
+add gelatin,use agave,3
+add packet,use agave,3
+add gelatin,add onto baking dish,2
+add onto baking dish,add packet,2
+use glove,use mask,2
+put movie,use mask,2
+put movie,use glove,2
+put bow,use butter,2
+put basket,put bow,2
+drink wine,paint gold,2
+add honey,use blender,2
+add oil,use loofah,2
+add oil,use glove,5
+put basket,stock on perishable,2
+add bean,stick with black,2
+add bean,wear turtleneck,2
+add bean,wear top,2
+use butter,use hand,2
+use milk,use point,3
+add tomato,use can,3
+add water,wash body,2
+add liquid,use towel,4
+clean kitchen,use towel,2
+add velcro,use magnet,3
+add velcro,put side,4
+add velcro,put trade,3
+add onto baking dish,add velcro,2
+hold of camping gear,stick in car,2
+set face,use milk,2
+use mask,use milk,3
+set face,use mask,2
+use dr,use mask,3
+use brush,use mask,8
+use mask,use steamer,2
+set face,use brush,2
+use brush,use steamer,2
+set face,use steamer,2
+use light,use moisturizer,2
+add ingredient,clean sink,2
+add oil,use mop,2
+add curl,brush hair,6
+brush tooth,use type,2
+roll dough,wrap earbud,2
+eat fish,sprinkle on top,2
+eat fish,eat food,2
+add water,wear sunscreen,2
+clean sink,wear makeup,2
+use mask,use scrub,2
+clean floor,clear counter,2
+add garlic,clean dish,2
+open door,put in bathroom,2
+drink tea,fill space,2
+add eucalyptus,drink tea,2
+put dot,use mascara,2
+add oil,use clay,2
+open pore,use steamer,3
+add eucalyptus,add oil,2
+drink tea,put phone,2
+add ginger,add honey,2
+use dr,use razor,2
+add broccoli,add onion,2
+add curl,use iron,2
+add bit,wash face,2
+use falsie,use mascara,3
+add ingredient,use air,2
+add barrier,use air,2
+shave leg,use air,2
+add eucalyptus,use air,2
+add sauce,use alternative,2
+put foot,wear heel,3
+put foot,use scrub,2
+clean mirror,use glove,2
+brush hair,use towel,9
+fix bed,put pillow,3
+pull hair,wash hair,2
+use foundation,use moisturizer,2
+use product,write song,2
+add oil,add witch hazel,2
+read magazine,use mask,3
+add oil,use cheesecloth,2
+add of favorite,wear makeup,2
+shave leg,use exfoliant,2
+open pore,use chemical,3
+use product,use retinol,2
+pack snack,use berry,2
+add bit,add gelatin,4
+use shampoo,use spray,2
+cut bottom,remove inside,2
+use palette,use pencil,2
+paint coat,use sponge,2
+read book,use cleaner,2
+add oil,wash in morning,2
+remove skin,use product,2
+add oil,toss in trunk,2
+add flavor,sprinkle on top,2
+use clay,wear makeup,2
+wear jean,wear makeup,2
+use fruit,wear jean,2
+add egg,add glitter,3
+put shoe,use spray,2
+use acid,use scrub,2
+draw foreigner,use mask,2
+use bottle,use mask,2
+put foot,use rose,2
+pour marble,put hair,2
+use sponge,wash face,2
+bend in front,use concealer,2
+put on cheekbone,use bronzer,3
+use brush,use falsie,2
+use bronzer,use pencil,2
+put shoe,use pencil,2
+pump lash,use pencil,2
+use gloss,use pencil,2
+read book,read magazine,2
+put hair,use scrub,2
+put in root,use iron,2
+add oil,use iron,2
+use iron,use spray,2
+brush hair,spray with hairspray,2
+spray with hairspray,use bottle,2
+add sugar,use cleaner,2
+add sugar,wash face,2
