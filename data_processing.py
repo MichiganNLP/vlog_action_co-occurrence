@@ -217,7 +217,6 @@ def get_actions(verbs, video_sample, try_per_video):
 
 
 def get_action_pairs_by_time(time_difference):
-    # with open('data/dict_video_actions.json') as json_file:
     with open('data/dict_renamed_actions.json') as json_file:
         dict_verb_dobj_per_video = json.load(json_file)
 
@@ -687,31 +686,28 @@ def main():
     TIME_DIFF = 10  # 5, 10, 15
 
     ''' Getting all action pairs'''
-    # verbs = get_action_verbs()
-    # get_actions(verbs, video_sample, try_per_video=False)  # saves the data
-    # filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
+    verbs = get_action_verbs()
+    get_actions(verbs, video_sample, try_per_video=False)  # saves the data
+    filter_actions()  # filter out actions(say, talk, ..) and rename actions that are included in each other (same verb and Dobj)
 
-    # get_action_pairs_by_time(TIME_DIFF)  # get stats initial
-    #
-    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
-    # get_stats_actions(before_clustering=True)
-    #
-    # ''' Custering all actions '''
-    # cluster_actions()  # saves the data
-    # filtered_clusters = filter_clusters_by_size()
-    # filter_pairs_by_cluster(filtered_clusters, TIME_DIFF)  # saves the data
+    get_action_pairs_by_time(TIME_DIFF)  # get stats initial
 
-    # plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
-    # get_stats_actions(before_clustering=False)
+    plot_graph_actions(video_sample, input="data/dict_video_action_pairs.json")
+    get_stats_actions(before_clustering=True)
+
+    ''' Custering all actions '''
+    cluster_actions()  # saves the data
+    filtered_clusters = filter_clusters_by_size()
+    filter_pairs_by_cluster(filtered_clusters, TIME_DIFF)  # saves the data
+
+    plot_graph_actions(video_sample, input="data/dict_video_action_pairs_filtered_by_cluster.json")
+    get_stats_actions(before_clustering=False)
 
     ''' Combining the graph_plots for all videos '''
     action_pairs, transcripts_per_action = combine_graphs(video_sample, TIME_DIFF, directed=False, sample=False,
                                                           filter_by_link=True)
 
-    # # show_graph_actions(action_pairs, video="all_videos")
-    #
-    # #TODO: Run CLIP on new dict_video_action_pairs_filtered_by_link_{TIME_DIFF}
-    #
+    # show_graph_actions(action_pairs, video="all_videos")
     # ''' Saving dataframes for all nodes and edges '''
     save_nodes_edges_df(action_pairs, transcripts_per_action, TIME_DIFF)
     # save_nodes_null_df(action_pairs)

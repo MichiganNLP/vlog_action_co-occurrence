@@ -1,13 +1,9 @@
 import json
 from collections import Counter
-
 from tqdm import tqdm
-
 from sklearn.neighbors import NearestNeighbors
-
 import numpy as np
 from rich.progress import track
-
 import pandas as pd
 
 from data_processing import get_sentence_embedding_features
@@ -62,8 +58,6 @@ def read_dataset_actions(dataset):
                         and [(action_2, clip_a2), (action_1, clip_a1)] not in dict_video_action_pairs[video]:
                     dict_video_action_pairs[video].append([(action_1, clip_a1), (action_2, clip_a2)])
 
-    # print(set_action_train == set(dict_action_location_nn.keys()))
-    # print(len(set_action_train))
     with open(f'data/dict_video_action_pairs_{dataset}.json', 'w+') as fp:
         json.dump(dict_video_action_pairs, fp)
     with open(f'data/dict_action_location_nn_{dataset}.json', 'w+') as fp:
@@ -134,15 +128,14 @@ def compare_graphs(dataset):
         if distance[0][0] <= 16:
             nb_same += 1
         # print(f"Graph Neighbours for: {check_action}: {neighbours}, dist:{distance[0][0]}")
-    print(nb_same, len(action_coin)) #half ..
-#TODO?: map the graphs .. create other graph embeddings using both graphs
+    print(nb_same, len(action_coin))
 
 def main():
-    dataset = "EpicKitchens"#"EpicKitchens"#"Breakfast" #"COIN"
-    read_dataset_actions(dataset)
-    get_graph(dataset)
-    get_graph_embeddings(dataset)
-    # compare_graphs()
+    for dataset in ["EpicKitchens", "Breakfast", "COIN"]:
+        read_dataset_actions(dataset)
+        get_graph(dataset)
+        get_graph_embeddings(dataset)
+        # compare_graphs(dataset)
 
 if __name__ == '__main__':
     main()

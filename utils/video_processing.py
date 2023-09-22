@@ -56,26 +56,28 @@ def split_video_by_frames(video_names: Iterable[str], new_video_names: Sequence[
                 ffmpeg
                     .input(path_in, ss=item[1])
                     .filter('scale', width, -1)
-                    .output(path_out + video_new + "_" + str(i) + '.jpeg', vframes=1)
+                    .output(path_out + "_" + str(i) + '.jpeg', vframes=1)
                     .run()
             )
 
     console.print(f"Skipped {count_skipped} clips from frame splitting", style="magenta")
 
 
-def split_videos_into_frames(path: str) -> None:
-    with open(path) as file:
+def split_videos_into_frames(input_file: str) -> None:
+    with open(input_file) as file:
         dict_action_clips_sample = json.load(file)
     video_names = []
     new_video_names = []
     for action, dict_video_times in dict_action_clips_sample.items():
         for dict_video_time in dict_video_times:
             video_name, time_s, time_e = dict_video_time.values()
+            if video_name not in ['U4ipRSgB4o0']:
+                continue
             video_name = "+".join([video_name, time_s, time_e])
             new_video_name = "+".join(["_".join(action.split()), video_name])
             video_names.append(video_name)
             new_video_names.append(new_video_name)
-
+    # print(new_video_name)
     split_video_by_frames(video_names, new_video_names)
 
 
@@ -220,11 +222,10 @@ def sample_videos(input_file: str, output_file: str, max_videos_per_action: int)
 
 def main() -> None:
 
-    pass
+    # pass
     # get_video_diff()
 
-    get_all_clips_for_action(input_file="data/dict_video_action_pairs_filtered_by_link.json",
-                             output_file="data/dict_action_clips.json")
+    # get_all_clips_for_action(input_file="data/dict_video_action_pairs_filtered_by_link.json", output_file="data/dict_action_clips.json")
     # sample_videos(input_file='data/dict_action_clips.json', output_file='data/dict_action_clips_sample.json',
     #               max_videos_per_action=10)
 
@@ -238,6 +239,7 @@ def main() -> None:
     #                         PARAM_CORR2D_COEFF=0.9)
 
     # split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
+    split_videos_into_frames(input_file="data/dict_action_clips_sample.json")
 
 
 

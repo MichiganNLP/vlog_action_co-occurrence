@@ -800,25 +800,16 @@ def get_nearest_neighbours(dataset):
     return dict_nn
 
 def eval_nn_locations(dict_nn, dataset):
-    # with open(f'data/dict_pred_nn_{dataset}.json') as json_file: #train
-    #     dict_nn = json.load(json_file)
     with open(f'data/dict_action_location_nn_{dataset}.json') as json_file:
         dict_action_location_nn = json.load(json_file)
 
     list_scores_per_action_txt = []
     list_scores_per_action_graph = []
     for check_action_val in dict_nn:
-        # check_action_train = actions_test2train[check_action_val] # map val to train
-        # location_actions = list(set(dict_action_location_nn[check_action_val])) #only unique actions
         filter_most_common_location = [action for (action, count) in Counter(dict_action_location_nn[check_action_val]).most_common(3)]
-        # location_actions = [actions_test2train[action] for action in location_actions] #TODO: youcook2 convert from val to train
         txt_actions = dict_nn[check_action_val]['txt']
         graph_actions = dict_nn[check_action_val]['graph']
-        # print(check_action_val)
-        # print(filter_most_common_location)
-        # print(txt_actions)
-        # print(graph_actions)
-        # break
+
         TP, FN = 0, 0
         for action_gt in filter_most_common_location:
             if action_gt in txt_actions:
@@ -833,7 +824,6 @@ def eval_nn_locations(dict_nn, dataset):
             else:
                 FN += 1
         recall_graph = TP / (TP + FN)
-        # print(recall_txt, recall_graph)
         list_scores_per_action_txt.append(recall_txt)
         list_scores_per_action_graph.append(recall_graph)
 
@@ -884,7 +874,6 @@ def finetune_threshold_cosine_similarity(g_val, nodes_val, labels_val, method_na
     max_accuracy = 0
     max_threshold = 0
     for threshold in np.linspace(-1, 1, 10).tolist():
-        # predicted = whitened_sigmoid(np.asarray(list_sim_predicted)) > threshold  #keep whitened sigmoid?
         predicted = np.asarray(list_sim_predicted) > threshold
         accuracy = accuracy_score(labels_val, predicted)
         if accuracy > max_accuracy:
@@ -926,7 +915,7 @@ def save_graph_embeddings(feat_nodes):
         node_emb_weighted = g_train.node_features(nodes=[node]) * self_weight
         sum_weights = self_weight
         for node_neighbour, edge_weight in g_train.in_nodes(node, include_edge_weight=True):
-            # edge_weight = 1 #TODO: replace with non-weighted?
+            # edge_weight = 1 #replace with non-weighted?
             node_emb_weighted += g_train.node_features(nodes=[node_neighbour]) * edge_weight
             sum_weights += edge_weight
         list_weighted_avg_embeddings.append(node_emb_weighted / sum_weights)  # weighted edge mean of neighbour nodes
@@ -957,13 +946,6 @@ def get_all_embedding_graphs(all_txt_vis_embeddings):
         list_features_train.append(nodes_feat_train)
     concat_feat_train = np.concatenate(list_features_train, axis=1)
     concat_feat_test = np.concatenate(list_features_test, axis=1)
-
-    # sc = StandardScaler()
-    # # pca = PCA(n_components=2)
-    # nodes_feat_train = sc.fit_transform(concat_feat_train)
-    # concat_feat_test = sc.transform(concat_feat_test)
-    # # pca.fit_transform(nodes_feat_train)
-    # # nodes_feat_test = pca.transform(nodes_feat_test)
 
     print(f"Embedding concat_feat_test.shape: {concat_feat_test.shape}")
     print(f"Embedding concat_feat_train.shape: {concat_feat_train.shape}")
@@ -1021,22 +1003,15 @@ def main() -> None:
             '''
                 ablation per input representation/ embedding type
             '''
-            # for feat_nodes in all_txt_vis_embeddings + all_graph_embeddings:
-            #     g = test_my_data(input_nodes=f'data/graph/{feat_nodes}_nodes.csv',
-            #                      input_edges='data/graph/edges.csv')
-            #     g_train, g_val, g_test, nodes_train, nodes_val, nodes_test, labels_train, labels_val, labels_test = \
-            #         test_val_train_split(g)
-            #     SVM(g_test, nodes_test, labels_test, g_train, nodes_train, labels_train, feat_nodes)
-
             SVM_all_features(all_txt_vis_embeddings + all_graph_embeddings, g_test, nodes_test, labels_test, g_train,
                              nodes_train, labels_train)
         else:
             raise ValueError(f"Unknown method: {args.method}")
 
     if args.get_nearest_neighbours:
-        dataset = "EpicKitchens" #"EpicKitchens" #"Breakfast" #"COIN"
-        # evaluate_nn(dataset)
-        get_nearest_neighbours("")
+        for dataset in ["EpicKitchens", "Breakfast", "COIN"]:
+            # evaluate_nn(dataset)
+            get_nearest_neighbours(dataset)
 
 
 if __name__ == '__main__':
