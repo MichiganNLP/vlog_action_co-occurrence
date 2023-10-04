@@ -1,12 +1,7 @@
-Human Action Co-occurrence in Lifestyle Vlogs using Graph Link Prediction
+Learning Human Action Representations from Temporal Context in Lifestyle Vlogs
 =================================================================================
-Oana Ignat, Santiago Castro, Weiji Li and Rada Mihalcea
 
-[Language and Information Technologies (LIT), University of Michigan](https://lit.eecs.umich.edu/)
-
-This repository contains the dataset and code for our paper:
-
-[Human Action Co-occurrence in Lifestyle Vlogs with Graph Link Prediction](https://arxiv.org/abs/2309.06219)
+This repository contains the dataset and code for our paper.
 
 ## Task Description
 
@@ -50,17 +45,3 @@ get_nearest_neighbours function in [`link_prediction.py`](link_prediction.py)
 + Run data analyses from [`data_analysis.ipynb`](data_analysis.ipynb)
 + Run video related scripts from [`utils`](utils)
 
-
-## Citation information
-If you use this dataset or any ideas based on the associated research article, please cite the following:
-
-```bibtex
-@misc{ignat2023human,
-      title={Human Action Co-occurrence in Lifestyle Vlogs using Graph Link Prediction}, 
-      author={Oana Ignat and Santiago Castro and Weiji Li and Rada Mihalcea},
-      year={2023},
-      eprint={2309.06219},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
